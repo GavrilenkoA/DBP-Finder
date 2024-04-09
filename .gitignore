@@ -6,3 +6,7 @@ src/__pycache__/
 src/.ipynb_checkpoints/
 process_data/__pycache__/
  __init__.py
+
+
+# Ignore log files
+*.log
