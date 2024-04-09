@@ -45,10 +45,8 @@ def filter_df(df: pd.DataFrame) -> pd.DataFrame:
         valid_amino_acids = "SNYLRQDPMFCEWGTKIVAH"
         return all(char in valid_amino_acids for char in sequence)
 
-    df = df.loc[~df["sequence"].apply(lambda x: isinstance(x, float))]
     df = df.loc[df["sequence"].apply(valid_sequence)]
     df = df.loc[df["sequence"].apply(lambda x: 49 < len(x) < 1025)]
-    df = df.drop_duplicates(subset=["identifier"])
     df = df.drop_duplicates(subset=["sequence"])
     return df
 
@@ -62,6 +60,22 @@ def exclude_same_seqs(train, test):
     common_identifiers = test.merge(train, on=["sequence"])["identifier_x"]
     test = test.loc[~test["identifier"].isin(common_identifiers)]
     return test
+
+
+def write_fasta(df: pd.DataFrame, name_file: str) -> None:
+    def pull_data(x):
+        id_ = x["identifier"]
+        seq = x["sequence"]
+        return id_, seq
+
+    data = df.apply(lambda x: pull_data(x), axis=1).tolist()
+
+    with open(f"../data/fasta/{name_file}", "w") as file:
+        for item in data:
+            file.write(">" + f"{item[0]}")
+            file.write("\n")
+            file.write(f"{item[1]}")
+            file.write("\n")
 
 
 # def filter_train(clusters_train_test, train, test):

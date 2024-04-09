@@ -2,10 +2,9 @@ import pandas as pd
 import numpy as np
 import pickle
 from sklearn.metrics import (accuracy_score, recall_score,
-                             precision_score, matthews_corrcoef, roc_auc_score, f1_score)
+                             precision_score, matthews_corrcoef, roc_auc_score, f1_score, roc_curve)
 
 import matplotlib.pyplot as plt
-from sklearn.metrics import roc_curve, roc_auc_score
 
 SEED = 42
 
@@ -25,7 +24,7 @@ def make_balanced_df(df, seed=SEED):
 def reduce_train(clusters_train_test, train, test):
     a = clusters_train_test.merge(train, on=["identifier"])
     b = clusters_train_test.merge(test, on=["identifier"])
-    
+
     exclude_train = a.merge(b, on=["cluster"])["identifier_x"].drop_duplicates()
     train = train.loc[~train["identifier"].isin(exclude_train)]
     train = make_balanced_df(train)
@@ -114,7 +113,7 @@ class Metrics:
 
 
 def plot_roc_curve(y_true, y_pred, name_dataset):
-    fpr, tpr, threshold = roc_curve(y_true, y_pred)
+    fpr, tpr, _ = roc_curve(y_true, y_pred)
     auc = roc_auc_score(y_true, y_pred)
 
     plt.plot(fpr, tpr, label='ROC Curve (area = %0.2f)' % auc)

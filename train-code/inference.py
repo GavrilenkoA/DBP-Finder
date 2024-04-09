@@ -19,4 +19,4 @@ test.loc[:, "score"] = test_prob
 test.loc[:, "y_pred"] = test_pred
 
 
-test.to_csv(f"../data/not_annotated/{test_data}_prediction.csv", index=False)
+test.to_csv(f"../data/not_annotated/prediction/{test_data}_prediction.csv", index=False)

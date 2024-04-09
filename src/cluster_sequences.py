@@ -1,33 +1,44 @@
 import pandas as pd
 from utils import write_fasta, add_clusters, exclude_common_train_seqs
 import subprocess
+import os
 
 
-identity = 0.15
-coverage = identity + 0.1
+def cluster_data(train_csv: str, test_csv: str, identity: float = 0.5) -> None:
 
-train = pd.read_csv("../data/embeddings/input_csv/train_p2.csv")
-test = pd.read_csv("../data/embeddings/input_csv/trembl_test.csv")
+    train = pd.read_csv(train_csv)
+    test = pd.read_csv(test_csv)
 
-train = exclude_common_train_seqs(train, test)
+    train = exclude_common_train_seqs(train, test)
+    df = pd.concat([train, test])
 
-df = pd.concat([train, test])
+    # Prepare fasta before clustering
+    write_fasta(df, "merged.fasta")
 
-# Prepare fasta before clustering
-write_fasta(df, "smth.fasta")
+    # Clustering
+    fasta_input = "../data/fasta/merged.fasta"
+    output_dir = "../data/clusters/merged"
 
-# Clustering
-fasta_input = f"../data/fasta/smth.fasta"
-output_dir = f"../data/clusters/smth"
+    coverage = identity + 0.1
 
-subprocess.run(f"mmseqs easy-cluster {fasta_input} {output_dir} tmp --min-seq-id {identity} -c {coverage} --cov-mode 0", shell=True)
+    subprocess.run(f"mmseqs easy-cluster {fasta_input} {output_dir} tmp --min-seq-id {identity} -c {coverage} --cov-mode 0", shell=True)
+
+    # Parse clusters
+    output_mmseqs = pd.read_csv("../data/clusters/merged_cluster.tsv", sep="\t", header=None)
+    output_mmseqs = add_clusters(output_mmseqs)
+    assert len(output_mmseqs) == len(df), f"{len(output_mmseqs)}, {len(df)}"
+
+    test_name = os.path.basename(test_csv).split(".csv")[0]
+    output_mmseqs.to_csv(f"../data/ready_data/{test_name}_train_{identity}.csv", index=False)
 
 
-# Prepare df with clusters before merge
-output_mmseqs = pd.read_csv("../data/clusters/smth_cluster.tsv", sep="\t", header=None)
-output_mmseqs = add_clusters(output_mmseqs)
-output_mmseqs = output_mmseqs.loc[:, ["identifier", "cluster"]]
+def main():
+    test_data = input()
+    train_csv = "../data/embeddings/input_csv/train_p2.csv"
+    test_csv = f"../data/embeddings/input_csv/{test_data}.csv"
+    identity = 0.5
 
-assert len(output_mmseqs) == len(df), f"{len(output_mmseqs)}, {len(df)}"
+    cluster_data(train_csv, test_csv, identity=identity)
 
-output_mmseqs.to_csv(f"../data/ready_data/trembl_test_train_{identity}.csv", index=False)
+
+main()
