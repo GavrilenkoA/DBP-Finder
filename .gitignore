@@ -9,6 +9,7 @@ process_data/__pycache__/
  train-code/.ipynb_checkpoints/inference-checkpoint.py
 process_data/draft.ipynb
 src/tmp/
+notes.txt
 
 
 # Ignore log files
