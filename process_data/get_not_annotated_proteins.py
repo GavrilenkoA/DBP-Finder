@@ -39,26 +39,26 @@ def filter_df(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# def have_annotation(id_protein: str) -> bool:
-#     url = f"https://www.ebi.ac.uk/QuickGO/services/annotation/search?geneProductId={id_protein}"
-#     response = requests.get(url)
-#     annotation_data = response.json()
-
-#     annotation = False
-#     if annotation_data["numberOfHits"]:
-#         for item in annotation_data["results"]:
-#             if item["goId"] in {"GO:0003677", "GO:0003723"}:
-#                 annotation = True
-#                 break
-#     return annotation
 def have_annotation(id_protein: str) -> bool:
     url = f"https://www.ebi.ac.uk/QuickGO/services/annotation/search?geneProductId={id_protein}"
     response = requests.get(url)
     annotation_data = response.json()
+
     annotation = False
     if annotation_data["numberOfHits"]:
-        annotation = True
+        for item in annotation_data["results"]:
+            if item["goId"] in {"GO:0003677", "GO:0003723"}:
+                annotation = True
+                break
     return annotation
+# def have_annotation(id_protein: str) -> bool:
+#     url = f"https://www.ebi.ac.uk/QuickGO/services/annotation/search?geneProductId={id_protein}"
+#     response = requests.get(url)
+#     annotation_data = response.json()
+#     annotation = False
+#     if annotation_data["numberOfHits"]:
+#         annotation = True
+#     return annotation
 
 
 def write_not_annotated_seqs(identifiers: list, sequences: list) -> pd.DataFrame:
@@ -88,9 +88,8 @@ def main():
     identifiers, sequences = collect_data(input_fasta)
     df = write_not_annotated_seqs(identifiers, sequences)
     df = filter_df(df)
-    df.to_csv(f"../data/not_annotated/empty_annot_{name_file}.csv", index=False)
+    df.to_csv(f"../data/embeddings/input_csv/{name_file}.csv", index=False)
 
 
 if __name__ == "__main__":
     main()
-
