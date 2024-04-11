@@ -6,7 +6,7 @@ import numpy as np
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    filename=f"uniprot_parsing.log",
+    filename="uniprot_parsing.log",
 )
 
 
