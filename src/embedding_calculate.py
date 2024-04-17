@@ -8,7 +8,7 @@ import logging
 
 
 def save_embeds(obj: object, data_name: str, model_name: str) -> None:
-    filename = f"../data/embeddings/{model_name}_embeddings/{data_name}.pkl"
+    filename = f"data/embeddings/{model_name}_embeddings/{data_name}.pkl"
     with open(filename, "wb") as file:
         pickle.dump(obj, file)
 
@@ -61,7 +61,7 @@ def process_data(tokenizer, model, data_name: str, model_name: str) -> None:
         seq = x["sequence"]
         return id_, seq
 
-    input_path = f"../data/embeddings/input_csv/{data_name}.csv"
+    input_path = f"data/embeddings/input_csv/{data_name}.csv"
     input_df = pd.read_csv(input_path)
     data = input_df.apply(lambda x: pull_data(x), axis=1).tolist()
     outputs = {}

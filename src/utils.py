@@ -39,30 +39,28 @@ def write_fasta(df: pd.DataFrame, name_file: str) -> None:
             file.write("\n")
 
 
-def convert_fasta_to_df(fasta_file: str, mode: int = 1, class_: int = 0) -> pd.DataFrame:
+def convert_fasta_to_df(fasta_file: str, mode: int = 1) -> pd.DataFrame:
     with open(fasta_file) as fi:
-        data = fi.readlines()
+        lines = fi.readlines()
 
     identifiers = []
     sequences = []
     seq = ""
 
-    for chunk in data:
-        if chunk.startswith(">"):
-            head = chunk.split("|")[mode].replace(">", "")
+    for line in lines:
+        if line.startswith(">"):
+            head = line.split("|")[mode].replace(">", "")
             identifiers.append(head)
             if seq:
                 sequences.append(seq)
                 seq = ""
         else:
-            seq += chunk.strip()
+            seq += line.strip()
 
     if seq:
         sequences.append(seq)
 
-    labels = [class_] * len(identifiers)
-
-    df = pd.DataFrame({"identifier": identifiers, "label": labels,
+    df = pd.DataFrame({"identifier": identifiers,
                        "sequence": sequences})
     return df
 
@@ -130,29 +128,29 @@ def intersect_cluster_seq(df: pd.DataFrame, test_name: str) -> list:
     return cluster_seqs
 
 
-def assign_group_cluster(basename: str) -> pd.DataFrame:
-    id_0_25 = pd.read_csv(f"data/{basename}_0.25.csv")
-    id_0_5 = pd.read_csv(f"data/{basename}_0.5.csv")
-    id_0_75 = pd.read_csv(f"data/{basename}_0.75.csv")
-    id_0_1_group = pd.read_csv(f"data/{basename}_1.csv")
+def assign_cluster(basename: str) -> pd.DataFrame:
+    id_0_25 = pd.read_csv(f"../data/not_annotated/clustered_data/{basename}_0.25.csv")
+    id_0_5 = pd.read_csv(f"../data/not_annotated/clustered_data/{basename}_0.5.csv")
+    id_0_75 = pd.read_csv(f"../data/not_annotated/clustered_data/{basename}_0.75.csv")
+    id_1_group = pd.read_csv(f"../data/not_annotated/clustered_data/{basename}_1.csv")
 
-    target_df = pd.read_csv(f"data/embeddings/input_csv/{basename}.csv")
+    target_df = pd.read_csv(f"../data/embeddings/input_csv/{basename}.csv")
+    target_df.drop(columns=["sequence"], inplace=True)
 
-    p_1 = pd.concat([id_0_5, id_0_75, id_0_1_group]).drop_duplicates()
-    p_2 = pd.concat([id_0_75, id_0_1_group]).drop_duplicates()
-    assert not id_0_1_group["identifier"].duplicated().any(), "Duplicates found within the identifier column"
+    p_1 = pd.concat([id_0_5, id_0_75, id_1_group]).drop_duplicates()
+    p_2 = pd.concat([id_0_75, id_1_group]).drop_duplicates()
+    assert not id_1_group["identifier"].duplicated().any(), "Duplicates found within the identifier column"
 
     id_0_25_group = id_0_25.loc[~id_0_25["identifier"].isin(p_1["identifier"])]
     id_0_5_group = id_0_5.loc[~id_0_5["identifier"].isin(p_2["identifier"])]
-    id_0_75_group = id_0_75.loc[~id_0_75["identifier"].isin(id_0_1_group["identifier"])]
+    id_0_75_group = id_0_75.loc[~id_0_75["identifier"].isin(id_1_group["identifier"])]
 
-    id_0_25_group.loc[:, "group"] = ["id_0.25"] * len(id_0_25_group)
-    id_0_5_group.loc[:, "group"] = ["id_0.5"] * len(id_0_5_group)
-    id_0_75_group.loc[:, "group"] = ["id_0.75"] * len(id_0_75_group)
-    id_0_1_group.loc[:, "group"] = ["id_1"] * len(id_0_1_group)
-    group_data = pd.concat([id_0_25_group, id_0_5_group, id_0_75_group, id_0_1_group])
+    id_0_25_group.loc[:, "cluster"] = ["id_0.25"] * len(id_0_25_group)
+    id_0_5_group.loc[:, "cluster"] = ["id_0.5"] * len(id_0_5_group)
+    id_0_75_group.loc[:, "cluster"] = ["id_0.75"] * len(id_0_75_group)
+    id_1_group.loc[:, "cluster"] = ["id_1"] * len(id_1_group)
+    group_data = pd.concat([id_0_25_group, id_0_5_group, id_0_75_group, id_1_group])
     target_df = target_df.merge(group_data, on="identifier", how="left")
 
-    idx_na = target_df.group.isna()
-    target_df = target_df.loc[idx_na, "group"] = "<threshold"
+    target_df["cluster"] = target_df["cluster"].fillna("<id_0.25")
     return target_df
