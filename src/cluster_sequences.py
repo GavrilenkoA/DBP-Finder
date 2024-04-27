@@ -41,4 +41,5 @@ def main():
     cluster_data(train_csv, test_csv, identity=identity)
 
 
-main()
+if __name__ == "__main__":
+    main()

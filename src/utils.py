@@ -60,9 +60,24 @@ def convert_fasta_to_df(fasta_file: str, mode: int = 1) -> pd.DataFrame:
     if seq:
         sequences.append(seq)
 
+    assert len(identifiers) == len(sequences)
     df = pd.DataFrame({"identifier": identifiers,
                        "sequence": sequences})
     return df
+
+
+def extract_columns(column1: str = "identifier", column2: str = "sequence"):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            # Call the original function
+            df = func(*args, **kwargs)
+            # Extract the specified columns
+            if isinstance(df, pd.DataFrame):
+                return df.loc[:, [column1, column2]]
+            else:
+                raise ValueError("Function must return a Pandas DataFrame")
+        return wrapper
+    return decorator
 
 
 def add_clusters(df: pd.DataFrame) -> pd.DataFrame:
