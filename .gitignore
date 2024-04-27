@@ -3,10 +3,10 @@
 data/*
 hmmer/*
 *__pycache__/
-train-code/
+train-code/*
 process_data/draft.ipynb
 src/tmp/
 notes.txt
 tmp
 .log
-models/
+models/*
