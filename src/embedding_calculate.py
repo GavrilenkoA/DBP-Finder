@@ -4,10 +4,24 @@ import torch
 import pandas as pd
 import pickle
 from transformers import AutoTokenizer, EsmModel, T5EncoderModel, T5Tokenizer
-import logging
 
 
-def save_embeds(obj: object, data_name: str, model_name: str) -> None:
+def select_model_tokenizer(model_name: str) -> None:
+    if model_name == "ankh":
+        model, tokenizer = ankh.load_large_model()
+
+    elif model_name == "esm":
+        tokenizer = AutoTokenizer.from_pretrained("facebook/esm2_t48_15B_UR50D")
+        model = EsmModel.from_pretrained("facebook/esm2_t48_15B_UR50D")
+
+    elif model_name == "prot5":
+        tokenizer = T5Tokenizer.from_pretrained("Rostlab/prot_t5_xl_uniref50", do_lower_case=False)
+        model = T5EncoderModel.from_pretrained("Rostlab/prot_t5_xl_uniref50")
+
+    return model, tokenizer
+
+
+def save_embeds(obj, data_name: str, model_name: str) -> None:
     filename = f"data/embeddings/{model_name}_embeddings/{data_name}.pkl"
     with open(filename, "wb") as file:
         pickle.dump(obj, file)
@@ -44,18 +58,20 @@ def calculate_embed(tokenizer, model, seq: str, model_name: str) -> np.ndarray:
 
         item = ["".join(item)]
 
-        ids = tokenizer.batch_encode_plus(item, add_special_tokens=False, padding=False)
+        ids = tokenizer.batch_encode_plus(item, add_special_tokens=False,
+                                          padding=False)
         input_ids = torch.tensor(ids['input_ids']).to(torch.device("cuda"))
         attention_mask = torch.tensor(ids['attention_mask']).to(torch.device("cuda"))
 
         with torch.no_grad():
-            embedding = model(input_ids=input_ids, attention_mask=attention_mask)
+            embedding = model(input_ids=input_ids,
+                              attention_mask=attention_mask)
             embedding = embedding.last_hidden_state.mean(axis=1).view(-1).cpu().numpy()
 
     return embedding
 
 
-def process_data(tokenizer, model, data_name: str, model_name: str) -> None:
+def calculate_embeds(data_name: str, model_name: str) -> None:
     def pull_data(x):
         id_ = x["identifier"]
         seq = x["sequence"]
@@ -66,6 +82,7 @@ def process_data(tokenizer, model, data_name: str, model_name: str) -> None:
     data = input_df.apply(lambda x: pull_data(x), axis=1).tolist()
     outputs = {}
 
+    model, tokenizer = select_model_tokenizer(model_name)
     model.to(torch.device("cuda"))
     model.eval()
 
@@ -74,34 +91,4 @@ def process_data(tokenizer, model, data_name: str, model_name: str) -> None:
         embedding = calculate_embed(tokenizer, model, seq, model_name)
         outputs[id_] = embedding
 
-        logging.info(f"{id_} does")
-
     save_embeds(outputs, data_name, model_name)
-
-
-def main():
-    data_name = input()
-    model_name = input()
-
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        filename=f"{data_name}_{model_name}.log",
-    )
-
-    if model_name == "ankh":
-        model, tokenizer = ankh.load_large_model()
-
-    elif model_name == "esm":
-        tokenizer = AutoTokenizer.from_pretrained("facebook/esm2_t48_15B_UR50D")
-        model = EsmModel.from_pretrained("facebook/esm2_t48_15B_UR50D")
-
-    elif model_name == "prot5":
-        tokenizer = T5Tokenizer.from_pretrained("Rostlab/prot_t5_xl_uniref50", do_lower_case=False)
-        model = T5EncoderModel.from_pretrained("Rostlab/prot_t5_xl_uniref50")
-
-    process_data(tokenizer, model, data_name, model_name)
-
-
-if __name__ == "__main__":
-    main()

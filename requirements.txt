@@ -1,6 +1,5 @@
 ankh==1.10.0
 torch==2.0.0
-
 pandas~=1.5.3
 numpy~=1.26.3
 transformers~=4.36.2

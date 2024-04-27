@@ -1,7 +1,10 @@
 import pandas as pd
 
 
-def make_balanced_df(df, seed=42):
+SEED = 42
+
+
+def make_balanced_df(df, seed=SEED):
     pos_cls = df[df.label == 1]
     neg_cls = df[df.label == 0]
     if len(neg_cls) > len(pos_cls):
@@ -10,6 +13,10 @@ def make_balanced_df(df, seed=42):
         pos_cls = pos_cls.sample(n=len(neg_cls), random_state=seed)
     balanced_df = pd.concat([pos_cls, neg_cls])
     return balanced_df
+
+
+def save_csv(df: pd.DataFrame, basename: str, path: str = "data/embeddings/input_csv/") -> None:
+    df.to_csv(path + f"{basename}.csv", index=False)
 
 
 def filter_df(df: pd.DataFrame) -> pd.DataFrame:
@@ -136,7 +143,8 @@ def delete_common_seqs(train: pd.DataFrame,
 
 
 def find_common_seqs(train: pd.DataFrame, test: pd.DataFrame) -> list:
-    common_seqs = test.merge(train, on=["sequence"])["identifier_x"].to_list()  # find common seqs in test
+    # find common seqs in test
+    common_seqs = test.merge(train, on=["sequence"])["identifier_x"].to_list()
     return common_seqs
 
 

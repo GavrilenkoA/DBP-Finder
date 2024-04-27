@@ -1,5 +1,6 @@
 import pandas as pd
 import joblib
+from utils import SEED
 from train_src import (make_lama_df, merge_embed, Metrics, form_Xy,
                        reduce_train, plot_roc_curve)
 
@@ -12,8 +13,6 @@ from clearml import Logger
 
 clearml.browser_login()
 
-
-SEED = 42
 
 test_data = input()
 
