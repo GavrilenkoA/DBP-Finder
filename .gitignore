@@ -15,3 +15,4 @@ tmp
 
 # Ignore log files
 *.log
+models/
