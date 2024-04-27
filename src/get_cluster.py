@@ -1,7 +1,8 @@
 import argparse
 import pandas as pd
-from utils import (write_fasta, add_clusters, find_common_seqs, add_source_to_id,
-                        delete_common_seqs, delete_source_from_id, intersect_cluster_seq)
+from utils import (write_fasta, add_clusters, find_common_seqs,
+                   add_source_to_id, delete_common_seqs,
+                   delete_source_from_id, intersect_cluster_seq)
 import subprocess
 import os
 
@@ -29,10 +30,13 @@ def cluster_data(train_csv: str, test_csv: str, identity: float = 0.5) -> None:
 
     coverage = identity + 0.1
 
-    subprocess.run(f"mmseqs easy-cluster {fasta_input} {output_dir} tmp --min-seq-id {identity} -c {coverage} --cov-mode 0", shell=True)
+    subprocess.run(f"mmseqs easy-cluster {fasta_input} {output_dir}\
+                   tmp --min-seq-id {identity} -c {coverage} --cov-mode 0",
+                   shell=True)
 
     # Parse clusters
-    output_mmseqs = pd.read_csv("data/clusters/merged_cluster.tsv", sep="\t", header=None)
+    output_mmseqs = pd.read_csv("data/clusters/merged_cluster.tsv",
+                                sep="\t", header=None)
     output_mmseqs = add_clusters(output_mmseqs)
     assert len(output_mmseqs) == len(df), f"{len(output_mmseqs)}, {len(df)}"
 
@@ -42,8 +46,10 @@ def cluster_data(train_csv: str, test_csv: str, identity: float = 0.5) -> None:
     common_seqs = pd.DataFrame({"identifier": common_seqs})
     cluster_seqs = pd.DataFrame({"identifier": cluster_seqs})
 
-    cluster_seqs.to_csv(f"data/not_annotated/clustered_data/{test_name}_{identity}.csv", index=False)
-    common_seqs.to_csv(f"data/not_annotated/clustered_data/{test_name}_1.csv", index=False)
+    cluster_seqs.to_csv(f"data/not_annotated/clustered_data/\
+                        {test_name}_{identity}.csv", index=False)
+    common_seqs.to_csv(f"data/not_annotated/clustered_data/\
+                       {test_name}_1.csv", index=False)
 
 
 def main(test_data, identity):
@@ -53,7 +59,8 @@ def main(test_data, identity):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Program for clustering protein sequences")
+    parser = argparse.ArgumentParser(description="Program\
+                                    for clustering protein sequences")
     parser.add_argument("test_data", type=str, help="A string argument")
     parser.add_argument("identity_value", type=float, help="A float argument")
     args = parser.parse_args()
