@@ -6,7 +6,8 @@ from utils import filter_df, extract_columns, convert_fasta_to_df
 
 
 def have_annotation(id_protein: str) -> bool:
-    url = f"https://www.ebi.ac.uk/QuickGO/services/annotation/search?geneProductId={id_protein}"
+    url = f"https://www.ebi.ac.uk/QuickGO/services/annotation/\
+            search?geneProductId={id_protein}"
     response = requests.get(url)
     annotation_data = response.json()
 
@@ -19,7 +20,8 @@ def have_annotation(id_protein: str) -> bool:
     return annotation
 
 
-def write_not_annotated_seqs(identifiers: list, sequences: list) -> pd.DataFrame:
+def write_not_annotated_seqs(identifiers: list,
+                             sequences: list) -> pd.DataFrame:
     identifiers_ = []
     sequences_ = []
 
@@ -44,7 +46,8 @@ def main():
     )
 
     identifiers, sequences = extract_columns(
-        column1="identifier", column2="sequence")(convert_fasta_to_df(input_fasta))
+                            column1="identifier", column2="sequence")
+    (convert_fasta_to_df(input_fasta))
 
     df = write_not_annotated_seqs(identifiers, sequences)
     df = filter_df(df)

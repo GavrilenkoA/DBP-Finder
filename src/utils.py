@@ -99,17 +99,21 @@ def add_clusters(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def exclude_common_train_seqs(train, test):
-    common_id = train.merge(test, on=["identifier"])["identifier"]  # delete common ids if they exists
+    # delete common ids if they exists
+    common_id = train.merge(test, on=["identifier"])["identifier"]
     train = train.loc[~train["identifier"].isin(common_id)]
 
-    common_id = test.merge(train, on=["sequence"])["identifier_y"] # delete common seqs from train
+    # delete common seqs from train
+    common_id = test.merge(train, on=["sequence"])["identifier_y"]
     train = train.loc[~train["identifier"].isin(common_id)]
     return train
 
 
-def add_source_to_id(train: pd.DataFrame, test: pd.DataFrame, test_name: str) -> tuple[pd.DataFrame, pd.DataFrame]:
+def add_source_to_id(train: pd.DataFrame, test: pd.DataFrame,
+                     test_name: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     train["identifier"] = train["identifier"].apply(lambda x: x + "_train")
-    test["identifier"] = test["identifier"].apply(lambda x: x + f"_{test_name}")
+    test["identifier"] = test["identifier"].apply(lambda x: x +
+                                                  f"_{test_name}")
     return train, test
 
 
@@ -119,8 +123,11 @@ def delete_source_from_id(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def delete_common_seqs(train: pd.DataFrame, test: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-    common_seqs = test.merge(train, on=["sequence"])["sequence"]  # delete common seqs from both dataframes
+def delete_common_seqs(train: pd.DataFrame,
+                       test: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+
+    # delete common seqs from both dataframes
+    common_seqs = test.merge(train, on=["sequence"])["sequence"]
 
     train_sep = train.loc[~train["sequence"].isin(common_seqs)]
     test_sep = test.loc[~test["sequence"].isin(common_seqs)]
