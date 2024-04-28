@@ -6,7 +6,7 @@ from embedding_calculate import calculate_embeds
 import pandas as pd
 
 
-def predict(model, df_test) -> pd.DataFrame:
+def predict(df_test) -> pd.DataFrame:
     model = joblib.load("models/DBP-finder.pkl")
     test_pred = model.predict(df_test)
     test_prob = test_pred.data.reshape(-1, )
