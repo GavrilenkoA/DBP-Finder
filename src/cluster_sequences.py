@@ -28,6 +28,7 @@ def cluster_data(train_csv: str, test_csv: str, identity: float = 0.5) -> None:
     # Parse clusters
     output_mmseqs = pd.read_csv("../data/clusters/merged_cluster.tsv",
                                 sep="\t", header=None)
+
     output_mmseqs = add_clusters(output_mmseqs)
     assert len(output_mmseqs) == len(df), f"{len(output_mmseqs)}, {len(df)}"
 
