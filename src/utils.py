@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 
 
 SEED = 42
@@ -16,7 +17,8 @@ def make_balanced_df(df, seed=SEED):
 
 
 def save_csv(df: pd.DataFrame, basename: str, path: str = "data/embeddings/input_csv/") -> None:
-    df.to_csv(path + f"{basename}.csv", index=False)
+    path = os.getcwd() + "/" + path + f"{basename}.csv"
+    df.to_csv(path, index=False)
 
 
 def filter_df(df: pd.DataFrame) -> pd.DataFrame:
