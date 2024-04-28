@@ -18,7 +18,6 @@ def main():
     parser = argparse.ArgumentParser(description="DBP-finder inference")
     parser.add_argument("--input_fasta", type=str, help="Input fasta", required=True)
     args = parser.parse_args()
-    
     basename = args.input_fasta.replace(".fasta", "")
     df = convert_fasta_to_df(args.input_fasta)
     save_csv(df, basename, path="data/embeddings/input_csv/")
