@@ -1,12 +1,12 @@
 .idea
 .ipynb_checkpoints
-data/*
-hmmer/*
 *__pycache__/
-train-code/*
+.log
+data
+hmmer
+train-code
 process_data/draft.ipynb
 src/tmp/
 notes.txt
+wget_data
 tmp
-.log
-models/*
