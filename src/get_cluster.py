@@ -52,16 +52,17 @@ def cluster_data(train_csv: str, test_csv: str, identity: float = 0.5) -> None:
                        {test_name}_1.csv", index=False)
 
 
-def main(test_data, identity):
-    train_csv = "data/embeddings/input_csv/train_p2.csv"
-    test_csv = f"data/embeddings/input_csv/{test_data}.csv"
-    cluster_data(train_csv, test_csv, identity=identity)
-
-
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Program\
                                     for clustering protein sequences")
     parser.add_argument("test_data", type=str, help="A string argument")
     parser.add_argument("identity_value", type=float, help="A float argument")
     args = parser.parse_args()
-    main(args.test_data, args.identity_value)
+
+    train_csv = "data/embeddings/input_csv/train_p2.csv"
+    test_csv = f"data/embeddings/input_csv/{args.test_data}.csv"
+    cluster_data(train_csv, test_csv, identity=args.identity_value)
+
+
+if __name__ == "__main__":
+    main()
