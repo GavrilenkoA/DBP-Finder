@@ -45,9 +45,7 @@ def main():
         filename=f"data/not_annotated/have_annotation_{name_file}.log",
     )
 
-    identifiers, sequences = extract_columns(
-                            column1="identifier", column2="sequence")
-    (convert_fasta_to_df(input_fasta))
+    identifiers, sequences = extract_columns(column1="identifier", column2="sequence")(convert_fasta_to_df(input_fasta))
 
     df = write_not_annotated_seqs(identifiers, sequences)
     df = filter_df(df)
