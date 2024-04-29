@@ -71,7 +71,7 @@ def calculate_embed(tokenizer, model, seq: str, model_name: str) -> np.ndarray:
     return embedding
 
 
-def calculate_embeds(data_name: str, model_name: str) -> None:
+def calculate_embeds(data_name: str, model_name: str = "ankh") -> None:
     def pull_data(x):
         id_ = x["identifier"]
         seq = x["sequence"]

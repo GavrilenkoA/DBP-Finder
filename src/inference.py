@@ -18,10 +18,13 @@ def main():
     parser = argparse.ArgumentParser(description="DBP-finder inference")
     parser.add_argument("--input_fasta", type=str, help="Input fasta", required=True)
     args = parser.parse_args()
+
     basename = args.input_fasta.replace(".fasta", "")
-    df = convert_fasta_to_df(args.input_fasta)
+    file = "data/fasta/" + args.input_fasta
+
+    df = convert_fasta_to_df(file)
     save_csv(df, basename, path="data/embeddings/input_csv/")
-    calculate_embeds(data_name=basename, model_name="ankh")
+    calculate_embeds(data_name=basename)
 
     test_embed = merge_embed(df, f"data/embeddings/ankh_embeddings/{basename}.pkl")
     df_test = make_inference_lama_df(test_embed)
@@ -29,7 +32,7 @@ def main():
     test_prob, test_pred = predict(df_test)
     df.loc[:, "score"] = test_prob
     df.loc[:, "y_pred"] = test_pred
-    save_csv(df, basename + "_prediction", path="data/inference_data/")
+    save_csv(df, basename, path="data/predictions/")
 
 
 if __name__ == "__main__":
