@@ -1,8 +1,7 @@
-import joblib
 import streamlit as st
 from src.train_src import merge_embed
 from src.utils import collect_df, save_csv
-from src.train_src import make_inference_lama_df
+from src.train_src import make_inference_lama_df, predict
 from src.embeds import get_embeds
 
 
