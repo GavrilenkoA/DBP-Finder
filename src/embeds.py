@@ -27,7 +27,7 @@ def save_embeds(obj, data_name: str, model_name: str) -> None:
         pickle.dump(obj, file)
 
 
-def calculate_embed(tokenizer, model, seq: str, model_name: str) -> np.ndarray:
+def calculate_embeds(tokenizer, model, seq: str, model_name: str) -> np.ndarray:
     if model_name == "ankh":
         inputs = tokenizer(
             [seq],
@@ -71,7 +71,7 @@ def calculate_embed(tokenizer, model, seq: str, model_name: str) -> np.ndarray:
     return embedding
 
 
-def calculate_embeds(data_name: str, model_name: str = "ankh") -> None:
+def get_embeds(data_name: str, model_name: str = "ankh") -> None:
     def pull_data(x):
         id_ = x["identifier"]
         seq = x["sequence"]
@@ -88,7 +88,7 @@ def calculate_embeds(data_name: str, model_name: str = "ankh") -> None:
 
     for item in data:
         id_, seq = item
-        embedding = calculate_embed(tokenizer, model, seq, model_name)
+        embedding = calculate_embeds(tokenizer, model, seq, model_name)
         outputs[id_] = embedding
 
     save_embeds(outputs, data_name, model_name)

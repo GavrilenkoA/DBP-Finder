@@ -1,7 +1,8 @@
+import joblib
 import pandas as pd
 import numpy as np
 import pickle
-from utils import make_balanced_df
+from src.utils import make_balanced_df
 from sklearn.metrics import (accuracy_score, recall_score,
                              precision_score, matthews_corrcoef, roc_auc_score,
                              f1_score, roc_curve)
@@ -21,7 +22,7 @@ def reduce_train(clusters_train_test, train, test):
     return train
 
 
-def load_obj(file_path: str):
+def load_obj(file_path: str) -> dict[str, np.ndarray]:
     with open(file_path, "rb") as file:
         obj = pickle.load(file)
     return obj
@@ -41,7 +42,7 @@ def merge_embed(df: pd.DataFrame, file_path: str) -> pd.DataFrame:
     return out_df
 
 
-def make_lama_df(X, y, clusters=None) -> pd.DataFrame:
+def make_lama_df(X: np.ndarray, y: np.ndarray, clusters: None | str = None) -> pd.DataFrame:
     df = pd.DataFrame(X)
     df.columns = [f"component_{i}" for i in range(df.shape[1])]
     df["label"] = y
@@ -57,8 +58,8 @@ def process_embeddings(embeddings: pd.Series) -> np.ndarray:
 
 
 def form_Xy(df: pd.DataFrame, clusters: None | str = None):
-    X = process_embeddings(df['embedding'])
-    y = df['label'].values
+    X = process_embeddings(df["embedding"])
+    y = df["label"].values
     if clusters is not None:
         clusters = df['cluster'].values
         return X, y, clusters
@@ -66,7 +67,7 @@ def form_Xy(df: pd.DataFrame, clusters: None | str = None):
 
 
 def make_inference_lama_df(df: pd.DataFrame) -> pd.DataFrame:
-    X = process_embeddings(df['embedding'])
+    X = process_embeddings(df["embedding"])
     df = pd.DataFrame(X)
     df.columns = [f"component_{i}" for i in range(df.shape[1])]
     return df
@@ -114,3 +115,11 @@ def plot_roc_curve(y_true, y_pred, name_dataset):
     plt.title(f'ROC Curve on {name_dataset} dataset')
     plt.legend(loc="lower right")
     plt.show()
+
+
+def predict(df_test):
+    model = joblib.load("models/DBP-finder.pkl")
+    test_pred = model.predict(df_test)
+    test_prob = test_pred.data.reshape(-1, )
+    test_pred = (test_pred.data[:, 0] > 0.5) * 1
+    return test_prob, test_pred

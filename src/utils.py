@@ -47,17 +47,15 @@ def write_fasta(df: pd.DataFrame, name_file: str) -> None:
             file.write("\n")
 
 
-def convert_fasta_to_df(fasta_file: str, mode: int = 1) -> pd.DataFrame:
-    with open(fasta_file) as fi:
-        lines = fi.readlines()
-
+def collect_df(content: str) -> pd.DataFrame:
+    lines = content.split("\n")
     identifiers = []
     sequences = []
     seq = ""
 
     for line in lines:
         if line.startswith(">"):
-            head = line.split("|")[mode].replace(">", "")
+            head = line.split("|")[1]
             identifiers.append(head)
             if seq:
                 sequences.append(seq)
@@ -71,6 +69,13 @@ def convert_fasta_to_df(fasta_file: str, mode: int = 1) -> pd.DataFrame:
     assert len(identifiers) == len(sequences)
     df = pd.DataFrame({"identifier": identifiers,
                        "sequence": sequences})
+    return df
+
+
+def convert_fasta_to_df(fasta_file: str) -> pd.DataFrame:
+    with open(fasta_file) as fi:
+        content = fi.read()
+    df = collect_df(content)
     return df
 
 
