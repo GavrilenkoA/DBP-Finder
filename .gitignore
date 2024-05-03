@@ -10,8 +10,11 @@ data/fasta/*
 data/embeddings/ankh_embeddings/*
 data/embeddings/esm_embeddings/
 data/embeddings/prot5_embeddings/
-data/embeddings/input_csv/
+data/embeddings/input_csv/*
 !data/embeddings/input_csv/pdb186.csv
+!data/embeddings/input_csv/pdb1000.csv
+!data/embeddings/input_csv/pdb20000.csv
+!data/embeddings/input_csv/pdb2272.csv
 data/interpro_data/
 data/nakb/
 data/not_annotated/
