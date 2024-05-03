@@ -5,7 +5,7 @@
 data
 hmmer
 train-code
-process_data/draft.ipynb
+process_data
 src/tmp/
 notes.txt
 wget_data
