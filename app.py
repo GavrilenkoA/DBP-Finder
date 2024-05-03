@@ -23,7 +23,7 @@ def main():
         test_prob, test_pred = predict(df_test)
 
         df.loc[:, "score"] = test_prob
-        df.loc[:, "y_pred"] = test_pred
+        df.loc[:, "pred_label"] = test_pred
         st.dataframe(df)
 
 
