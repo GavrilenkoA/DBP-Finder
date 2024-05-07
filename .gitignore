@@ -37,4 +37,5 @@ process_data
 notes.txt
 wget_data
 tmp
+scripts/inference.py
 logs
