@@ -2,12 +2,11 @@ import logging
 import requests
 import pandas as pd
 from tqdm import tqdm
-from utils import filter_df, extract_columns, convert_fasta_to_df
+from utils import filter_df, extract_columns
 
 
 def have_annotation(id_protein: str) -> bool:
-    url = f"https://www.ebi.ac.uk/QuickGO/services/annotation/\
-            search?geneProductId={id_protein}"
+    url = f"https://www.ebi.ac.uk/QuickGO/services/annotation/search?geneProductId={id_protein}"
     response = requests.get(url)
     annotation_data = response.json()
 
@@ -37,19 +36,22 @@ def write_not_annotated_seqs(identifiers: list,
 
 
 def main():
-    name_file = input()
-    input_fasta = f"data/not_annotated/{name_file}.fasta"
+    df = pd.read_csv("data/embeddings/input_csv/train_p2.csv")
+    neg_samples = df.loc[df["label"] == 0]
+
+    # input_fasta = f"data/uniprot/{name_file}.fasta"
 
     logging.basicConfig(
         level=logging.INFO,
-        filename=f"data/not_annotated/have_annotation_{name_file}.log",
-    )
+        filename="logs/have_annotation_train_neg_samples.log")
 
-    identifiers, sequences = extract_columns(column1="identifier", column2="sequence")(convert_fasta_to_df(input_fasta))
+    # identifiers, sequences = extract_columns(input_fasta)
+    identifiers = neg_samples.loc[:, "identifier"].to_list()
+    sequences = neg_samples.loc[:, "sequence"].to_list()
 
     df = write_not_annotated_seqs(identifiers, sequences)
-    df = filter_df(df)
-    df.to_csv(f"data/embeddings/input_csv/{name_file}.csv", index=False)
+    # df = filter_df(df)
+    # df.to_csv(f"data/embeddings/input_csv/{name_file}.csv", index=False)
 
 
 if __name__ == "__main__":

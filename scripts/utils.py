@@ -79,18 +79,11 @@ def convert_fasta_to_df(fasta_file: str) -> pd.DataFrame:
     return df
 
 
-def extract_columns(column1: str = "identifier", column2: str = "sequence"):
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            # Call the original function
-            df = func(*args, **kwargs)
-            # Extract the specified columns
-            if isinstance(df, pd.DataFrame):
-                return df.loc[:, [column1, column2]]
-            else:
-                raise ValueError("Function must return a Pandas DataFrame")
-        return wrapper
-    return decorator
+def extract_columns(fasta_file: str, column1: str = "identifier", column2: str = "sequence") -> tuple[list, list]:
+    df = convert_fasta_to_df(fasta_file)
+    part_1 = df.loc[:, column1].to_list()
+    part_2 = df.loc[:, column2].to_list()
+    return part_1, part_2
 
 
 def add_clusters(df: pd.DataFrame) -> pd.DataFrame:
