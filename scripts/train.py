@@ -1,21 +1,18 @@
 import pandas as pd
-import joblib
-from scripts.utils import SEED
-from scripts.train_src import (make_lama_df, merge_embed, Metrics, form_Xy,
-                               reduce_train, plot_roc_curve)
-
 from lightautoml.automl.presets.tabular_presets import TabularAutoML
 from lightautoml.tasks import Task
-
 import clearml
 from clearml import Task as clearml_task
 from clearml import Logger
 
+from scripts.utils import SEED
+from scripts.train_src import (make_lama_df, merge_embed, Metrics, form_Xy,
+                               reduce_train, plot_roc_curve)
+
+
 clearml.browser_login()
 
-
 test_data = input()
-
 model_name = "ankh"
 identity = 0.5
 
@@ -24,23 +21,18 @@ task_ml = clearml_task.init(
     task_name=f"{test_data}_identity_{identity}_model{model_name}",
     output_uri=True
 )
-
 logger = Logger.current_logger()
 
 train = pd.read_csv("data/embeddings/input_csv/train_p2.csv")
 test = pd.read_csv(f"data/embeddings/input_csv/{test_data}.csv")
-clusters_data = pd.read_csv(f"data/ready_data/{test_data}_train_\
-                            {identity}.csv")
+clusters_data = pd.read_csv(f"data/ready_data/{test_data}_train_{identity}.csv")
 
 train = reduce_train(clusters_data, train, test)
-
-train = merge_embed(train, f"data/embeddings/{model_name}_embeddings/\
-                    train_p2.pkl")
+train = merge_embed(train, f"data/embeddings/{model_name}_embeddings/train_p2.pkl")
 X_train, y_train, clusters_train = form_Xy(train, clusters="Yes")
 df_train = make_lama_df(X_train, y_train, clusters_train)
 
-test = merge_embed(test, f"data/embeddings/{model_name}_embeddings/\
-                   {test_data}.pkl")
+test = merge_embed(test, f"data/embeddings/{model_name}_embeddings/{test_data}.pkl")
 X_test, y_test = form_Xy(test)
 df_test = make_lama_df(X_test, y_test)
 
@@ -79,6 +71,3 @@ logger.report_table(title='Test metrics', series='pandas DataFrame',
 
 
 plot_roc_curve(y_test, test_prob, test_data)
-
-
-joblib.dump(automl, f"models/{model_name}_{test_data}.pkl")

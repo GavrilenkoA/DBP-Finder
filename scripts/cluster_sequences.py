@@ -31,8 +31,8 @@ def cluster_data(train_csv: str, test_csv: str, identity: float = 0.5) -> None:
     assert len(output_mmseqs) == len(df), f"{len(output_mmseqs)}, {len(df)}"
 
     test_name = os.path.basename(test_csv).split(".csv")[0]
-    output_mmseqs.to_csv(f"data/ready_data/{test_name}_train_\
-                         {identity}.csv", index=False)
+
+    output_mmseqs.to_csv(f"data/ready_data/{test_name}_train_{identity}.csv", index=False)
 
 
 def main():

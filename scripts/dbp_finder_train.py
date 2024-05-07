@@ -5,9 +5,9 @@ from lightautoml.tasks import Task
 from train_src import make_lama_df, merge_embed, form_Xy
 from utils import SEED
 
-train = pd.read_csv("../data/ready_data/my_train0.5.csv")
+train = pd.read_csv("data/ready_data/my_train0.5.csv")
 
-train = merge_embed(train, "../data/embeddings/ankh_embeddings/train_p2.pkl")
+train = merge_embed(train, "data/embeddings/ankh_embeddings/train_p2.pkl")
 X_train, y_train, clusters_train = form_Xy(train, clusters="Yes")
 df_train = make_lama_df(X_train, y_train, clusters=clusters_train)
 

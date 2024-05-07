@@ -105,6 +105,7 @@ def add_clusters(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def exclude_common_train_seqs(train, test):
+
     # delete common ids if they exists
     common_id = train.merge(test, on=["identifier"])["identifier"]
     train = train.loc[~train["identifier"].isin(common_id)]
@@ -118,8 +119,7 @@ def exclude_common_train_seqs(train, test):
 def add_source_to_id(train: pd.DataFrame, test: pd.DataFrame,
                      test_name: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     train["identifier"] = train["identifier"].apply(lambda x: x + "_train")
-    test["identifier"] = test["identifier"].apply(lambda x: x +
-                                                  f"_{test_name}")
+    test["identifier"] = test["identifier"].apply(lambda x: x + f"_{test_name}")
     return train, test
 
 
@@ -155,31 +155,3 @@ def intersect_cluster_seq(df: pd.DataFrame, test_name: str) -> list:
             id_ = group[group["source"] == test_name]["identifier"].to_list()
             cluster_seqs.extend(id_)
     return cluster_seqs
-
-
-def assign_cluster(basename: str) -> pd.DataFrame:
-    id_0_25 = pd.read_csv(f"../data/not_annotated/clustered_data/{basename}_0.25.csv")
-    id_0_5 = pd.read_csv(f"../data/not_annotated/clustered_data/{basename}_0.5.csv")
-    id_0_75 = pd.read_csv(f"../data/not_annotated/clustered_data/{basename}_0.75.csv")
-    id_1_group = pd.read_csv(f"../data/not_annotated/clustered_data/{basename}_1.csv")
-
-    target_df = pd.read_csv(f"../data/embeddings/input_csv/{basename}.csv")
-    target_df.drop(columns=["sequence"], inplace=True)
-
-    p_1 = pd.concat([id_0_5, id_0_75, id_1_group]).drop_duplicates()
-    p_2 = pd.concat([id_0_75, id_1_group]).drop_duplicates()
-    assert not id_1_group["identifier"].duplicated().any(), "Duplicates found within the identifier column"
-
-    id_0_25_group = id_0_25.loc[~id_0_25["identifier"].isin(p_1["identifier"])]
-    id_0_5_group = id_0_5.loc[~id_0_5["identifier"].isin(p_2["identifier"])]
-    id_0_75_group = id_0_75.loc[~id_0_75["identifier"].isin(id_1_group["identifier"])]
-
-    id_0_25_group.loc[:, "cluster"] = ["id_0.25"] * len(id_0_25_group)
-    id_0_5_group.loc[:, "cluster"] = ["id_0.5"] * len(id_0_5_group)
-    id_0_75_group.loc[:, "cluster"] = ["id_0.75"] * len(id_0_75_group)
-    id_1_group.loc[:, "cluster"] = ["id_1"] * len(id_1_group)
-    group_data = pd.concat([id_0_25_group, id_0_5_group, id_0_75_group, id_1_group])
-    target_df = target_df.merge(group_data, on="identifier", how="left")
-
-    target_df["cluster"] = target_df["cluster"].fillna("<id_0.25")
-    return target_df
