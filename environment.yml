@@ -1,0 +1,25 @@
+name: DBP-finder
+channels:
+  - bioconda
+  - defaults
+  - conda-forge
+dependencies:
+  - mmseqs2
+  - python=3.11.5
+  - pip:
+      - ankh==1.10.0
+      - clearml==1.14.1
+      - joblib==1.2.0
+      - lightautoml==0.3.8
+      - numpy==1.26.3
+      - pandas==1.5.3
+      - requests==2.31.0
+      - scikit-learn==1.4.0
+      - streamlit==1.33.0
+      - torch==2.0.0
+      - torchaudio==2.1.2
+      - torchvision==0.16.2
+      - tqdm==4.66.1
+      - transformers==4.36.2
+      - seaborn==0.13.1
+      - matplotlib=3.8.2
