@@ -71,14 +71,12 @@ def calculate_embeds(tokenizer, model, seq: str, model_name: str) -> np.ndarray:
     return embedding
 
 
-def get_embeds(data_name: str, model_name: str = "ankh") -> None:
+def get_embeds(input_df: pd.DataFrame, data_name: str, model_name: str = "ankh") -> None:
     def pull_data(x):
         id_ = x["identifier"]
         seq = x["sequence"]
         return id_, seq
 
-    input_path = f"data/embeddings/input_csv/{data_name}.csv"
-    input_df = pd.read_csv(input_path)
     data = input_df.apply(lambda x: pull_data(x), axis=1).tolist()
     outputs = {}
 

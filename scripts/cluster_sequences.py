@@ -1,13 +1,12 @@
 import pandas as pd
-from utils import write_fasta, add_clusters, exclude_common_train_seqs
+from utils import write_fasta, add_clusters, exclude_common_train_seqs, add_source_to_id, delete_source_from_id
 import subprocess
-import os
 
 
-def cluster_data(train_csv: str, test_csv: str, identity: float = 0.5) -> None:
-    train = pd.read_csv(train_csv)
-    test = pd.read_csv(test_csv)
+def cluster_data(train: pd.DataFrame, test: pd.DataFrame, test_name: str, identity: float) -> pd.DataFrame:
+    train, test = add_source_to_id(train, test, test_name)
     train = exclude_common_train_seqs(train, test)
+
     df = pd.concat([train, test])
 
     # Prepare fasta before clustering
@@ -30,19 +29,6 @@ def cluster_data(train_csv: str, test_csv: str, identity: float = 0.5) -> None:
     output_mmseqs = add_clusters(output_mmseqs)
     assert len(output_mmseqs) == len(df), f"{len(output_mmseqs)}, {len(df)}"
 
-    test_name = os.path.basename(test_csv).split(".csv")[0]
+    output_mmseqs = delete_source_from_id(output_mmseqs)
 
-    output_mmseqs.to_csv(f"data/ready_data/{test_name}_train_{identity}.csv", index=False)
-
-
-def main():
-    test_data = input()
-    train_csv = "data/embeddings/input_csv/train_p2.csv"
-    test_csv = f"data/embeddings/input_csv/{test_data}.csv"
-    identity = 0.5
-
-    cluster_data(train_csv, test_csv, identity=identity)
-
-
-if __name__ == "__main__":
-    main()
+    return output_mmseqs

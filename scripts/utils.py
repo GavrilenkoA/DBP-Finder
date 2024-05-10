@@ -105,11 +105,6 @@ def add_clusters(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def exclude_common_train_seqs(train, test):
-
-    # delete common ids if they exists
-    common_id = train.merge(test, on=["identifier"])["identifier"]
-    train = train.loc[~train["identifier"].isin(common_id)]
-
     # delete common seqs from train
     common_id = test.merge(train, on=["sequence"])["identifier_y"]
     train = train.loc[~train["identifier"].isin(common_id)]

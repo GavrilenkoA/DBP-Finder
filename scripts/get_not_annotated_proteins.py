@@ -5,18 +5,34 @@ from tqdm import tqdm
 from utils import filter_df, extract_columns
 
 
-def have_annotation(id_protein: str) -> bool:
+def have_annotation(id_protein: str, go_id: set[str] = {"GO:0003677", "GO:0003723"}) -> bool:
     url = f"https://www.ebi.ac.uk/QuickGO/services/annotation/search?geneProductId={id_protein}"
-    response = requests.get(url)
-    annotation_data = response.json()
+    page = 1
+    has_annotation = False
 
-    annotation = False
-    if annotation_data["numberOfHits"]:
+    while True:
+        # Append the page parameter to the URL for pagination
+        paginated_url = f"{url}&page={page}"
+        response = requests.get(paginated_url)
+        annotation_data = response.json()
+
+        # Check for errors in response
+        if response.status_code != 200:
+            print(f"Failed to fetch data: {response.status_code}")
+            break
+
+        # Iterate through results to find the GO term
         for item in annotation_data["results"]:
-            if item["goId"] in {"GO:0003677", "GO:0003723"}:
-                annotation = True
+            if item["goId"] in go_id:  # rna binding "GO:0003723"
+                has_annotation = True
                 break
-    return annotation
+
+        if has_annotation or page == annotation_data['pageInfo']['total']:
+            break
+
+        page += 1  # Increment the page number to fetch the next page
+
+    return has_annotation
 
 
 def write_not_annotated_seqs(identifiers: list,
