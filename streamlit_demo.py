@@ -1,6 +1,6 @@
 import streamlit as st
 from scripts.train_src import merge_embed
-from scripts.utils import collect_df, save_csv
+from scripts.utils import collect_df
 from scripts.train_src import make_inference_lama_df, predict
 from scripts.embeds import get_embeds
 
@@ -14,10 +14,10 @@ def main():
         st.write("File uploaded successfully!")
         content = uploaded_file.read().decode()
         df = collect_df(content)
-        basename = uploaded_file.name.replace(".fasta", "")
 
-        save_csv(df, basename, path="data/embeddings/input_csv/")
-        get_embeds(data_name=basename)
+        basename = uploaded_file.name.replace(".fasta", "")
+        get_embeds(df, basename)
+        
         test_embed = merge_embed(df, f"data/embeddings/ankh_embeddings/{basename}.pkl")
         df_test = make_inference_lama_df(test_embed)
         test_prob, test_pred = predict(df_test)

@@ -6,7 +6,7 @@ Advanced machine learning tool developed for the precise identification of DNA-b
 
 ### Environment
 ```bash
-conda env create -f env.yaml -n DBP-finder
+conda env create -f env.yaml
 conda activate DBP-finder
 ```
 
