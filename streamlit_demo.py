@@ -17,8 +17,7 @@ def main():
 
         basename = uploaded_file.name.replace(".fasta", "")
         get_embeds(df, basename)
-        
-        test_embed = merge_embed(df, f"data/embeddings/ankh_embeddings/{basename}.pkl")
+        test_embed = merge_embed(df, basename)
         df_test = make_inference_lama_df(test_embed)
         test_prob, test_pred = predict(df_test)
 

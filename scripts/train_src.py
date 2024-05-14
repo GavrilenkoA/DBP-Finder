@@ -36,6 +36,7 @@ def get_embeds(file_path: str) -> pd.DataFrame:
 
 
 def merge_embed(df: pd.DataFrame, file_path: str) -> pd.DataFrame:
+    file_path = f"data/embeddings/ankh_embeddings/{file_path}.pkl"
     embed_df = get_embeds(file_path)
     out_df = df.merge(embed_df, on="identifier")
     assert len(out_df) == len(df)

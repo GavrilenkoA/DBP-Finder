@@ -28,11 +28,11 @@ test = pd.read_csv(f"data/embeddings/input_csv/{test_data}.csv")
 clusters_data = pd.read_csv(f"data/ready_data/{test_data}_train_{identity}.csv")
 
 train = reduce_train(clusters_data, train, test)
-train = merge_embed(train, f"data/embeddings/{model_name}_embeddings/train_p2.pkl")
+train = merge_embed(train, "train_p2")
 X_train, y_train, clusters_train = form_Xy(train, clusters="Yes")
 df_train = make_lama_df(X_train, y_train, clusters_train)
 
-test = merge_embed(test, f"data/embeddings/{model_name}_embeddings/{test_data}.pkl")
+test = merge_embed(test, test_data)
 X_test, y_test = form_Xy(test)
 df_test = make_lama_df(X_test, y_test)
 
