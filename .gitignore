@@ -9,8 +9,8 @@ data/clusters/*
 data/DBP_papers_data
 data/fasta/*
 data/embeddings/ankh_embeddings/*
-!data/embeddings/ankh_embeddings/pdb186.pkl
-data/embeddings/esm_embeddings/
+!data/embeddings/ankh_embeddings/.gitkeep
+data/embeddings/esm_embeddings/*
 data/embeddings/prot5_embeddings/
 data/embeddings/input_csv/*
 !data/embeddings/input_csv/pdb186.csv
