@@ -39,4 +39,5 @@ notes.txt
 wget_data
 tmp
 scripts/inference.py
+scripts/train_pipeline.py
 logs
