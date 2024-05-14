@@ -16,6 +16,7 @@ conda activate DBP-finder
 ![alt text](images/web-server.png)
 3. On the app's homepage, you will find an input field to submit your protein sequence in __FASTA__ format.
 4. The output is presented in a table format with the following columns:
+![alt text](images/output_table.png)
    - **Identifier**: The unique identifier of the protein.
    - **Sequence**: The amino acid sequence of the protein.
    - **score**: The calculated score reflects the confidence level of the prediction, with higher scores suggesting a greater likelihood that the protein binds to DNA.
