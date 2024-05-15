@@ -1,14 +1,18 @@
 import pandas as pd
-from utils import convert_fasta_to_df, filter_df, make_balanced_df
+from cluster_sequences import cluster_data
+from utils import reduce_train, make_balanced_df
+
+input_test = input()
+
+train = pd.read_csv("data/embeddings/input_csv/train_p2.csv")
+test = pd.read_csv(f"data/embeddings/input_csv/{input_test}.csv")
 
 
-binders = convert_fasta_to_df("data/uniprot/go_0003677_swissprot.fasta")
-binders.loc[:, "label"] = 1
+output_mmseq = cluster_data(train, test, identity=0.5)
+output_mmseq = reduce_train(output_mmseq)
 
-non_binders = convert_fasta_to_df("data/uniprot/notgo_0003723_notgo_0003677_swissprot.fasta")
-non_binders.loc[:, "label"] = 0
-
-train = pd.concat([binders, non_binders])
-train = filter_df(train)
+train["identifier"] = train.identifier.apply(lambda x: x.split("_")[0])  # fix later
+train = train.merge(output_mmseq, on="identifier")
 train = make_balanced_df(train)
-train.to_csv("data/embeddings/input_csv/train_p2.csv", index=False)
+
+train.to_csv(f"data/ready_data/train_{input_test}.csv", index=False)

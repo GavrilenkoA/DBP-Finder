@@ -2,11 +2,12 @@ import joblib
 import pandas as pd
 import numpy as np
 import pickle
-from scripts.utils import make_balanced_df
 from sklearn.metrics import (accuracy_score, recall_score,
                              precision_score, matthews_corrcoef, roc_auc_score,
                              f1_score, roc_curve)
 import matplotlib.pyplot as plt
+
+from scripts.utils import make_balanced_df
 
 
 def reduce_train(clusters_train_test, train, test):

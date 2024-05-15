@@ -15,6 +15,18 @@ def make_balanced_df(df, seed=SEED):
     return balanced_df
 
 
+def reduce_train(output_mmseq):
+    a = output_mmseq.loc[output_mmseq["source"] == "train"]
+    b = output_mmseq.loc[output_mmseq["source"] == "test"]
+
+    exclude_train = a.merge(b,
+                            on=["cluster"])["identifier_x"].drop_duplicates()
+
+    a = a.loc[~a["identifier"].isin(exclude_train)]
+    a = a.drop("source", axis=1)
+    return a
+
+
 def save_csv(df: pd.DataFrame, basename: str, path: str = "data/embeddings/input_csv/") -> None:
     path = path + f"{basename}.csv"
     df.to_csv(path, index=False)
@@ -111,10 +123,9 @@ def exclude_common_train_seqs(train, test):
     return train
 
 
-def add_source_to_id(train: pd.DataFrame, test: pd.DataFrame,
-                     test_name: str) -> tuple[pd.DataFrame, pd.DataFrame]:
+def add_source_to_id(train: pd.DataFrame, test: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     train["identifier"] = train["identifier"].apply(lambda x: x + "_train")
-    test["identifier"] = test["identifier"].apply(lambda x: x + f"_{test_name}")
+    test["identifier"] = test["identifier"].apply(lambda x: x + "_test")
     return train, test
 
 
@@ -142,11 +153,11 @@ def find_common_seqs(train: pd.DataFrame, test: pd.DataFrame) -> list:
     return common_seqs
 
 
-def intersect_cluster_seq(df: pd.DataFrame, test_name: str) -> list:
-    cluster_seqs = []
+def intersect_cluster_seq(df: pd.DataFrame, source: str = "test") -> list:
+    id_seqs = []
     grouped = df.groupby("cluster")
     for _, group in grouped:
         if group["source"].nunique() > 1:
-            id_ = group[group["source"] == test_name]["identifier"].to_list()
-            cluster_seqs.extend(id_)
-    return cluster_seqs
+            id_ = group[group["source"] == source]["identifier"].to_list()
+            id_seqs.extend(id_)
+    return id_seqs

@@ -3,11 +3,11 @@ from utils import write_fasta, add_clusters, exclude_common_train_seqs, add_sour
 import subprocess
 
 
-def cluster_data(train: pd.DataFrame, test: pd.DataFrame, test_name: str, identity: float) -> pd.DataFrame:
-    train, test = add_source_to_id(train, test, test_name)
-    train = exclude_common_train_seqs(train, test)
+def cluster_data(train: pd.DataFrame, test: pd.DataFrame, identity: float) -> pd.DataFrame:
+    train_, test_ = add_source_to_id(train, test)
+    train_ = exclude_common_train_seqs(train_, test_)
 
-    df = pd.concat([train, test])
+    df = pd.concat([train_, test_])
 
     # Prepare fasta before clustering
     write_fasta(df, "merged.fasta")
