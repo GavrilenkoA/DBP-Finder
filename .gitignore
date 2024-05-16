@@ -23,10 +23,10 @@ data/not_annotated/
 data/predictions/*
 data/proteinfer/
 data/ready_data/*
-!data/ready_data/pdb186_train_0.5.csv
-!data/ready_data/pdb1000_train_0.5.csv
-!data/ready_data/pdb2272_train_0.5.csv
-!data/ready_data/pdb20000_train_0.5.csv
+!data/ready_data/train_pdb186.csv
+!data/ready_data/train_pdb1000.csv
+!data/ready_data/train_pdb2272.csv
+!data/ready_data/train_pdb20000.csv
 data/split_data
 data/uniprot/uniprotkb_gene_AND_go_0003677_AND_revie_2024_02_29.fasta
 data/uniprot/uniprotkb_gene_NOT_go_0003677_NOT_go_00_2024_02_29.fasta
