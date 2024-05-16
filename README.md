@@ -14,6 +14,10 @@ conda activate DBP-finder
 1. Click on the [link](http://217.79.62.70:8501).
 ![alt text](images/web-server.png)
 2. On the app's homepage, you will find an input field to submit your protein sequence in __FASTA__ format.
+
+   To help you get started, you can refer to an example of a FASTA file for the DNA polymerase epsilon subunit 4:
+   [Example FASTA](https://rest.uniprot.org/uniprotkb/Q9NR33.fasta)
+
 3. The output is presented in a table format with the following columns:
 ![alt text](images/output_table.png)
    - **Identifier**: The unique identifier of the protein.
