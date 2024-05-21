@@ -1,3 +1,4 @@
+from functools import wraps
 import pandas as pd
 
 
@@ -91,13 +92,24 @@ def convert_fasta_to_df(fasta_file: str) -> pd.DataFrame:
     return df
 
 
-def extract_columns(fasta_file: str, column1: str = "identifier", column2: str = "sequence") -> tuple[list, list]:
+def extract_columns(fasta_file: str, column1: str = "identifier", column2: str = "sequence") -> tuple[list]:
     df = convert_fasta_to_df(fasta_file)
     part_1 = df.loc[:, column1].to_list()
     part_2 = df.loc[:, column2].to_list()
     return part_1, part_2
 
 
+def select_columns(columns):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            df = func(*args, **kwargs)
+            return df.loc[:, columns]
+        return wrapper
+    return decorator
+
+
+@select_columns(["identifier", "cluster"])
 def add_clusters(df: pd.DataFrame) -> pd.DataFrame:
     df.columns = ["repr", "identifier"]
 
@@ -112,7 +124,6 @@ def add_clusters(df: pd.DataFrame) -> pd.DataFrame:
         clusters.append(count)
 
     df["cluster"] = clusters
-    df = df.loc[:, ["identifier", "cluster"]]
     return df
 
 
@@ -123,7 +134,7 @@ def exclude_common_train_seqs(train, test):
     return train
 
 
-def add_source_to_id(train: pd.DataFrame, test: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+def add_source_to_id(train: pd.DataFrame, test: pd.DataFrame) -> tuple[pd.DataFrame]:
     train["identifier"] = train["identifier"].apply(lambda x: x + "_train")
     test["identifier"] = test["identifier"].apply(lambda x: x + "_test")
     return train, test
@@ -136,7 +147,7 @@ def delete_source_from_id(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def delete_common_seqs(train: pd.DataFrame,
-                       test: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+                       test: pd.DataFrame) -> tuple[pd.DataFrame]:
 
     # delete common seqs from both dataframes
     common_seqs = test.merge(train, on=["sequence"])["sequence"]
@@ -147,13 +158,13 @@ def delete_common_seqs(train: pd.DataFrame,
     return train_sep, test_sep
 
 
-def find_common_seqs(train: pd.DataFrame, test: pd.DataFrame) -> list:
+def find_common_seqs(train: pd.DataFrame, test: pd.DataFrame) -> list[str]:
     # find common seqs in test
     common_seqs = test.merge(train, on=["sequence"])["identifier_x"].to_list()
     return common_seqs
 
 
-def intersect_cluster_seq(df: pd.DataFrame, source: str = "test") -> list:
+def intersect_cluster_seq(df: pd.DataFrame, source: str = "test") -> list[int]:
     id_seqs = []
     grouped = df.groupby("cluster")
     for _, group in grouped:

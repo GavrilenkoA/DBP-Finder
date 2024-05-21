@@ -7,6 +7,21 @@ from sklearn.metrics import (accuracy_score, recall_score,
                              f1_score, roc_curve)
 import matplotlib.pyplot as plt
 
+# from utils import make_balanced_df
+
+
+# def reduce_train(clusters_train_test, train, test):
+#     a = clusters_train_test.merge(train, on=["identifier"])
+#     b = clusters_train_test.merge(test, on=["identifier"])
+
+#     exclude_train = a.merge(b,
+#                             on=["cluster"])["identifier_x"].drop_duplicates()
+
+#     train = train.loc[~train["identifier"].isin(exclude_train)]
+#     train = make_balanced_df(train)
+#     train = train.merge(clusters_train_test, on=["identifier"])
+#     return train
+
 
 def load_obj(file_path: str) -> dict[str, np.ndarray]:
     with open(file_path, "rb") as file:

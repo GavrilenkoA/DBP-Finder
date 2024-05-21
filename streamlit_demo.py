@@ -1,7 +1,6 @@
 import streamlit as st
-from scripts.train_src import merge_embed
 from scripts.utils import collect_df
-from scripts.train_src import make_inference_lama_df, predict
+from scripts.train_src import merge_embed, make_inference_lama_df, predict
 from scripts.embeds import get_embeds
 
 
