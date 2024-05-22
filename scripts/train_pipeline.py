@@ -5,8 +5,8 @@ import clearml
 from clearml import Task as clearml_task
 from clearml import Logger
 
-from scripts.utils import SEED
-from scripts.train_src import (make_lama_df, merge_embed, Metrics, form_Xy, plot_roc_curve)
+from utils import SEED
+from train_src import make_lama_df, merge_embed, Metrics, form_Xy, plot_roc_curve
 
 
 input_test = input()
@@ -40,7 +40,7 @@ task = Task("binary")
 
 automl = TabularAutoML(
     task=task,
-    reader_params={'random_state': SEED})
+    reader_params={"random_state": SEED})
 
 oof_pred = automl.fit_predict(
     df_train,
@@ -63,6 +63,4 @@ test_metrics = metrics.get_metrics()
 
 logger.report_table(title='Test metrics', series='pandas DataFrame',
                     table_plot=test_metrics)
-
-
 plot_roc_curve(y_test, test_prob, input_test)

@@ -12,18 +12,15 @@ output_mmseq = cluster_data(train, test, identity=0.5)
 output_mmseq = reduce_train(output_mmseq)
 
 train["identifier"] = train["identifier"].apply(lambda x: x.split("_")[0])
-
 train = train.merge(output_mmseq, on="identifier")
 train = make_balanced_df(train)
 
 target_path = f"data/ready_data/train_{input_test}.csv"
 target_path_repr = f"data/ready_data/train_{input_test}_repr.csv"
-
 train.to_csv(target_path, index=False)
 
 
 grouped = train.groupby("cluster")
-
 repr_df = []
 for _, group in grouped:
     repr_df.append(group.iloc[0:1])
