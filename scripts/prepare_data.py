@@ -4,7 +4,10 @@ from cluster_sequences import cluster_data
 from utils import reduce_train, make_balanced_df
 
 
-def make_redundant_train(input_test):
+input_test = input()
+
+
+def make_redundant_train():
     train = pd.read_csv("data/embeddings/input_csv/train_p2.csv")
     test = pd.read_csv(f"data/embeddings/input_csv/{input_test}.csv")
 
@@ -22,7 +25,7 @@ def make_redundant_train(input_test):
     return train
 
 
-def make_single_for_cluster_train(train, input_test):
+def make_single_for_cluster_train(train):
     grouped = train.groupby("cluster")
 
     single_df = []
@@ -42,8 +45,6 @@ def make_single_for_cluster_train(train, input_test):
 
 
 def main():
-    input_test = input()
-
     train = make_redundant_train(input_test)
     make_single_for_cluster_train(train, input_test)
 

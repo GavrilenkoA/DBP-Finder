@@ -113,7 +113,7 @@ def predict(df_test):
 
 
 def filter_test_by_kingdom(test: pd.DataFrame, test_input: str, kingdom: str):
-    df = pd.read_csv(f'../data/processed/{test_input}_kingdom.csv')
+    df = pd.read_csv(f'data/processed/{test_input}_kingdom.csv')
     subset_df = df[df['kingdom'] == f'{kingdom}']
     test = test.merge(subset_df, on="identifier")
     return test
