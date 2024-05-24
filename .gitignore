@@ -43,4 +43,5 @@ tmp
 scripts/inference.py
 scripts/train.py
 scripts/get_cluster.py
+scripts/data
 logs
