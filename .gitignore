@@ -32,6 +32,9 @@ data/uniprot/uniprotkb_gene_AND_go_0003677_AND_revie_2024_02_29.fasta
 data/uniprot/uniprotkb_gene_NOT_go_0003677_NOT_go_00_2024_02_29.fasta
 data/uniprot/rna_binders_human.fasta
 data/processed
+models/*
+!models/DBP-finder.pkl
+
 
 
 hmmer
