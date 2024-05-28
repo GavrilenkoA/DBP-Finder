@@ -2,9 +2,15 @@ import joblib
 import pandas as pd
 import numpy as np
 import pickle
-from sklearn.metrics import (accuracy_score, recall_score,
-                             precision_score, matthews_corrcoef, roc_auc_score,
-                             f1_score, roc_curve)
+from sklearn.metrics import (
+    accuracy_score,
+    recall_score,
+    precision_score,
+    matthews_corrcoef,
+    roc_auc_score,
+    f1_score,
+    roc_curve,
+)
 import matplotlib.pyplot as plt
 
 
@@ -16,8 +22,7 @@ def load_obj(file_path: str) -> dict[str, np.ndarray]:
 
 def get_embeds(file_path: str) -> pd.DataFrame:
     dict_data = load_obj(file_path)
-    df = pd.DataFrame(list(dict_data.items()),
-                      columns=["identifier", "embedding"])
+    df = pd.DataFrame(list(dict_data.items()), columns=["identifier", "embedding"])
     return df
 
 
@@ -29,7 +34,9 @@ def merge_embed(df: pd.DataFrame, file_path: str) -> pd.DataFrame:
     return out_df
 
 
-def make_lama_df(X: np.ndarray, y: np.ndarray, clusters: None | str = None) -> pd.DataFrame:
+def make_lama_df(
+    X: np.ndarray, y: np.ndarray, clusters: None | str = None
+) -> pd.DataFrame:
     df = pd.DataFrame(X)
     df.columns = [f"component_{i}" for i in range(df.shape[1])]
     df["label"] = y
@@ -48,7 +55,7 @@ def form_Xy(df: pd.DataFrame, clusters: None | str = None):
     X = process_embeddings(df["embedding"])
     y = df["label"].values
     if clusters is not None:
-        clusters = df['cluster'].values
+        clusters = df["cluster"].values
         return X, y, clusters
     return X, y
 
@@ -61,8 +68,9 @@ def make_inference_lama_df(df: pd.DataFrame) -> pd.DataFrame:
 
 
 class Metrics:
-    def __init__(self, y_true: np.ndarray, y_pred: np.ndarray,
-                 y_prob: np.ndarray, descr: str) -> None:
+    def __init__(
+        self, y_true: np.ndarray, y_pred: np.ndarray, y_prob: np.ndarray, descr: str
+    ) -> None:
         self.y_true = y_true
         self.y_pred = y_pred
         self.y_prob = y_prob
@@ -78,13 +86,13 @@ class Metrics:
         roc_auc_value = roc_auc_score(self.y_true, self.y_prob)
 
         metrics_dict = {
-            'accuracy': accuracy_val,
-            'sensitivity': recall_val,
-            'specificity': specificity_val,
-            'precision': precision_val,
-            'AUC': roc_auc_value,
-            'F1': f1_value,
-            'MCC': mcc_val
+            "accuracy": accuracy_val,
+            "sensitivity": recall_val,
+            "specificity": specificity_val,
+            "precision": precision_val,
+            "AUC": roc_auc_value,
+            "F1": f1_value,
+            "MCC": mcc_val,
         }
 
         metrics_df = pd.DataFrame(metrics_dict, index=[self.descr])
@@ -95,11 +103,11 @@ def plot_roc_curve(y_true, y_pred, name_dataset):
     fpr, tpr, _ = roc_curve(y_true, y_pred)
     auc = roc_auc_score(y_true, y_pred)
 
-    plt.plot(fpr, tpr, label='ROC Curve (area = %0.2f)' % auc)
-    plt.plot([0, 1], [0, 1], 'k--')
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title(f'ROC Curve on {name_dataset} dataset')
+    plt.plot(fpr, tpr, label="ROC Curve (area = %0.2f)" % auc)
+    plt.plot([0, 1], [0, 1], "k--")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title(f"ROC Curve on {name_dataset} dataset")
     plt.legend(loc="lower right")
     plt.show()
 
@@ -107,13 +115,15 @@ def plot_roc_curve(y_true, y_pred, name_dataset):
 def predict(df_test):
     model = joblib.load("models/DBP-finder.pkl")
     test_pred = model.predict(df_test)
-    test_prob = test_pred.data.reshape(-1, )
+    test_prob = test_pred.data.reshape(
+        -1,
+    )
     test_pred = (test_pred.data[:, 0] > 0.5) * 1
     return test_prob, test_pred
 
 
 def filter_test_by_kingdom(test: pd.DataFrame, test_input: str, kingdom: str):
-    df = pd.read_csv(f'data/processed/{test_input}_kingdom.csv')
-    subset_df = df[df['kingdom'] == f'{kingdom}']
+    df = pd.read_csv(f"data/processed/{test_input}_kingdom.csv")
+    subset_df = df[df["kingdom"] == f"{kingdom}"]
     test = test.merge(subset_df, on="identifier")
     return test

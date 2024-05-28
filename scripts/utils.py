@@ -20,15 +20,16 @@ def reduce_train(output_mmseq):
     a = output_mmseq.loc[output_mmseq["source"] == "train"]
     b = output_mmseq.loc[output_mmseq["source"] == "test"]
 
-    exclude_train = a.merge(b,
-                            on=["cluster"])["identifier_x"].drop_duplicates()
+    exclude_train = a.merge(b, on=["cluster"])["identifier_x"].drop_duplicates()
 
     a = a.loc[~a["identifier"].isin(exclude_train)]
     a = a.drop("source", axis=1)
     return a
 
 
-def save_csv(df: pd.DataFrame, basename: str, path: str = "data/embeddings/input_csv/") -> None:
+def save_csv(
+    df: pd.DataFrame, basename: str, path: str = "data/embeddings/input_csv/"
+) -> None:
     path = path + f"{basename}.csv"
     df.to_csv(path, index=False)
 
@@ -80,8 +81,7 @@ def collect_df(content: str) -> pd.DataFrame:
         sequences.append(seq)
 
     assert len(identifiers) == len(sequences)
-    df = pd.DataFrame({"identifier": identifiers,
-                       "sequence": sequences})
+    df = pd.DataFrame({"identifier": identifiers, "sequence": sequences})
     return df
 
 
@@ -92,7 +92,9 @@ def convert_fasta_to_df(fasta_file: str) -> pd.DataFrame:
     return df
 
 
-def extract_columns(fasta_file: str, column1: str = "identifier", column2: str = "sequence") -> tuple[list]:
+def extract_columns(
+    fasta_file: str, column1: str = "identifier", column2: str = "sequence"
+) -> tuple[list]:
     df = convert_fasta_to_df(fasta_file)
     part_1 = df.loc[:, column1].to_list()
     part_2 = df.loc[:, column2].to_list()
@@ -105,7 +107,9 @@ def select_columns(columns):
         def wrapper(*args, **kwargs):
             df = func(*args, **kwargs)
             return df.loc[:, columns]
+
         return wrapper
+
     return decorator
 
 
@@ -146,8 +150,7 @@ def delete_source_from_id(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def delete_common_seqs(train: pd.DataFrame,
-                       test: pd.DataFrame) -> tuple[pd.DataFrame]:
+def delete_common_seqs(train: pd.DataFrame, test: pd.DataFrame) -> tuple[pd.DataFrame]:
 
     # delete common seqs from both dataframes
     common_seqs = test.merge(train, on=["sequence"])["sequence"]

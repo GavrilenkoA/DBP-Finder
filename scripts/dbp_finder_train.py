@@ -11,19 +11,12 @@ train = merge_embed(train, "data/embeddings/ankh_embeddings/train_p2.pkl")
 X_train, y_train, clusters_train = form_Xy(train, clusters="Yes")
 df_train = make_lama_df(X_train, y_train, clusters=clusters_train)
 
-roles = {
-    "target": "label",
-    "group": "cluster"
-}
+roles = {"target": "label", "group": "cluster"}
 
 task = Task("binary")
-automl = TabularAutoML(
-    task=task,
-    reader_params={'random_state': SEED})
+automl = TabularAutoML(task=task, reader_params={"random_state": SEED})
 
-oof_pred = automl.fit_predict(
-    df_train,
-    roles=roles)
+oof_pred = automl.fit_predict(df_train, roles=roles)
 
 
 joblib.dump(automl, "models/DBP-finder.pkl")
