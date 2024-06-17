@@ -39,7 +39,6 @@ models/*
 
 
 hmmer
-train-code
 notebooks
 notes.txt
 wget_data

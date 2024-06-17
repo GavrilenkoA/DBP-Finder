@@ -1,4 +1,5 @@
 import pandas as pd
+import subprocess
 from utils import (
     write_fasta,
     add_clusters,
@@ -6,7 +7,6 @@ from utils import (
     add_source_to_id,
     delete_source_from_id,
 )
-import subprocess
 
 
 def cluster_data(
