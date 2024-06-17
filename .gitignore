@@ -5,6 +5,7 @@
 .log
 
 # ignore data
+data/go_terms
 data/clusters/*
 data/DBP_papers_data
 data/fasta/*
