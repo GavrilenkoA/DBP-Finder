@@ -1,5 +1,6 @@
 from functools import wraps
 import pandas as pd
+import h5py
 
 
 SEED = 42
@@ -175,3 +176,33 @@ def intersect_cluster_seq(df: pd.DataFrame, source: str = "test") -> list[int]:
             id_ = group[group["source"] == source]["identifier"].to_list()
             id_seqs.extend(id_)
     return id_seqs
+
+
+def save_dict_to_hdf5(data_dict, filename):
+    """
+    Save a dictionary with string keys and NumPy array values to an HDF5 file.
+
+    Parameters:
+    data_dict (dict): Dictionary with string keys and NumPy array values.
+    filename (str): Name of the HDF5 file to save the data.
+    """
+    with h5py.File(filename, 'w') as f:
+        for key, value in data_dict.items():
+            f.create_dataset(key, data=value)
+
+
+def load_dict_from_hdf5(filename):
+    """
+    Load a dictionary with string keys and NumPy array values from an HDF5 file.
+
+    Parameters:
+    filename (str): Name of the HDF5 file to load the data from.
+
+    Returns:
+    dict: Dictionary with string keys and NumPy array values.
+    """
+    loaded_dict = {}
+    with h5py.File(filename, 'r') as f:
+        for key in f.keys():
+            loaded_dict[key] = f[key][:]
+    return loaded_dict

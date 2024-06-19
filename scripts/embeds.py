@@ -3,7 +3,12 @@ import numpy as np
 import torch
 import pandas as pd
 import pickle
+from tqdm import tqdm
 from transformers import AutoTokenizer, EsmModel, T5EncoderModel, T5Tokenizer
+from utils import save_dict_to_hdf5
+
+
+DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 def select_model_tokenizer(model_name: str) -> None:
@@ -40,17 +45,15 @@ def calculate_embeds(tokenizer, model, seq: str, model_name: str) -> np.ndarray:
         )
 
         with torch.no_grad():
-            inputs.to(torch.device("cuda"))
-            outputs = model(**inputs)
-            embedding = outputs.last_hidden_state.mean(axis=1).view(-1).cpu().numpy()
+            inputs.to(DEVICE)
+            output = model(**inputs)
 
     elif model_name == "esm":
         inputs = tokenizer(seq, return_tensors="pt")
 
         with torch.no_grad():
-            inputs.to(torch.device("cuda"))
-            outputs = model(**inputs)
-            embedding = outputs.last_hidden_state.mean(axis=1).view(-1).cpu().numpy()
+            inputs.to(DEVICE)
+            output = model(**inputs)
 
     elif model_name == "prot5":
         item = []
@@ -66,9 +69,10 @@ def calculate_embeds(tokenizer, model, seq: str, model_name: str) -> np.ndarray:
         attention_mask = torch.tensor(ids["attention_mask"]).to(torch.device("cuda"))
 
         with torch.no_grad():
-            embedding = model(input_ids=input_ids, attention_mask=attention_mask)
-            embedding = embedding.last_hidden_state.mean(axis=1).view(-1).cpu().numpy()
+            output = model(input_ids=input_ids, attention_mask=attention_mask)
 
+    embedding = output.last_hidden_state.cpu().numpy()   # mean(axis=1).view(-1)
+    embedding = np.squeeze(embedding)
     return embedding
 
 
@@ -81,15 +85,16 @@ def get_embeds(
         return id_, seq
 
     data = input_df.apply(lambda x: pull_data(x), axis=1).tolist()
-    outputs = {}
 
     model, tokenizer = select_model_tokenizer(model_name)
-    model.to(torch.device("cuda"))
+    model.to(DEVICE)
     model.eval()
 
-    for item in data:
+    outputs = {}
+    for item in tqdm(data, total=len(data)):
         id_, seq = item
         embedding = calculate_embeds(tokenizer, model, seq, model_name)
         outputs[id_] = embedding
 
-    save_embeds(outputs, data_name, model_name)
+    # save_embeds(outputs, data_name, model_name)
+    save_dict_to_hdf5(outputs, f"data/embeddings/{model_name}_embeddings/{data_name}.h5")
