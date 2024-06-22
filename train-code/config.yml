@@ -16,6 +16,6 @@ training_config:
   factor: 0.5
   patience: 2
   min_lr: 1e-6
-  batch_size: 128
+  batch_size: 64
   num_workers: 4
   optimizer: 'adamw'

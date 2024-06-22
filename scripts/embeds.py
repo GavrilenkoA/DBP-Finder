@@ -65,8 +65,8 @@ def calculate_embeds(tokenizer, model, seq: str, model_name: str) -> np.ndarray:
         item = ["".join(item)]
 
         ids = tokenizer.batch_encode_plus(item, add_special_tokens=False, padding=False)
-        input_ids = torch.tensor(ids["input_ids"]).to(torch.device("cuda"))
-        attention_mask = torch.tensor(ids["attention_mask"]).to(torch.device("cuda"))
+        input_ids = torch.tensor(ids["input_ids"]).to(DEVICE)
+        attention_mask = torch.tensor(ids["attention_mask"]).to(DEVICE)
 
         with torch.no_grad():
             output = model(input_ids=input_ids, attention_mask=attention_mask)
@@ -97,4 +97,5 @@ def get_embeds(
         outputs[id_] = embedding
 
     # save_embeds(outputs, data_name, model_name)
-    save_dict_to_hdf5(outputs, f"data/embeddings/{model_name}_embeddings/{data_name}.h5")
+
+    save_dict_to_hdf5(outputs, f"../../../ssd2/dbp_finder/{model_name}_embeddings/{data_name}.h5")
