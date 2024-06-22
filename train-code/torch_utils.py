@@ -110,7 +110,7 @@ def calculate_metrics(
     return metrics
 
 
-def validate_fn(binary_classification_model, test_dataloader, scheduler, DEVICE):
+def validate_fn(binary_classification_model, valid_dataloader, DEVICE):
     binary_classification_model.eval()
     loss = 0.0
     all_preds = []
@@ -118,7 +118,7 @@ def validate_fn(binary_classification_model, test_dataloader, scheduler, DEVICE)
     logits = []
 
     with torch.no_grad():
-        for x, y in test_dataloader:
+        for x, y in valid_dataloader:
             x = x.to(DEVICE)
             y = y.to(DEVICE)
 
@@ -133,7 +133,6 @@ def validate_fn(binary_classification_model, test_dataloader, scheduler, DEVICE)
             all_preds.extend(preds.cpu().numpy())
             all_labels.extend(y.cpu().numpy())
 
-    epoch_loss = loss / len(test_dataloader)
-    scheduler.step(epoch_loss)
+    epoch_loss = loss / len(valid_dataloader)
     metrics = calculate_metrics(all_labels, all_preds, logits)
     return epoch_loss, metrics
