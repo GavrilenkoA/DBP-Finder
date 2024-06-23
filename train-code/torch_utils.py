@@ -113,10 +113,6 @@ def calculate_metrics(
 def validate_fn(binary_classification_model, valid_dataloader, DEVICE):
     binary_classification_model.eval()
     loss = 0.0
-    all_preds = []
-    all_labels = []
-    logits = []
-
     with torch.no_grad():
         for x, y in valid_dataloader:
             x = x.to(DEVICE)
@@ -127,12 +123,5 @@ def validate_fn(binary_classification_model, valid_dataloader, DEVICE):
             output = binary_classification_model(x, y)
             loss += output.loss.item()
 
-            preds = (output.logits > 0.5).float()
-
-            logits.extend(output.logits.cpu().numpy())
-            all_preds.extend(preds.cpu().numpy())
-            all_labels.extend(y.cpu().numpy())
-
     epoch_loss = loss / len(valid_dataloader)
-    metrics = calculate_metrics(all_labels, all_preds, logits)
-    return epoch_loss, metrics
+    return epoch_loss

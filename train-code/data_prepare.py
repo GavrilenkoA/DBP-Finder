@@ -50,9 +50,6 @@ def prepare_folds(
     valid_folds = []
 
     for train_idx, valid_idx in gkf.split(X, y, groups=groups):
-        train_idx = train_idx.tolist()
-        valid_idx = valid_idx.tolist()
-
         train = train_df.iloc[train_idx]
         valid = train_df.iloc[valid_idx]
 
