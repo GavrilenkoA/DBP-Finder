@@ -13,10 +13,11 @@ from torch_utils import (
     train_fn,
     validate_fn,
 )
-from data_prepare import prepare_folds
+from data_prepare import prepare_embed_df, make_folds
 
 
-train, valid = prepare_folds()
+df = prepare_embed_df()
+train, valid = make_folds(df)
 
 
 def objective(trial):
@@ -25,10 +26,10 @@ def objective(trial):
     batch_size = trial.suggest_categorical("batch_size", [32, 64, 128])
     lr = trial.suggest_float("lr", 1e-5, 1e-1, log=True)
     pooling = trial.suggest_categorical("pooling", ["max", "avg"])
-    hidden_dim = trial.suggest_int("hidden_dim", 1536, 1824)
+    hidden_dim = trial.suggest_int("hidden_dim", 1425, 2120)
     dropout = trial.suggest_float("dropout", 0.0, 0.3, step=0.1)
-    num_hidden_layers = trial.suggest_int("num_hidden_layers", 1, 3)
-    num_layers = trial.suggest_int("num_layers", 1, 3)
+    num_hidden_layers = trial.suggest_int("num_hidden_layers", 1, 2)
+    num_layers = trial.suggest_int("num_layers", 1, 2)
     nhead = trial.suggest_int("nhead", 3, 6)
 
     binary_classification_model = ankh.ConvBertForBinaryClassification(
@@ -63,17 +64,11 @@ def objective(trial):
         collate_fn=custom_collate_fn,
     )
 
-    best_val_loss = float("inf")
-    for _ in range(15):
-        _ = train_fn(binary_classification_model, train_dataloader, optimizer, DEVICE)
-        valid_loss, _ = validate_fn(
-            binary_classification_model, valid_dataloader, DEVICE
-        )
+    for _ in range(8):
+        train_fn(binary_classification_model, train_dataloader, optimizer, DEVICE)
 
-        if valid_loss < best_val_loss:
-            best_val_loss = valid_loss
-
-    return best_val_loss
+    valid_loss, _ = validate_fn(binary_classification_model, valid_dataloader, DEVICE)
+    return valid_loss
 
 
 def main():

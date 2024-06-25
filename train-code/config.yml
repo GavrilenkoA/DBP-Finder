@@ -10,7 +10,7 @@ model_config:
 
 
 training_config:
-  epochs: 10
+  epochs: 9
   lr: 2e-4
   seed: 42
   factor: 0.5

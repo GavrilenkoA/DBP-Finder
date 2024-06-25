@@ -52,7 +52,7 @@ class CustomBatchSampler(BatchSampler):
             key=lambda i: self.dataset.lengths[i], reverse=True
         )  # Sort indices by sequence length
         batches = [
-            indices[i : i + self.batch_size]
+            indices[i:i + self.batch_size]
             for i in range(0, len(indices), self.batch_size)
         ]
         for batch in batches:
@@ -110,9 +110,13 @@ def calculate_metrics(
     return metrics
 
 
-def validate_fn(binary_classification_model, valid_dataloader, DEVICE):
+def validate_fn(binary_classification_model, valid_dataloader, scheduler, DEVICE):
     binary_classification_model.eval()
     loss = 0.0
+    all_preds = []
+    all_labels = []
+    logits = []
+
     with torch.no_grad():
         for x, y in valid_dataloader:
             x = x.to(DEVICE)
@@ -123,5 +127,44 @@ def validate_fn(binary_classification_model, valid_dataloader, DEVICE):
             output = binary_classification_model(x, y)
             loss += output.loss.item()
 
+            preds = (output.logits > 0.5).float()
+
+            logits.extend(output.logits.cpu().numpy())
+            all_preds.extend(preds.cpu().numpy())
+            all_labels.extend(y.cpu().numpy())
+
     epoch_loss = loss / len(valid_dataloader)
-    return epoch_loss
+    scheduler.step(epoch_loss)
+    metrics = calculate_metrics(all_labels, all_preds, logits)
+    return epoch_loss, metrics
+
+
+def evaluate_fn(models, testing_dataloader, DEVICE):
+    all_labels = []
+    all_logits = []
+
+    with torch.no_grad():
+        for x, y in testing_dataloader:
+            x = x.to(DEVICE)
+            y = y.to(DEVICE)
+
+            y = y.unsqueeze(1)
+            ens_logits = []
+
+            for model in models:
+                model.eval()
+                model = model.to(DEVICE)
+                output = model(x, y)
+
+                logits = output.logits
+                ens_logits.append(logits)
+
+            ens_logits = torch.stack(ens_logits, dim=0)
+            ens_logits = torch.mean(ens_logits, dim=0)
+
+            all_logits.extend(ens_logits.cpu().numpy())
+            all_labels.extend(y.cpu().numpy())
+
+    all_preds = [1 if logit > 0.5 else 0 for logit in all_logits]
+    metrics = calculate_metrics(all_labels, all_preds, all_logits)
+    return metrics

@@ -1,12 +1,12 @@
 import requests
 import pandas as pd
 from tqdm import tqdm
-from utils import filter_df, extract_columns
+from utils import convert_fasta_to_df, filter_df
 
-# rna binding "GO:0003723 dna binding "GO:0003677"
+# rna binding "GO:0003723 dna binding "GO:0003677 Binding to a nucleic acid GO:0003676"
 
 
-def have_annotation(id_protein: str, go_id: set[str] = {"GO:0003723"}) -> bool:
+def search_annotation(id_protein: str, go_id: set[str] = {"GO:0003677", "GO:0003677", "GO:0003676"}) -> bool:
     url = f"https://www.ebi.ac.uk/QuickGO/services/annotation/search?geneProductId={id_protein}"
     page = 1
     has_annotation = False
@@ -14,60 +14,56 @@ def have_annotation(id_protein: str, go_id: set[str] = {"GO:0003723"}) -> bool:
     while True:
         # Append the page parameter to the URL for pagination
         paginated_url = f"{url}&page={page}"
-        response = requests.get(paginated_url)
+        try:
+            response = requests.get(paginated_url, timeout=10)  # Timeout set to 10 seconds
 
-        # Check for errors in response
-        if response.status_code != 200:
-            print(f"Failed to fetch data: {response.status_code}, url:{paginated_url}")
-            break
-
-        annotation_data = response.json()
-        # Iterate through results to find the GO term
-        for item in annotation_data["results"]:
-            if item["goId"] in go_id:
-                has_annotation = True
+            # Check for errors in response
+            if response.status_code != 200:
+                print(f"Failed to fetch data: {response.status_code}, url:{paginated_url}")
                 break
 
-        if has_annotation or page == annotation_data["pageInfo"]["total"]:
-            break
+            annotation_data = response.json()
+            # Iterate through results to find the GO term
+            for item in annotation_data["results"]:
+                if item["goId"] in go_id:
+                    has_annotation = True
+                    break
 
-        page += 1  # Increment the page number to fetch the next page
+            if has_annotation or page == annotation_data["pageInfo"]["total"] or annotation_data["pageInfo"]["total"] == 0:
+                break
+
+            page += 1  # Increment the page number to fetch the next page
+
+        except requests.exceptions.Timeout:
+            print(f"Request timed out for url: {paginated_url}")
+            break
+        except requests.exceptions.RequestException as e:
+            print(f"An error occurred: {e}")
+            break
 
     return has_annotation
 
 
-def write_not_annotated_seqs(identifiers: list, sequences: list) -> pd.DataFrame:
+def write_not_annotated_seqs(df: pd.DataFrame) -> pd.DataFrame:
     identifiers_ = []
     sequences_ = []
-    labels_ = []
 
-    for id_, seq in tqdm(zip(identifiers, sequences), total=len(identifiers)):
-        identifiers_.append(id_)
-        sequences_.append(seq)
+    for row in tqdm(df.itertuples(), total=len(df)):
+        if not search_annotation(row.identifier):
+            identifiers_.append(row.identifier)
+            sequences_.append(row.sequence)
 
-        if not have_annotation(id_):
-            labels_.append(0)
-        else:
-            labels_.append(1)
-
-    df = pd.DataFrame(
-        {"identifier": identifiers_, "sequence": sequences_, "label": labels_}
-    )
+    df = pd.DataFrame({"identifier": identifiers_, "sequence": sequences_})
     return df
 
 
 def main():
-    # name_file = "go_0003677_swissprot"
-    # input_fasta = f"data/uniprot/{name_file}.fasta"
-
-    # identifiers, sequences = extract_columns(input_fasta)
-    df = pd.read_csv("data/embeddings/input_csv/pdb20000.csv")
-    identifiers = df["identifier"].to_list()
-    sequences = df["sequence"].to_list()
-
-    df = write_not_annotated_seqs(identifiers, sequences)
-    # df = filter_df(df)
-    df.to_csv("data/processed/rna_binders_pdb20000.csv", index=False)
+    organism = input()
+    input_fasta = f"data/not_annotated/{organism}.fasta"
+    df = convert_fasta_to_df(input_fasta)
+    df = filter_df(df)
+    df = write_not_annotated_seqs(df)
+    df.to_csv(f"data/not_annotated/empty_annot_{organism}.csv", index=False)
 
 
 if __name__ == "__main__":
