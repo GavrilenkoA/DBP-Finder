@@ -48,3 +48,4 @@ scripts/train.py
 scripts/get_cluster.py
 scripts/data
 logs
+train-code/checkpoints

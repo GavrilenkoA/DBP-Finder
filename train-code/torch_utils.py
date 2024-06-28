@@ -110,7 +110,7 @@ def calculate_metrics(
     return metrics
 
 
-def validate_fn(binary_classification_model, valid_dataloader, scheduler, DEVICE):
+def validate_fn(binary_classification_model, valid_dataloader, DEVICE):
     binary_classification_model.eval()
     loss = 0.0
     all_preds = []
@@ -134,9 +134,9 @@ def validate_fn(binary_classification_model, valid_dataloader, scheduler, DEVICE
             all_labels.extend(y.cpu().numpy())
 
     epoch_loss = loss / len(valid_dataloader)
-    scheduler.step(epoch_loss)
-    metrics = calculate_metrics(all_labels, all_preds, logits)
-    return epoch_loss, metrics
+    # scheduler.step(epoch_loss)
+    # metrics = calculate_metrics(all_labels, all_preds, logits)
+    return epoch_loss
 
 
 def evaluate_fn(models, testing_dataloader, DEVICE):

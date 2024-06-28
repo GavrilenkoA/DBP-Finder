@@ -42,7 +42,7 @@ def make_folds(
         train_folds.append(train)
         valid_folds.append(valid)
 
-    return train_folds, valid_folds
+    return train_folds[0], valid_folds[0]
 
 
 def prepare_embed_df(
