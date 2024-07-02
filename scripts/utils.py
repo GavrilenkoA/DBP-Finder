@@ -1,7 +1,9 @@
+import re
+import subprocess
 from functools import wraps
-import pandas as pd
-import h5py
 
+import h5py
+import pandas as pd
 
 SEED = 42
 
@@ -17,15 +19,17 @@ def make_balanced_df(df, seed=SEED):
     return balanced_df
 
 
-def reduce_train(output_mmseq):
-    a = output_mmseq.loc[output_mmseq["source"] == "train"]
-    b = output_mmseq.loc[output_mmseq["source"] == "test"]
+def reduce_train(output_mmseq: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    train_set = output_mmseq.loc[output_mmseq["source"] == "train"]
+    test_set = output_mmseq.loc[output_mmseq["source"] == "test"]
 
-    exclude_train = a.merge(b, on=["cluster"])["identifier_x"].drop_duplicates()
+    exclude_train = train_set.merge(test_set, on=["cluster"])[
+        "identifier_x"
+    ].drop_duplicates()
+    train_set = train_set.loc[~train_set["identifier"].isin(exclude_train)]
+    train_set = train_set.drop("source", axis=1)
 
-    a = a.loc[~a["identifier"].isin(exclude_train)]
-    a = a.drop("source", axis=1)
-    return a
+    return train_set
 
 
 def save_csv(
@@ -134,15 +138,18 @@ def add_clusters(df: pd.DataFrame) -> pd.DataFrame:
 
 def exclude_common_train_seqs(train, test):
     # delete common seqs from train
-    common_id = test.merge(train, on=["sequence"])["identifier_y"]
+    common_id = train.merge(test, on=["sequence"])["identifier_x"]
     train = train.loc[~train["identifier"].isin(common_id)]
     return train
 
 
 def add_source_to_id(train: pd.DataFrame, test: pd.DataFrame) -> tuple[pd.DataFrame]:
-    train["identifier"] = train["identifier"].apply(lambda x: x + "_train")
-    test["identifier"] = test["identifier"].apply(lambda x: x + "_test")
-    return train, test
+    train_ = train.copy(deep=True)
+    test_ = test.copy(deep=True)
+
+    train_["identifier"] = train_["identifier"].apply(lambda x: x + "_train")
+    test_["identifier"] = test_["identifier"].apply(lambda x: x + "_test")
+    return train_, test_
 
 
 def delete_source_from_id(df: pd.DataFrame) -> pd.DataFrame:
@@ -186,7 +193,7 @@ def save_dict_to_hdf5(data_dict, filename):
     data_dict (dict): Dictionary with string keys and NumPy array values.
     filename (str): Name of the HDF5 file to save the data.
     """
-    with h5py.File(filename, 'w') as f:
+    with h5py.File(filename, "w") as f:
         for key, value in data_dict.items():
             f.create_dataset(key, data=value)
 
@@ -202,7 +209,68 @@ def load_dict_from_hdf5(filename):
     dict: Dictionary with string keys and NumPy array values.
     """
     loaded_dict = {}
-    with h5py.File(filename, 'r') as f:
+    with h5py.File(filename, "r") as f:
         for key in f.keys():
             loaded_dict[key] = f[key][:]
     return loaded_dict
+
+
+def cluster_sequences(
+    fasta_input: str = "data/fasta/merged.fasta",
+    output_dir: str = "data/clusters/merged",
+    identity: float = 0.5,
+) -> pd.DataFrame:
+    # Calculate coverage
+    coverage = identity + 0.1
+
+    # Run mmseqs easy-cluster
+    subprocess.run(
+        f"mmseqs easy-cluster {fasta_input} {output_dir} tmp --min-seq-id {identity} -c {coverage} --cov-mode 0",
+        shell=True,
+        check=True,  # Raises an error if the command fails
+    )
+
+    # Parse clusters
+    output_mmseqs = pd.read_csv(f"{output_dir}_cluster.tsv", sep="\t", header=None)
+    return output_mmseqs
+
+
+class RNADataset:
+    def __init__(self, path: str) -> None:
+        self.path = path
+
+    def raname_columns(self) -> pd.DataFrame:
+        df = pd.read_csv(self.path)
+        df.drop("Unnamed: 0", axis=1, inplace=True)
+        df.rename(columns={"Meta": "identifier", "pep": "sequence"}, inplace=True)
+        return df
+
+    def extract_test_counts(self) -> tuple[int, int]:
+        # Compile the regex pattern to find number after 'TeP'
+        pattern_pos = re.compile(r".*TeP(\d+).*")
+        pattern_neg = re.compile(r".*TeN(\d+).*")
+
+        # Perform the match
+        match_1 = pattern_pos.match(self.path)
+        match_2 = pattern_neg.match(self.path)
+
+        if match_1 and match_2:
+            return int(match_1.group(1)), int(match_2.group(1))
+        else:
+            raise ValueError("Input string does not match expected pattern.")
+
+    @staticmethod
+    def filter_length(df: pd.DataFrame, threshold: int = 1024):
+        df["sequence"] = df["sequence"].apply(
+            lambda seq: seq[:threshold] if len(seq) > threshold else seq
+        )
+
+    def get_data(self) -> tuple[pd.DataFrame, pd.DataFrame]:
+        df = self.raname_columns()
+        counts_pos, counts_neg = self.extract_test_counts()
+
+        pos_samples = df[df["label"] == 1].tail(counts_pos)
+        neg_samples = df[df["label"] == 0].tail(counts_neg)
+        sample = pd.concat([pos_samples, neg_samples])
+        self.filter_length(sample)
+        return sample

@@ -1,8 +1,8 @@
-import pandas as pd
 import joblib
+import pandas as pd
 from lightautoml.automl.presets.tabular_presets import TabularAutoML
 from lightautoml.tasks import Task
-from train_src import make_lama_df, merge_embed, form_Xy
+from train_src import form_Xy, make_lama_df, merge_embed
 from utils import SEED
 
 train = pd.read_csv("data/ready_data/my_train0.5.csv")

@@ -1,23 +1,16 @@
+import argparse
+import os
+
+import clearml
+import joblib
 import pandas as pd
+from clearml import Logger
+from clearml import Task as clearml_task
 from lightautoml.automl.presets.tabular_presets import TabularAutoML
 from lightautoml.tasks import Task
-import clearml
-from clearml import Task as clearml_task
-from clearml import Logger
-import joblib
-import os
-import argparse
-
+from train_src import (Metrics, filter_test_by_kingdom, form_Xy, make_lama_df,
+                       merge_embed, plot_roc_curve)
 from utils import SEED
-from train_src import (
-    make_lama_df,
-    merge_embed,
-    Metrics,
-    form_Xy,
-    plot_roc_curve,
-    filter_test_by_kingdom,
-)
-
 
 parser = argparse.ArgumentParser(description="DBP-finder training")
 parser.add_argument(

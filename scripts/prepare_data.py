@@ -1,25 +1,24 @@
-import pandas as pd
+import argparse
 import os
-from cluster_sequences import cluster_data
-from utils import reduce_train, make_balanced_df
+
+import pandas as pd
+from train_test_cluster import cluster_data
+from utils import RNADataset, make_balanced_df, reduce_train
 
 
-def make_redundant_train(input_test):
-    train = pd.read_csv("data/embeddings/input_csv/train_p2.csv")
-    test = pd.read_csv(f"data/embeddings/input_csv/{input_test}.csv")
+def make_redundant_train(path_train: str, path_test: str):
+    train = pd.read_csv(path_train)
 
-    output_mmseq = cluster_data(train, test, identity=0.5)
-    output_mmseq = reduce_train(output_mmseq)
+    test_dataset = RNADataset(path_test)
+    test = test_dataset.get_data()
 
-    train["identifier"] = train["identifier"].apply(lambda x: x.split("_")[0])
-    train = train.merge(output_mmseq, on="identifier")
+    output_mmseq = cluster_data(train, test)
+    reduced_train = reduce_train(output_mmseq)
+
+    train = train.merge(reduced_train, on="identifier")
     train = make_balanced_df(train)
 
-    train_path = f"data/ready_data/train_{input_test}.csv"
-    if not os.path.exists(train_path):
-        train.to_csv(train_path, index=False)
-
-    return train
+    return train, test
 
 
 def make_single_for_cluster_train(train, input_test):
@@ -42,9 +41,17 @@ def make_single_for_cluster_train(train, input_test):
 
 
 def main():
-    input_test = input()
-    train = make_redundant_train(input_test)
-    make_single_for_cluster_train(train, input_test)
+    # parser = argparse.ArgumentParser(description="Program\
+    #                                 for clustering protein sequences")
+    # parser.add_argument("path_train", type=str, help="A string argument")
+    # parser.add_argument("path_test", type=str, help="A string argument")
+
+    # args = parser.parse_args()
+    train, test = make_redundant_train(
+        "data/rna/processed/train.csv",
+        "data/rna/raw/9606_accending_trP1170_trN8485_VaP126_VaN942_TeP178_TeN1202_pep_label.csv",
+    )
+    train.to_csv("ex.csv", index=False)
 
 
 if __name__ == "__main__":

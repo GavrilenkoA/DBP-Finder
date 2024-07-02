@@ -1,12 +1,12 @@
+import pickle
+
 import ankh
 import numpy as np
-import torch
 import pandas as pd
-import pickle
+import torch
 from tqdm import tqdm
 from transformers import AutoTokenizer, EsmModel, T5EncoderModel, T5Tokenizer
 from utils import save_dict_to_hdf5
-
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -71,7 +71,7 @@ def calculate_embeds(tokenizer, model, seq: str, model_name: str) -> np.ndarray:
         with torch.no_grad():
             output = model(input_ids=input_ids, attention_mask=attention_mask)
 
-    embedding = output.last_hidden_state.cpu().numpy()   # mean(axis=1).view(-1)
+    embedding = output.last_hidden_state.cpu().numpy()  # mean(axis=1).view(-1)
     embedding = np.squeeze(embedding)
     return embedding
 
@@ -98,4 +98,6 @@ def get_embeds(
 
     # save_embeds(outputs, data_name, model_name)
 
-    save_dict_to_hdf5(outputs, f"../../../ssd2/dbp_finder/{model_name}_embeddings/{data_name}.h5")
+    save_dict_to_hdf5(
+        outputs, f"../../../ssd2/dbp_finder/{model_name}_embeddings/{data_name}.h5"
+    )

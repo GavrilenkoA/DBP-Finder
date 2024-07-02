@@ -1,17 +1,12 @@
-import joblib
-import pandas as pd
-import numpy as np
 import pickle
-from sklearn.metrics import (
-    accuracy_score,
-    recall_score,
-    precision_score,
-    matthews_corrcoef,
-    roc_auc_score,
-    f1_score,
-    roc_curve,
-)
+
+import joblib
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from sklearn.metrics import (accuracy_score, f1_score, matthews_corrcoef,
+                             precision_score, recall_score, roc_auc_score,
+                             roc_curve)
 
 
 def load_obj(file_path: str) -> dict[str, np.ndarray]:

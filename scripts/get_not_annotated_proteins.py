@@ -1,17 +1,17 @@
-import requests
-import time
-import pandas as pd
-from tqdm import tqdm
 import logging
+import time
+
+import pandas as pd
+import requests
+from tqdm import tqdm
 from utils import convert_fasta_to_df, filter_df
 
 # rna binding "GO:0003723 dna binding "GO:0003677 Binding to a nucleic acid GO:0003676"
 
-organism = input()
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    filename=f"logs/{organism}_annot.log",
+    filename="logs/rna_5_annot_score_neg_cl.log",
     filemode="a",
 )
 logger = logging.getLogger(__name__)
@@ -82,11 +82,13 @@ def write_not_annotated_seqs(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def main():
-    input_fasta = f"data/not_annotated/{organism}.fasta"
+    input_fasta = (
+        "data/rna/raw/5_uniprotkb_gene_NOT_go_0003677_NOT_go_00_2024_06_26.fasta"
+    )
     df = convert_fasta_to_df(input_fasta)
     df = filter_df(df)
     df = write_not_annotated_seqs(df)
-    df.to_csv(f"data/not_annotated/{organism}.csv", index=False)
+    df.to_csv("data/rna/processed/5_annot_score_neg_cl.csv", index=False)
 
 
 if __name__ == "__main__":
