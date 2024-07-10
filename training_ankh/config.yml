@@ -1,0 +1,21 @@
+model_config:
+  input_dim: 1536
+  nhead: 4
+  hidden_dim: 1536
+  num_hidden_layers: 1
+  num_layers: 1
+  kernel_size: 7
+  dropout: 0.2
+  pooling: max
+
+
+training_config:
+  epochs: 9
+  lr: 2e-4
+  seed: 42
+  factor: 0.5
+  patience: 2
+  min_lr: 1e-6
+  batch_size: 64
+  num_workers: 4
+  optimizer: adamw
