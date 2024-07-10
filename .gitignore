@@ -18,6 +18,7 @@ data/embeddings/input_csv/*
 !data/embeddings/input_csv/pdb1000.csv
 !data/embeddings/input_csv/pdb20000.csv
 !data/embeddings/input_csv/pdb2272.csv
+!data/embeddings/input_csv/train_p2.csv
 data/interpro_data/
 data/nakb/
 data/not_annotated/*
@@ -44,4 +45,3 @@ notes.txt
 wget_data
 tmp
 logs
-train-code/checkpoints
