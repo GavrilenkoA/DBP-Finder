@@ -1,4 +1,3 @@
-# %%
 import ankh
 import numpy as np
 import torch
@@ -17,11 +16,9 @@ from torch_utils import (
     validate_fn,
 )
 
-# %%
 import clearml
 from clearml import Logger, Task
 
-# %%
 clearml.browser_login()
 task = Task.init(
     project_name="DBPs_search",
