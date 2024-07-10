@@ -5,7 +5,6 @@ from utils import add_clusters, cluster_sequences, write_fasta
 
 
 def cluster_data(path_data: str) -> pd.DataFrame:
-
     df = pd.read_csv(path_data)
 
     write_fasta(df, "merged.fasta")
@@ -18,8 +17,10 @@ def cluster_data(path_data: str) -> pd.DataFrame:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Program\
-                                    for clustering protein sequences")
+    parser = argparse.ArgumentParser(
+        description="Program\
+                                    for clustering protein sequences"
+    )
     parser.add_argument("input_path", type=str, help="A string argument")
     parser.add_argument("output_path", type=str, help="A string argument")
 

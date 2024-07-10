@@ -2,23 +2,25 @@ import argparse
 import os
 
 import pandas as pd
+from rna_process_data import load_test_rna_datasets
 from train_test_cluster import cluster_data
-from utils import RNADataset, make_balanced_df, reduce_train
+from utils import make_balanced_df, reduce_train
 
 
-def make_redundant_train(path_train: str, path_test: str):
+def make_redundant_train(path_train: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     train = pd.read_csv(path_train)
-
-    test_dataset = RNADataset(path_test)
-    test = test_dataset.get_data()
+    test = load_test_rna_datasets()
 
     output_mmseq = cluster_data(train, test)
-    reduced_train = reduce_train(output_mmseq)
+    clustered_train, clustered_test = reduce_train(output_mmseq)
 
-    train = train.merge(reduced_train, on="identifier")
-    train = make_balanced_df(train)
+    train_ = train.merge(clustered_train, on="identifier")
+    train_ = make_balanced_df(train_)
 
-    return train, test
+    test_ = test.merge(clustered_test, on="identifier")
+    assert len(test_) == len(test), "Lost test sequences"
+
+    return train_, test_
 
 
 def make_single_for_cluster_train(train, input_test):
@@ -41,17 +43,17 @@ def make_single_for_cluster_train(train, input_test):
 
 
 def main():
-    # parser = argparse.ArgumentParser(description="Program\
-    #                                 for clustering protein sequences")
-    # parser.add_argument("path_train", type=str, help="A string argument")
-    # parser.add_argument("path_test", type=str, help="A string argument")
-
-    # args = parser.parse_args()
-    train, test = make_redundant_train(
-        "data/rna/processed/train.csv",
-        "data/rna/raw/9606_accending_trP1170_trN8485_VaP126_VaN942_TeP178_TeN1202_pep_label.csv",
+    parser = argparse.ArgumentParser(
+        description="Program\
+                                    for clustering protein sequences"
     )
-    train.to_csv("ex.csv", index=False)
+    parser.add_argument("path_train", type=str, help="A string argument")
+    args = parser.parse_args()
+
+    train, test = make_redundant_train(args.path_train)
+
+    train.to_csv("data/rna/splits/train.csv", index=False)
+    test.to_csv("data/rna/splits/test.csv", index=False)
 
 
 if __name__ == "__main__":

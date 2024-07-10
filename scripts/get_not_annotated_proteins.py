@@ -11,7 +11,7 @@ from utils import convert_fasta_to_df, filter_df
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    filename="logs/rna_5_annot_score_neg_cl.log",
+    filename="logs/model_org_not_annot.log",
     filemode="a",
 )
 logger = logging.getLogger(__name__)
@@ -82,13 +82,11 @@ def write_not_annotated_seqs(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def main():
-    input_fasta = (
-        "data/rna/raw/5_uniprotkb_gene_NOT_go_0003677_NOT_go_00_2024_06_26.fasta"
-    )
+    input_fasta = "data/not_annotated/raw_fasta/merged.fasta"
     df = convert_fasta_to_df(input_fasta)
     df = filter_df(df)
     df = write_not_annotated_seqs(df)
-    df.to_csv("data/rna/processed/5_annot_score_neg_cl.csv", index=False)
+    df.to_csv("data/not_annotated/not_annotated_seqs_v0.csv", index=False)
 
 
 if __name__ == "__main__":

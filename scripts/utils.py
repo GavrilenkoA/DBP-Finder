@@ -20,16 +20,20 @@ def make_balanced_df(df, seed=SEED):
 
 
 def reduce_train(output_mmseq: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-    train_set = output_mmseq.loc[output_mmseq["source"] == "train"]
-    test_set = output_mmseq.loc[output_mmseq["source"] == "test"]
+    train_set = output_mmseq[output_mmseq["source"] == "train"]
+    test_set = output_mmseq[output_mmseq["source"] == "test"]
 
     exclude_train = train_set.merge(test_set, on=["cluster"])[
         "identifier_x"
     ].drop_duplicates()
-    train_set = train_set.loc[~train_set["identifier"].isin(exclude_train)]
-    train_set = train_set.drop("source", axis=1)
+    train_set = train_set[~train_set["identifier"].isin(exclude_train)]
 
-    return train_set
+    intersect_clusters_df = train_set.merge(test_set, on="cluster")
+    assert len(intersect_clusters_df) == 0, "Train and test intersect clusters"
+
+    train_set = train_set.drop("source", axis=1)
+    test_set = test_set.drop("source", axis=1)
+    return train_set, test_set
 
 
 def save_csv(
@@ -139,7 +143,7 @@ def add_clusters(df: pd.DataFrame) -> pd.DataFrame:
 def exclude_common_train_seqs(train, test):
     # delete common seqs from train
     common_id = train.merge(test, on=["sequence"])["identifier_x"]
-    train = train.loc[~train["identifier"].isin(common_id)]
+    train = train[~train["identifier"].isin(common_id)]
     return train
 
 
@@ -159,7 +163,6 @@ def delete_source_from_id(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def delete_common_seqs(train: pd.DataFrame, test: pd.DataFrame) -> tuple[pd.DataFrame]:
-
     # delete common seqs from both dataframes
     common_seqs = test.merge(train, on=["sequence"])["sequence"]
 

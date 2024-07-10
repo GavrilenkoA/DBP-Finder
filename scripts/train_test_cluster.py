@@ -5,7 +5,6 @@ from utils import (add_clusters, add_source_to_id, cluster_sequences,
 
 
 def cluster_data(train: pd.DataFrame, test: pd.DataFrame) -> pd.DataFrame:
-
     train, test = add_source_to_id(train, test)
     train = exclude_common_train_seqs(train, test)
 
