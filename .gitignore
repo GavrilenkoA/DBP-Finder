@@ -6,12 +6,12 @@
 
 # ignore data
 data/go_terms
-data/clusters/*
+data/clusters/
 data/DBP_papers_data
-data/fasta/*
+data/fasta/
 data/embeddings/ankh_embeddings/*
 !data/embeddings/ankh_embeddings/.gitkeep
-data/embeddings/esm_embeddings/*
+data/embeddings/esm_embeddings/
 data/embeddings/prot5_embeddings/
 data/embeddings/input_csv/*
 !data/embeddings/input_csv/pdb186.csv
@@ -20,8 +20,9 @@ data/embeddings/input_csv/*
 !data/embeddings/input_csv/pdb2272.csv
 data/interpro_data/
 data/nakb/
-data/not_annotated/
-data/predictions/*
+data/not_annotated/*
+!data/not_annotated/not_annotated_seqs_v1.csv
+data/predictions/
 data/proteinfer/
 data/splits/*
 !data/splits/train_pdb186.csv
@@ -34,17 +35,13 @@ data/uniprot/uniprotkb_gene_AND_go_0003677_AND_revie_2024_02_29.fasta
 data/uniprot/uniprotkb_gene_NOT_go_0003677_NOT_go_00_2024_02_29.fasta
 data/uniprot/rna_binders_human.fasta
 data/processed
+
+
 models
-
-
-
 hmmer
 notebooks
 notes.txt
 wget_data
 tmp
-scripts/inference.py
-scripts/train.py
-scripts/data
 logs
 train-code/checkpoints
