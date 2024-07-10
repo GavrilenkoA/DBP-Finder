@@ -1,5 +1,4 @@
 import pickle
-
 import ankh
 import numpy as np
 import pandas as pd
@@ -8,7 +7,7 @@ from tqdm import tqdm
 from transformers import AutoTokenizer, EsmModel, T5EncoderModel, T5Tokenizer
 from utils import save_dict_to_hdf5
 
-DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+DEVICE = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
 
 def select_model_tokenizer(model_name: str) -> None:
@@ -77,7 +76,7 @@ def calculate_embeds(tokenizer, model, seq: str, model_name: str) -> np.ndarray:
 
 
 def get_embeds(
-    input_df: pd.DataFrame, data_name: str, model_name: str = "ankh"
+    input_df: pd.DataFrame, model_name: str, data_name: str
 ) -> None:
     def pull_data(x):
         id_ = x["identifier"]
@@ -99,5 +98,5 @@ def get_embeds(
     # save_embeds(outputs, data_name, model_name)
 
     save_dict_to_hdf5(
-        outputs, f"../../../ssd2/dbp_finder/{model_name}_embeddings/{data_name}.h5"
+        outputs, f"data/embeddings/{model_name}_embeddings/{data_name}_2d.h5"
     )
