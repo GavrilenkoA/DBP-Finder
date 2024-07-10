@@ -67,9 +67,7 @@ def objective(trial):
     best_val_loss = float("inf")
     for _ in range(8):
         train_fn(binary_classification_model, train_dataloader, optimizer, DEVICE)
-        valid_loss = validate_fn(
-            binary_classification_model, valid_dataloader, DEVICE
-        )
+        valid_loss = validate_fn(binary_classification_model, valid_dataloader, DEVICE)
 
         if valid_loss < best_val_loss:
             best_val_loss = valid_loss
@@ -82,19 +80,26 @@ def main():
     task = Task.init(
         project_name="DBPs_search",
         task_name="Optuna search fold 0 pdb2272",
-        output_uri=False)
+        output_uri=False,
+    )
 
     logger = Logger.current_logger()
 
-    study = optuna.create_study(direction='minimize')
+    study = optuna.create_study(direction="minimize")
     study.optimize(objective, n_trials=25)
     trial = study.best_trial
     for key, value in trial.params.items():
         message = f"{key}: {value}"
         logger.report_text(message, level=logging.DEBUG, print_console=True)
 
-    logger.report_text(f"Best trial number: {trial.number}", level=logging.INFO, print_console=True)
-    logger.report_text(f"Best trial value (loss): {trial.value}", level=logging.INFO, print_console=True)
+    logger.report_text(
+        f"Best trial number: {trial.number}", level=logging.INFO, print_console=True
+    )
+    logger.report_text(
+        f"Best trial value (loss): {trial.value}",
+        level=logging.INFO,
+        print_console=True,
+    )
 
     task.close()
 

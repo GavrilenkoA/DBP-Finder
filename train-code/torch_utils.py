@@ -52,7 +52,7 @@ class CustomBatchSampler(BatchSampler):
             key=lambda i: self.dataset.lengths[i], reverse=True
         )  # Sort indices by sequence length
         batches = [
-            indices[i:i + self.batch_size]
+            indices[i : i + self.batch_size]
             for i in range(0, len(indices), self.batch_size)
         ]
         for batch in batches:
@@ -110,7 +110,7 @@ def calculate_metrics(
     return metrics
 
 
-def validate_fn(binary_classification_model, valid_dataloader, DEVICE):
+def validate_fn(binary_classification_model, valid_dataloader, scheduler, DEVICE):
     binary_classification_model.eval()
     loss = 0.0
     all_preds = []
@@ -134,9 +134,9 @@ def validate_fn(binary_classification_model, valid_dataloader, DEVICE):
             all_labels.extend(y.cpu().numpy())
 
     epoch_loss = loss / len(valid_dataloader)
-    # scheduler.step(epoch_loss)
-    # metrics = calculate_metrics(all_labels, all_preds, logits)
-    return epoch_loss
+    scheduler.step(epoch_loss)
+    metrics = calculate_metrics(all_labels, all_preds, logits)
+    return epoch_loss, metrics
 
 
 def evaluate_fn(models, testing_dataloader, DEVICE):

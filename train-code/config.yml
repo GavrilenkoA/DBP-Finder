@@ -18,4 +18,4 @@ training_config:
   min_lr: 1e-6
   batch_size: 64
   num_workers: 4
-  optimizer: 'adamw'
+  optimizer: adamw

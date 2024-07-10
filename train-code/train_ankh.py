@@ -1,7 +1,6 @@
 # %%
 import ankh
 import numpy as np
-import pandas as pd
 import torch
 import yaml
 import logging
@@ -16,7 +15,6 @@ from torch_utils import (
     CustomBatchSampler,
     train_fn,
     validate_fn,
-    evaluate_fn,
 )
 
 # %%
@@ -27,7 +25,7 @@ from clearml import Logger, Task
 clearml.browser_login()
 task = Task.init(
     project_name="DBPs_search",
-    task_name="Finetune Ankh pdb 1000",
+    task_name="Training DBP-finder",
     output_uri=True,
 )
 logger = Logger.current_logger()
@@ -63,7 +61,6 @@ num_workers = config["training_config"]["num_workers"]
 DEVICE = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
 
 
-# %%
 def set_seed(seed):
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
@@ -72,44 +69,11 @@ def set_seed(seed):
 
 set_seed(seed)
 
-# %% [markdown]
-# train - pd dataframe
 
-# %%
-# binary_classification_model = ankh.ConvBertForBinaryClassification(
-#     input_dim=1536,
-#     nhead=7,
-#     hidden_dim=1723,
-#     num_hidden_layers=2,
-#     num_layers=1,
-#     kernel_size=7,
-#     dropout=dropout,
-#     pooling=pooling,
-# )
-
-# %%
-# binary_classification_model = binary_classification_model.to(DEVICE)
-
-# %%
-# a, b = next(iter(train_dataloader))
-
-# %%
-# output = binary_classification_model(a.to(DEVICE), b.to(DEVICE).unsqueeze(1))
-
-# %%
-# optimizer = AdamW(binary_classification_model.parameters(), lr=float(lr))
-# scheduler = ReduceLROnPlateau(
-#     optimizer, mode="min", factor=factor, patience=patience, min_lr=float(min_lr)
-# )
-
-# %%
-df = prepare_embed_df(csv_path="../data/ready_data/train_pdb1000.csv")
+df = prepare_embed_df(csv_path="../data/splits/train_p2.csv")
 train_folds, valid_folds = make_folds(df)
 
-# %%
-df.label.value_counts()
 
-# %%
 for i in range(len(train_folds)):
     train_dataset = SequenceDataset(train_folds[i])
     train_sampler = CustomBatchSampler(train_dataset, batch_size)
@@ -147,7 +111,7 @@ for i in range(len(train_folds)):
     )
 
     best_val_loss = float("inf")
-    best_model_path = f"checkpoints/pdb1000_best_model_{i}.pth"
+    best_model_path = f"checkpoints/DBP-finder_{i}.pth"
 
     for epoch in range(epochs):
         train_loss = train_fn(
@@ -184,109 +148,4 @@ for i in range(len(train_folds)):
             message = f"Saved Best Model on epoch {epoch} with Validation Loss: {best_val_loss}"
             logger.report_text(message, level=logging.DEBUG, print_console=False)
 
-# %% [markdown]
-# Inference average best models
-
-# %%
-model_0 = ankh.ConvBertForBinaryClassification(
-    input_dim=input_dim,
-    nhead=nhead,
-    hidden_dim=hidden_dim,
-    num_hidden_layers=num_hidden_layers,
-    num_layers=num_layers,
-    kernel_size=kernel_size,
-    dropout=dropout,
-    pooling=pooling,
-)
-
-model_1 = ankh.ConvBertForBinaryClassification(
-    input_dim=input_dim,
-    nhead=nhead,
-    hidden_dim=hidden_dim,
-    num_hidden_layers=num_hidden_layers,
-    num_layers=num_layers,
-    kernel_size=kernel_size,
-    dropout=dropout,
-    pooling=pooling,
-)
-
-model_2 = ankh.ConvBertForBinaryClassification(
-    input_dim=input_dim,
-    nhead=nhead,
-    hidden_dim=hidden_dim,
-    num_hidden_layers=num_hidden_layers,
-    num_layers=num_layers,
-    kernel_size=kernel_size,
-    dropout=dropout,
-    pooling=pooling,
-)
-
-model_3 = ankh.ConvBertForBinaryClassification(
-    input_dim=input_dim,
-    nhead=nhead,
-    hidden_dim=hidden_dim,
-    num_hidden_layers=num_hidden_layers,
-    num_layers=num_layers,
-    kernel_size=kernel_size,
-    dropout=dropout,
-    pooling=pooling,
-)
-
-model_4 = ankh.ConvBertForBinaryClassification(
-    input_dim=input_dim,
-    nhead=nhead,
-    hidden_dim=hidden_dim,
-    num_hidden_layers=num_hidden_layers,
-    num_layers=num_layers,
-    kernel_size=kernel_size,
-    dropout=dropout,
-    pooling=pooling,
-)
-
-# %%
-model_0.load_state_dict(torch.load("checkpoints/pdb1000_best_model_0.pth"))
-model_1.load_state_dict(torch.load("checkpoints/pdb1000_best_model_1.pth"))
-model_2.load_state_dict(torch.load("checkpoints/pdb1000_best_model_2.pth"))
-model_3.load_state_dict(torch.load("checkpoints/pdb1000_best_model_3.pth"))
-model_4.load_state_dict(torch.load("checkpoints/pdb1000_best_model_4.pth"))
-
-# %%
-models = [model_0, model_1, model_2, model_3, model_4]
-
-# %% [markdown]
-# Testing on benchmark pdb2272
-
-# %%
-test_df = prepare_embed_df(
-    embedding_path="../../../../ssd2/dbp_finder/ankh_embeddings/pdb1000_2d.h5",
-    csv_path="../data/embeddings/input_csv/pdb1000.csv",
-)
-
-# %%
-test_df.label.value_counts()
-
-# %%
-test_df
-
-# %%
-testing_set = SequenceDataset(test_df)
-testing_dataloader = DataLoader(
-    testing_set,
-    num_workers=num_workers,
-    shuffle=False,
-    batch_size=1,
-)
-
-# %%
-metrics = evaluate_fn(models, testing_dataloader, DEVICE)
-
-# %%
-metrics_df = pd.DataFrame(metrics, index=["pdb1000"])
-
-# %%
-logger.report_table(title="pdb1000", series="Metrics", table_plot=metrics_df)
-
-# %%
 task.close()
-
-# %%

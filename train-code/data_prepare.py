@@ -24,11 +24,10 @@ def load_dict_from_hdf5(filename):
 def make_folds(
     df: pd.DataFrame, n_splits: int = 5
 ) -> tuple[list[pd.DataFrame], list[pd.DataFrame]]:
-
     # Prepare data for GroupKFold
-    X = df["sequence"].tolist()
-    y = df["label"].tolist()
-    groups = df["cluster"].tolist()
+    X = df["sequence"]
+    y = df["label"]
+    groups = df["cluster"]
     gkf = GroupKFold(n_splits=n_splits)
 
     # Split data into training and validation folds
@@ -42,14 +41,13 @@ def make_folds(
         train_folds.append(train)
         valid_folds.append(valid)
 
-    return train_folds[0], valid_folds[0]
+    return train_folds, valid_folds
 
 
 def prepare_embed_df(
     embedding_path="../../../../ssd2/dbp_finder/ankh_embeddings/train_p2_2d.h5",
-    csv_path="../data/ready_data/train_pdb2272.csv",
+    csv_path="../data/splits/train_p2.csv",
 ) -> pd.DataFrame:
-
     # Load embeddings and process them
     embeddings = load_dict_from_hdf5(embedding_path)
     for key in embeddings:
@@ -64,3 +62,29 @@ def prepare_embed_df(
     embed_df = df.merge(embeddings_df, on="identifier")
     assert len(embed_df) == len(df), "embed_df and df have different lengths"
     return embed_df
+
+
+def prepare_test(
+    df: pd.DataFrame,
+    embedding_path="../../../../ssd2/dbp_finder/ankh_embeddings/train_p2_2d.h5",
+) -> pd.DataFrame:
+    # Load embeddings and process them
+    embeddings = load_dict_from_hdf5(embedding_path)
+    for key in embeddings:
+        embeddings[key] = np.squeeze(embeddings[key])
+
+    embeddings_df = pd.DataFrame(
+        list(embeddings.items()), columns=["identifier", "embedding"]
+    )
+
+    embed_df = df.merge(embeddings_df, on="identifier")
+    assert len(embed_df) == len(df), "embed_df and df have different lengths"
+    return embed_df
+
+
+def form_test_kindom(test_input: str, kingdom: str):
+    test_df = pd.read_csv(f"../data/embeddings/input_csv/{test_input}.csv")
+    kingdom_df = pd.read_csv(f"../data/processed/{test_input}_kingdom.csv")
+    subset_df = kingdom_df[kingdom_df["kingdom"] == f"{kingdom}"]
+    test = test_df.merge(subset_df, on="identifier")
+    return test
