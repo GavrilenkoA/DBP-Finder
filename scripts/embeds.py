@@ -1,10 +1,13 @@
-import torch
 import pickle
+
+import ankh
 import numpy as np
 import pandas as pd
+import torch
 from tqdm import tqdm
-from transformers import AutoTokenizer, T5Tokenizer, EsmModel, T5EncoderModel
-import ankh
+from transformers import AutoTokenizer, EsmModel, T5EncoderModel, T5Tokenizer
+from utils import save_dict_to_hdf5
+
 
 def select_model_tokenizer(model_name: str):
     if model_name == "ankh":
@@ -22,12 +25,16 @@ def select_model_tokenizer(model_name: str):
 
     return model, tokenizer
 
+
 def save_embeds(obj, data_name: str, model_name: str):
     filename = f"data/embeddings/{model_name}_embeddings/{data_name}.pkl"
     with open(filename, "wb") as file:
         pickle.dump(obj, file)
 
-def calculate_embeds(tokenizer, model, seq: str, model_name: str, device: torch.device) -> np.ndarray:
+
+def calculate_embeds(
+    tokenizer, model, seq: str, model_name: str, device: torch.device
+) -> np.ndarray:
     if model_name == "ankh":
         inputs = tokenizer(
             [seq],
@@ -67,6 +74,7 @@ def calculate_embeds(tokenizer, model, seq: str, model_name: str, device: torch.
     embedding = output.last_hidden_state.cpu().numpy()  # mean(axis=1).view(-1)
     embedding = np.squeeze(embedding)
     return embedding
+
 
 def get_embeds(
     input_df: pd.DataFrame, model_name: str, data_name: str, device: torch.device

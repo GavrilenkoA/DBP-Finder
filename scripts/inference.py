@@ -28,14 +28,17 @@ def main():
     test_metrics = metrics.get_metrics()
 
     clearml.browser_login()
-    clearml_task.init(project_name="DBPs_search",
-                      task_name=f"{basename}_{args.kingdom}",
-                      output_uri=True)
+    clearml_task.init(
+        project_name="DBPs_search",
+        task_name=f"{basename}_{args.kingdom}",
+        output_uri=True,
+    )
 
     logger = Logger.current_logger()
 
-    logger.report_table(title='Test metrics', series='pandas DataFrame',
-                        table_plot=test_metrics)
+    logger.report_table(
+        title="Test metrics", series="pandas DataFrame", table_plot=test_metrics
+    )
 
     plot_roc_curve(y_test, test_prob, basename)
 

@@ -1,7 +1,7 @@
+import h5py
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import GroupKFold
-import h5py
 
 
 def load_dict_from_hdf5(filename):
@@ -44,21 +44,27 @@ def make_folds(
     return train_folds, valid_folds
 
 
-def prepare_embed_df(
+def load_embeddings_to_df(embedding_path: str) -> pd.DataFrame:
+    # Load embeddings from the HDF5 file
+    embeddings = load_dict_from_hdf5(embedding_path)
+
+    # Convert the embeddings dictionary to a DataFrame
+    embeddings_df = pd.DataFrame(
+        list(embeddings.items()), columns=["identifier", "embedding"]
+    )
+    return embeddings_df
+
+
+def get_embed_clustered_df(
     embedding_path="../../../../ssd2/dbp_finder/ankh_embeddings/train_p2_2d.h5",
     csv_path="../data/splits/train_p2.csv",
 ) -> pd.DataFrame:
     # Load embeddings and process them
-    embeddings = load_dict_from_hdf5(embedding_path)
-    for key in embeddings:
-        embeddings[key] = np.squeeze(embeddings[key])
-
-    embeddings_df = pd.DataFrame(
-        list(embeddings.items()), columns=["identifier", "embedding"]
-    )
 
     # Load training data and merge with embeddings
     df = pd.read_csv(csv_path)
+    embeddings_df = load_embeddings_to_df(embedding_path)
+
     embed_df = df.merge(embeddings_df, on="identifier")
     assert len(embed_df) == len(df), "embed_df and df have different lengths"
     return embed_df

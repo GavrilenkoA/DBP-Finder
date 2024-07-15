@@ -1,22 +1,17 @@
+import logging
+
 import ankh
-import torch
+import clearml
 import optuna
+import torch
+from clearml import Logger, Task
+from data_prepare import get_embed_clustered_df, make_folds
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
-import clearml
-import logging
-from clearml import Logger, Task
-from torch_utils import (
-    SequenceDataset,
-    CustomBatchSampler,
-    custom_collate_fn,
-    train_fn,
-    validate_fn,
-)
-from data_prepare import prepare_embed_df, make_folds
+from torch_utils import (CustomBatchSampler, SequenceDataset,
+                         custom_collate_fn, train_fn, validate_fn)
 
-
-df = prepare_embed_df()
+df = get_embed_clustered_df()
 train, valid = make_folds(df)
 
 
