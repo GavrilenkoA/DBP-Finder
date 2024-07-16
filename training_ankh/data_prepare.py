@@ -1,7 +1,7 @@
 import h5py
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import GroupKFold
+from sklearn.model_selection import GroupKFold, StratifiedGroupKFold
 
 
 def load_dict_from_hdf5(filename):
@@ -28,13 +28,14 @@ def make_folds(
     X = df["sequence"]
     y = df["label"]
     groups = df["cluster"]
-    gkf = GroupKFold(n_splits=n_splits)
+    sgkf = StratifiedGroupKFold(n_splits=n_splits)
+    # gkf = GroupKFold(n_splits=n_splits)
 
     # Split data into training and validation folds
     train_folds = []
     valid_folds = []
 
-    for train_idx, valid_idx in gkf.split(X, y, groups=groups):
+    for train_idx, valid_idx in sgkf.split(X, y, groups=groups):
         train = df.iloc[train_idx]
         valid = df.iloc[valid_idx]
 
