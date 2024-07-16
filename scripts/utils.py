@@ -166,26 +166,16 @@ def delete_common_seqs(train: pd.DataFrame, test: pd.DataFrame) -> tuple[pd.Data
     # delete common seqs from both dataframes
     common_seqs = test.merge(train, on=["sequence"])["sequence"]
 
-    train_sep = train.loc[~train["sequence"].isin(common_seqs)]
-    test_sep = test.loc[~test["sequence"].isin(common_seqs)]
+    train = train[~train["sequence"].isin(common_seqs)]
+    test = test[~test["sequence"].isin(common_seqs)]
 
-    return train_sep, test_sep
+    return train, test
 
 
 def find_common_seqs(train: pd.DataFrame, test: pd.DataFrame) -> list[str]:
     # find common seqs in test
     common_seqs = test.merge(train, on=["sequence"])["identifier_x"].to_list()
     return common_seqs
-
-
-def intersect_cluster_seq(df: pd.DataFrame, source: str = "test") -> list[int]:
-    id_seqs = []
-    grouped = df.groupby("cluster")
-    for _, group in grouped:
-        if group["source"].nunique() > 1:
-            id_ = group[group["source"] == source]["identifier"].to_list()
-            id_seqs.extend(id_)
-    return id_seqs
 
 
 def save_dict_to_hdf5(data_dict, filename):
