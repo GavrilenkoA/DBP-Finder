@@ -1,3 +1,5 @@
+import random
+
 import ankh
 import numpy as np
 import pandas as pd
@@ -40,7 +42,7 @@ class InferenceDataset(Dataset):
 
         x = self.embeds[index]
         x = torch.tensor(x, dtype=torch.float)
-        return x, id_
+        return id_, x
 
 
 def custom_collate_fn(batch):
@@ -65,10 +67,11 @@ class CustomBatchSampler(BatchSampler):
             key=lambda i: self.dataset.lengths[i], reverse=True
         )  # Sort indices by sequence length
         batches = [
-            indices[i : i + self.batch_size]
+            indices[i:i + self.batch_size]
             for i in range(0, len(indices), self.batch_size)
         ]
         for batch in batches:
+            random.shuffle(batch)
             yield batch
 
     def __len__(self):
@@ -119,7 +122,6 @@ def calculate_metrics(
         "F1": f1,
         "MCC": mcc,
     }
-
     return metrics
 
 
