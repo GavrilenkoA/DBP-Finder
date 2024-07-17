@@ -1,43 +1,21 @@
-# %%
+import logging
+
 import ankh
+import clearml
 import numpy as np
 import torch
 import yaml
-import logging
-from torch.optim import AdamW
-from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import ReduceLROnPlateau
-
-from data_prepare import make_folds, prepare_embed_df
-from torch_utils import (
-    SequenceDataset,
-    custom_collate_fn,
-    CustomBatchSampler,
-    train_fn,
-    validate_fn,
-)
-
-# %%
-import clearml
 from clearml import Logger, Task
+from data_prepare import get_embed_clustered_df, make_folds
+from torch.optim import AdamW
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.utils.data import DataLoader
+from torch_utils import (CustomBatchSampler, SequenceDataset,
+                         custom_collate_fn, train_fn, validate_fn)
 
-# %%
-clearml.browser_login()
-task = Task.init(
-    project_name="DBPs_search",
-    task_name="Training DBP-finder",
-    output_uri=True,
-)
-logger = Logger.current_logger()
-
-# %%
 with open("config.yml", "r") as f:
     config = yaml.safe_load(f)
 
-# %%
-task.connect_configuration(config)
-
-# %%
 input_dim = config["model_config"]["input_dim"]
 nhead = config["model_config"]["nhead"]
 hidden_dim = config["model_config"]["hidden_dim"]
@@ -57,8 +35,8 @@ batch_size = config["training_config"]["batch_size"]
 seed = config["training_config"]["seed"]
 num_workers = config["training_config"]["num_workers"]
 
-# %%
-DEVICE = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
+
+DEVICE = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
 
 def set_seed(seed):
@@ -70,9 +48,21 @@ def set_seed(seed):
 set_seed(seed)
 
 
-df = prepare_embed_df(csv_path="../data/splits/train_p2.csv")
+df = get_embed_clustered_df(
+    embedding_path="../data/embeddings/ankh_embeddings/train_p2_2d.h5",
+    csv_path="../data/splits/train_p2.csv",
+)
 train_folds, valid_folds = make_folds(df)
 
+
+clearml.browser_login()
+task = Task.init(
+    project_name="DBPs_search",
+    task_name="Training DBP-finder",
+    output_uri=True,
+)
+logger = Logger.current_logger()
+task.connect_configuration(config)
 
 for i in range(len(train_folds)):
     train_dataset = SequenceDataset(train_folds[i])

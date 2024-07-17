@@ -8,10 +8,8 @@ from tqdm import tqdm
 from transformers import AutoTokenizer, EsmModel, T5EncoderModel, T5Tokenizer
 from utils import save_dict_to_hdf5
 
-DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
-def select_model_tokenizer(model_name: str) -> None:
+def select_model_tokenizer(model_name: str):
     if model_name == "ankh":
         model, tokenizer = ankh.load_large_model()
 
@@ -28,13 +26,15 @@ def select_model_tokenizer(model_name: str) -> None:
     return model, tokenizer
 
 
-def save_embeds(obj, data_name: str, model_name: str) -> None:
+def save_embeds(obj, data_name: str, model_name: str):
     filename = f"data/embeddings/{model_name}_embeddings/{data_name}.pkl"
     with open(filename, "wb") as file:
         pickle.dump(obj, file)
 
 
-def calculate_embeds(tokenizer, model, seq: str, model_name: str) -> np.ndarray:
+def calculate_embeds(
+    tokenizer, model, seq: str, model_name: str, device: torch.device
+) -> np.ndarray:
     if model_name == "ankh":
         inputs = tokenizer(
             [seq],
@@ -45,14 +45,14 @@ def calculate_embeds(tokenizer, model, seq: str, model_name: str) -> np.ndarray:
         )
 
         with torch.no_grad():
-            inputs.to(DEVICE)
+            inputs.to(device)
             output = model(**inputs)
 
     elif model_name == "esm":
         inputs = tokenizer(seq, return_tensors="pt")
 
         with torch.no_grad():
-            inputs.to(DEVICE)
+            inputs.to(device)
             output = model(**inputs)
 
     elif model_name == "prot5":
@@ -65,8 +65,8 @@ def calculate_embeds(tokenizer, model, seq: str, model_name: str) -> np.ndarray:
         item = ["".join(item)]
 
         ids = tokenizer.batch_encode_plus(item, add_special_tokens=False, padding=False)
-        input_ids = torch.tensor(ids["input_ids"]).to(DEVICE)
-        attention_mask = torch.tensor(ids["attention_mask"]).to(DEVICE)
+        input_ids = torch.tensor(ids["input_ids"]).to(device)
+        attention_mask = torch.tensor(ids["attention_mask"]).to(device)
 
         with torch.no_grad():
             output = model(input_ids=input_ids, attention_mask=attention_mask)
@@ -77,7 +77,7 @@ def calculate_embeds(tokenizer, model, seq: str, model_name: str) -> np.ndarray:
 
 
 def get_embeds(
-    input_df: pd.DataFrame, data_name: str, model_name: str = "ankh"
+    input_df: pd.DataFrame, model_name: str, data_name: str, device: torch.device
 ) -> None:
     def pull_data(x):
         id_ = x["identifier"]
@@ -87,17 +87,15 @@ def get_embeds(
     data = input_df.apply(lambda x: pull_data(x), axis=1).tolist()
 
     model, tokenizer = select_model_tokenizer(model_name)
-    model.to(DEVICE)
+    model.to(device)
     model.eval()
 
     outputs = {}
     for item in tqdm(data, total=len(data)):
         id_, seq = item
-        embedding = calculate_embeds(tokenizer, model, seq, model_name)
+        embedding = calculate_embeds(tokenizer, model, seq, model_name, device)
         outputs[id_] = embedding
 
-    # save_embeds(outputs, data_name, model_name)
-
     save_dict_to_hdf5(
-        outputs, f"../../../ssd2/dbp_finder/{model_name}_embeddings/{data_name}.h5"
+        outputs, f"data/embeddings/{model_name}_embeddings/{data_name}_2d.h5"
     )

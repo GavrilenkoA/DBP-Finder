@@ -1,23 +1,37 @@
-import ankh
-import torch
-import optuna
-from torch.optim import AdamW
-from torch.utils.data import DataLoader
-import clearml
 import logging
+
+import pandas as pd
+import ankh
+import clearml
+import optuna
+import torch
+import torch.nn as nn
 from clearml import Logger, Task
+from data_prepare import get_embed_clustered_df, make_folds
+from torch.optim import AdamW
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.utils.data import DataLoader
 from torch_utils import (
-    SequenceDataset,
     CustomBatchSampler,
+    SequenceDataset,
     custom_collate_fn,
     train_fn,
     validate_fn,
 )
-from data_prepare import prepare_embed_df, make_folds
 
+clearml.browser_login()
+task = Task.init(
+    project_name="DBPs_search",
+    task_name="Optuna search pdb2272",
+    output_uri=False,
+)
+logger = Logger.current_logger()
 
-df = prepare_embed_df()
-train, valid = make_folds(df)
+df = get_embed_clustered_df(
+    embedding_path="../data/embeddings/ankh_embeddings/train_p2_2d.h5",
+    csv_path="../data/splits/train_pdb2272.csv",
+)
+train_folds, valid_folds = make_folds(df)
 
 
 def objective(trial):
@@ -28,8 +42,8 @@ def objective(trial):
     pooling = trial.suggest_categorical("pooling", ["max", "avg"])
     hidden_dim = trial.suggest_int("hidden_dim", 1425, 2120)
     dropout = trial.suggest_float("dropout", 0.0, 0.3, step=0.1)
-    num_hidden_layers = trial.suggest_int("num_hidden_layers", 1, 2)
-    num_layers = trial.suggest_int("num_layers", 1, 2)
+    num_hidden_layers = trial.suggest_int("num_hidden_layers", 1, 3)
+    num_layers = trial.suggest_int("num_layers", 1, 3)
     nhead = trial.suggest_int("nhead", 3, 6)
 
     binary_classification_model = ankh.ConvBertForBinaryClassification(
@@ -42,49 +56,58 @@ def objective(trial):
         dropout=dropout,
         pooling=pooling,
     )
+    if torch.cuda.device_count() > 1:
+        binary_classification_model = nn.DataParallel(binary_classification_model)
 
     binary_classification_model = binary_classification_model.to(DEVICE)
     optimizer = AdamW(binary_classification_model.parameters(), lr=lr)
-
-    train_dataset = SequenceDataset(train)
-    train_sampler = CustomBatchSampler(train_dataset, batch_size)
-    train_dataloader = DataLoader(
-        train_dataset,
-        num_workers=4,
-        batch_sampler=train_sampler,
-        collate_fn=custom_collate_fn,
+    scheduler = ReduceLROnPlateau(
+        optimizer, mode="min", factor=0.5, patience=2, min_lr=1e-8
     )
 
-    valid_dataset = SequenceDataset(valid)
-    valid_sampler = CustomBatchSampler(valid_dataset, batch_size)
-    valid_dataloader = DataLoader(
-        valid_dataset,
-        num_workers=4,
-        batch_sampler=valid_sampler,
-        collate_fn=custom_collate_fn,
-    )
+    fold_losses = []
+    for fold in range(len(train_folds)):
+        train_df = train_folds[fold]
+        valid_df = valid_folds[fold]
 
-    best_val_loss = float("inf")
-    for _ in range(8):
-        train_fn(binary_classification_model, train_dataloader, optimizer, DEVICE)
-        valid_loss = validate_fn(binary_classification_model, valid_dataloader, DEVICE)
+        train_dataset = SequenceDataset(train_df)
+        train_sampler = CustomBatchSampler(train_dataset, batch_size)
+        train_dataloader = DataLoader(
+            train_dataset,
+            num_workers=4,
+            batch_sampler=train_sampler,
+            collate_fn=custom_collate_fn,
+        )
+
+        valid_dataset = SequenceDataset(valid_df)
+        valid_sampler = CustomBatchSampler(valid_dataset, batch_size)
+        valid_dataloader = DataLoader(
+            valid_dataset,
+            num_workers=4,
+            batch_sampler=valid_sampler,
+            collate_fn=custom_collate_fn,
+        )
+
+        best_val_loss = float("inf")
+        for epoch in range(11):
+            train_fn(binary_classification_model, train_dataloader, optimizer, DEVICE)
+            valid_loss, metrics = validate_fn(
+                binary_classification_model, valid_dataloader, scheduler, DEVICE
+            )
 
         if valid_loss < best_val_loss:
             best_val_loss = valid_loss
+            metrics_df = pd.DataFrame(metrics, index=["-"])
+            logger.report_table(
+                title=f"Fold {fold}", series=f"Epoch {epoch}", table_plot=metrics_df
+            )
 
-    return best_val_loss
+        fold_losses.append(best_val_loss)
+    avg_loss = sum(fold_losses) / len(fold_losses)
+    return avg_loss
 
 
 def main():
-    clearml.browser_login()
-    task = Task.init(
-        project_name="DBPs_search",
-        task_name="Optuna search fold 0 pdb2272",
-        output_uri=False,
-    )
-
-    logger = Logger.current_logger()
-
     study = optuna.create_study(direction="minimize")
     study.optimize(objective, n_trials=25)
     trial = study.best_trial
