@@ -5,7 +5,6 @@
 .log
 
 # ignore data
-data/go_terms
 data/clusters/
 data/DBP_papers_data
 data/fasta/
@@ -40,7 +39,6 @@ data/processed
 
 models
 hmmer
-notebooks
 notes.txt
 wget_data
 tmp
