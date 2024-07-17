@@ -48,8 +48,8 @@ def filter_df(df: pd.DataFrame) -> pd.DataFrame:
         valid_amino_acids = "SNYLRQDPMFCEWGTKIVAH"
         return all(char in valid_amino_acids for char in sequence)
 
-    df = df.loc[df["sequence"].apply(valid_sequence)]
-    df = df.loc[df["sequence"].apply(lambda x: 49 < len(x) < 1025)]
+    df = df[df["sequence"].apply(valid_sequence)]
+    df = df[df["sequence"].apply(lambda x: 49 < len(x) < 1025)]
     df = df.drop_duplicates(subset=["sequence"])
     return df
 
