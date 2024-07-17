@@ -30,7 +30,6 @@ def main():
     parser.add_argument(
         "--device", type=str, default="cuda:1", help="Device to use (default: 'cuda:1')"
     )
-
     args = parser.parse_args()
 
     # Determine the device
