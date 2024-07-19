@@ -22,7 +22,6 @@ data/embeddings/input_csv/*
 data/interpro_data/
 data/nakb/
 data/not_annotated/*
-!data/not_annotated/not_annotated_seqs_v1.csv
 data/predictions/
 data/proteinfer/
 data/splits/*
