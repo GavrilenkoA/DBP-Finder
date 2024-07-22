@@ -39,7 +39,6 @@ data/go_terms/uniprot_annotation_all_exPDB186.tsv
 
 
 models
-hmmer
 notes.txt
 wget_data
 tmp
