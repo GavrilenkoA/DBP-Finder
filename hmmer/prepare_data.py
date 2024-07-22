@@ -1,5 +1,6 @@
 import argparse
 import pandas as pd
+import os
 
 
 def write_train_fasta(df: pd.DataFrame, name_file: str) -> None:
@@ -18,37 +19,41 @@ def write_train_fasta(df: pd.DataFrame, name_file: str) -> None:
             file.write("\n")
 
 
+def write_test_fasta_dir(df, test_dir) -> None:
+    id_seqs = df["identifier"].values
+    sequences = df["sequence"].values
+
+    os.mkdir(test_dir)
+
+    for i in range(len(id_seqs)):
+        name_seq = id_seqs[i] + ".fasta"
+        seq = sequences[i]
+
+        with open(f"{test_dir}/{name_seq}", "w") as fi:
+            fi.write(">" + id_seqs[i])
+            fi.write("\n")
+
+            fi.write(seq)
+            fi.write("\n")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Convert a CSV file to a FASTA file")
-    parser.add_argument("csv_file", type=str, help="Path to the input CSV file")
-    parser.add_argument("fasta_file", type=str, help="Path to the output FASTA file")
+    parser.add_argument("train_csv", type=str, help="Path to the input CSV file")
+    parser.add_argument("test_csv", type=str, help="Path to the input CSV file")
 
     args = parser.parse_args()
 
     # Read the CSV file
-    df = pd.read_csv(args.csv_file)
+    train_df = pd.read_csv(args.train_csv)
+    test_df = pd.read_csv(args.test_csv)
 
-    # Write the FASTA file
-    write_train_fasta(df, args.fasta_file)
+    train_fasta = os.path.basename(args.train_csv).replace(".csv", ".fasta")
+    test_dir = os.path.basename(args.test_csv).replace(".csv", "")
+
+    write_train_fasta(train_df, train_fasta)
+    write_test_fasta_dir(test_df, test_dir)
 
 
 if __name__ == "__main__":
     main()
-
-
-# def write_test_fasta_dir(df, test_dir) -> None:
-#     id_seqs = df["identifier"].values
-#     sequences = df["sequence"].values
-
-#     os.mkdir(test_dir)
-
-#     for i in range(len(id_seqs)):
-#         name_seq = id_seqs[i] + ".fasta"
-#         seq = sequences[i]
-
-#         with open(f"{test_dir}/{name_seq}", "w") as fi:
-#             fi.write(">" + id_seqs[i])
-#             fi.write("\n")
-
-#             fi.write(seq)
-#             fi.write("\n")
