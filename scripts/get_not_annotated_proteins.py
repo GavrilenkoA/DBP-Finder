@@ -1,6 +1,7 @@
 import logging
 import time
-
+import argparse
+import yaml
 import pandas as pd
 import requests
 from tqdm import tqdm
@@ -11,15 +12,21 @@ from utils import convert_fasta_to_df, filter_df
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    filename="logs/model_org_not_annot.log",
+    filename="logs/model_org.log",
     filemode="a",
 )
 logger = logging.getLogger(__name__)
 
 
+def read_yaml(yml_path: str) -> set[str]:
+    with open(yml_path, "r") as file:
+        data = yaml.safe_load(file)
+    go_id = set(data["na_terms"])
+    return go_id
+
+
 def search_annotation(
-    id_protein: str, go_id: set[str] = {"GO:0003723", "GO:0003677", "GO:0003676"}
-) -> bool:
+        id_protein: str, go_id: set[str]) -> bool:
     url = f"https://www.ebi.ac.uk/QuickGO/services/annotation/search?geneProductId={id_protein}"
     page = 1
     has_annotation = False
@@ -48,9 +55,7 @@ def search_annotation(
                     break
 
             if (
-                has_annotation
-                or page == annotation_data["pageInfo"]["total"]
-                or annotation_data["pageInfo"]["total"] == 0
+                has_annotation or page == annotation_data["pageInfo"]["total"] or annotation_data["pageInfo"]["total"] == 0
             ):
                 break
 
@@ -66,27 +71,29 @@ def search_annotation(
     return has_annotation
 
 
-def write_not_annotated_seqs(df: pd.DataFrame) -> pd.DataFrame:
-    identifiers = []
-    sequences = []
-
+def write_not_annotated_seqs(df: pd.DataFrame, go_id: set[str]) -> dict[str, bool]:
+    info = {}
     for row in tqdm(df.itertuples(), total=len(df)):
-        if not search_annotation(row.identifier):
-            identifiers.append(row.identifier)
-            sequences.append(row.sequence)
-        else:
-            logger.error(f"{row.identifier} has annotation")
-
-    df = pd.DataFrame({"identifier": identifiers, "sequence": sequences})
-    return df
+        annotation = search_annotation(row.identifier, go_id)
+        info[row.identifier] = annotation
+    return info
 
 
 def main():
-    input_fasta = "data/not_annotated/raw_fasta/merged.fasta"
-    df = convert_fasta_to_df(input_fasta)
+    parser = argparse.ArgumentParser(description="Process FASTA file and filter based on GO terms")
+    parser.add_argument('--fasta', type=str, help='Path to FASTA file containing sequences')
+    parser.add_argument('--output_yml', type=str, help='yaml file output')
+
+    args = parser.parse_args()
+    yml_path = "data/go_terms/na_terms.yml"
+    go_id = read_yaml(yml_path)
+
+    df = convert_fasta_to_df(args.fasta)
     df = filter_df(df)
-    df = write_not_annotated_seqs(df)
-    df.to_csv("data/not_annotated/not_annotated_seqs_v0.csv", index=False)
+    info = write_not_annotated_seqs(df, go_id)
+
+    with open(args.output_yml, 'w') as f:
+        yaml.safe_dump(info, f)
 
 
 if __name__ == "__main__":

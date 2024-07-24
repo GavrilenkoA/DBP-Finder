@@ -60,7 +60,6 @@ def get_embed_clustered_df(
     embedding_path="../../../../ssd2/dbp_finder/ankh_embeddings/train_p2_2d.h5",
     csv_path="../data/splits/train_p2.csv",
 ) -> pd.DataFrame:
-    # Load embeddings and process them
 
     # Load training data and merge with embeddings
     df = pd.read_csv(csv_path)
@@ -77,8 +76,6 @@ def prepare_test(
 ) -> pd.DataFrame:
     # Load embeddings and process them
     embeddings = load_dict_from_hdf5(embedding_path)
-    for key in embeddings:
-        embeddings[key] = np.squeeze(embeddings[key])
 
     embeddings_df = pd.DataFrame(
         list(embeddings.items()), columns=["identifier", "embedding"]
