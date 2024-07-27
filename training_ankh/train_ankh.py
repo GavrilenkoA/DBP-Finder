@@ -49,8 +49,8 @@ set_seed(seed)
 
 
 df = get_embed_clustered_df(
-    embedding_path="../data/embeddings/ankh_embeddings/train_p2_2d.h5",
-    csv_path="../data/splits/train_p2.csv",
+    embedding_path="../data/embeddings/ankh_embeddings/train_p3_2d.h5",
+    csv_path="../data/splits/train_pdb1000.csv",
 )
 train_folds, valid_folds = make_folds(df)
 
@@ -58,7 +58,7 @@ train_folds, valid_folds = make_folds(df)
 clearml.browser_login()
 task = Task.init(
     project_name="DBPs_search",
-    task_name="Training DBP-finder",
+    task_name="train_pdb1000",
     output_uri=True,
 )
 logger = Logger.current_logger()
@@ -101,7 +101,7 @@ for i in range(len(train_folds)):
     )
 
     best_val_loss = float("inf")
-    best_model_path = f"checkpoints/DBP-finder_{i}.pth"
+    best_model_path = f"checkpoints/pdb1000_best_model_{i}.pth"
 
     for epoch in range(epochs):
         train_loss = train_fn(
