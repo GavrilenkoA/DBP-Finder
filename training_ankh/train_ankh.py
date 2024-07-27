@@ -36,7 +36,7 @@ seed = config["training_config"]["seed"]
 num_workers = config["training_config"]["num_workers"]
 
 
-DEVICE = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+DEVICE = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
 
 
 def set_seed(seed):
