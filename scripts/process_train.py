@@ -34,13 +34,14 @@ def prepare_training_data(
         output_path (str): Path to save the prepared training data CSV.
     """
     binders = convert_fasta_to_df(binders_path)
-    binders["label"] = 1
 
     non_binders = convert_fasta_to_df(non_binders_path)
-    non_binders["label"] = 0
 
     neg_samples = prepare_neg_samples()
     non_binders = merge_neg_samples(non_binders, neg_samples)
+
+    non_binders["label"] = 0
+    binders["label"] = 1
 
     train = pd.concat([binders, non_binders])
     train = filter_df(train)
