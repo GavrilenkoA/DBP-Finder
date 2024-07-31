@@ -6,8 +6,7 @@ import torch
 from clearml import Logger, Task
 from data_prepare import form_test_kindom, prepare_test
 from torch.utils.data import DataLoader
-from torch_utils import (SequenceDataset, collect_logits_labels, evaluate_fn,
-                         load_models)
+from torch_utils import SequenceDataset, collect_logits_labels, evaluate_fn, load_models
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
