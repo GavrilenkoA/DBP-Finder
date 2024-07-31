@@ -1,10 +1,13 @@
 import pandas as pd
 from utils import (add_clusters, add_source_to_id, cluster_sequences,
                    delete_source_from_id, exclude_common_train_seqs,
-                   write_fasta)
+                   write_fasta, assert_no_duplicates)
 
 
 def cluster_data(train: pd.DataFrame, test: pd.DataFrame) -> pd.DataFrame:
+    assert_no_duplicates(train)
+    assert_no_duplicates(test)
+
     train, test = add_source_to_id(train, test)
     train = exclude_common_train_seqs(train, test)
 

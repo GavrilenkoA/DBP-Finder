@@ -140,6 +140,10 @@ def add_clusters(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def assert_no_duplicates(df: pd.DataFrame, column: str = "identifier") -> None:
+    assert not df[column].duplicated().any(), f"Column '{column}' contains duplicates identifiers"
+
+
 def exclude_common_train_seqs(train, test):
     # delete common seqs from train
     common_id = train.merge(test, on=["sequence"])["identifier_x"]
