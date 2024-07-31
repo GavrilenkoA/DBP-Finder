@@ -1,7 +1,6 @@
 import h5py
-import numpy as np
 import pandas as pd
-from sklearn.model_selection import GroupKFold, StratifiedGroupKFold
+from sklearn.model_selection import StratifiedGroupKFold
 
 
 def load_dict_from_hdf5(filename):
@@ -60,7 +59,6 @@ def get_embed_clustered_df(
     embedding_path="../../../../ssd2/dbp_finder/ankh_embeddings/train_p2_2d.h5",
     csv_path="../data/splits/train_p2.csv",
 ) -> pd.DataFrame:
-
     # Load training data and merge with embeddings
     df = pd.read_csv(csv_path)
     embeddings_df = load_embeddings_to_df(embedding_path)

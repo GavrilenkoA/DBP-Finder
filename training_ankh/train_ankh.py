@@ -3,15 +3,22 @@ import logging
 import ankh
 import clearml
 import numpy as np
+import pandas as pd
 import torch
 import yaml
 from clearml import Logger, Task
 from data_prepare import get_embed_clustered_df, make_folds
 from torch.optim import AdamW
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader
-from torch_utils import (CustomBatchSampler, SequenceDataset,
-                         custom_collate_fn, train_fn, validate_fn)
+from torch_utils import (
+    CustomBatchSampler,
+    SequenceDataset,
+    custom_collate_fn,
+    evaluate_fn,
+    train_fn,
+    validate_fn,
+)
 
 with open("config.yml", "r") as f:
     config = yaml.safe_load(f)
@@ -46,11 +53,12 @@ def set_seed(seed):
 
 
 set_seed(seed)
+input_data = input()
 
 
 df = get_embed_clustered_df(
     embedding_path="../data/embeddings/ankh_embeddings/train_p3_2d.h5",
-    csv_path="../data/splits/train_pdb1000.csv",
+    csv_path=f"../data/splits/train_{input_data}.csv",
 )
 train_folds, valid_folds = make_folds(df)
 
@@ -58,11 +66,13 @@ train_folds, valid_folds = make_folds(df)
 clearml.browser_login()
 task = Task.init(
     project_name="DBPs_search",
-    task_name="train_pdb1000",
+    task_name=f"train_{input_data}",
     output_uri=True,
 )
 logger = Logger.current_logger()
 task.connect_configuration(config)
+
+models_data = {}
 
 for i in range(len(train_folds)):
     train_dataset = SequenceDataset(train_folds[i])
@@ -83,7 +93,7 @@ for i in range(len(train_folds)):
         collate_fn=custom_collate_fn,
     )
 
-    binary_classification_model = ankh.ConvBertForBinaryClassification(
+    model = ankh.ConvBertForBinaryClassification(
         input_dim=input_dim,
         nhead=nhead,
         hidden_dim=hidden_dim,
@@ -94,21 +104,16 @@ for i in range(len(train_folds)):
         pooling=pooling,
     )
 
-    binary_classification_model = binary_classification_model.to(DEVICE)
-    optimizer = AdamW(binary_classification_model.parameters(), lr=float(lr))
-    scheduler = ReduceLROnPlateau(
-        optimizer, mode="min", factor=factor, patience=patience, min_lr=float(min_lr)
-    )
+    model = model.to(DEVICE)
+    optimizer = AdamW(model.parameters(), lr=float(lr))
+    scheduler = CosineAnnealingLR(optimizer, T_max=epochs)
 
     best_val_loss = float("inf")
-    best_model_path = f"checkpoints/pdb1000_best_model_{i}.pth"
-
     for epoch in range(epochs):
-        train_loss = train_fn(
-            binary_classification_model, train_dataloader, optimizer, DEVICE
-        )
-        valid_loss, metrics = validate_fn(
-            binary_classification_model, valid_dataloader, scheduler, DEVICE
+        train_loss = train_fn(model, train_dataloader, optimizer, DEVICE)
+        scheduler.step()
+        valid_loss, metrics_dict, optimal_threshold = validate_fn(
+            model, valid_dataloader, DEVICE
         )
 
         logger.report_scalar(
@@ -124,7 +129,7 @@ for i in range(len(train_folds)):
             iteration=epoch,
         )
 
-        for metric_name, metric_value in metrics.items():
+        for metric_name, metric_value in metrics_dict.items():
             logger.report_scalar(
                 title=f"Metrics model {i}",
                 series=metric_name,
@@ -133,9 +138,31 @@ for i in range(len(train_folds)):
             )
 
         if valid_loss < best_val_loss:
-            best_val_loss = valid_loss
-            torch.save(binary_classification_model.state_dict(), best_model_path)
-            message = f"Saved Best Model on epoch {epoch} with Validation Loss: {best_val_loss}"
+            message = (
+                f"Model {i} on epoch {epoch} with Validation Loss: {best_val_loss}"
+            )
             logger.report_text(message, level=logging.DEBUG, print_console=False)
 
+            message = f"Model {i} on epoch {epoch} with optimal threshold: {optimal_threshold}"
+            logger.report_text(message, level=logging.DEBUG, print_console=False)
+
+            models_data[i] = (model, optimal_threshold)
+            best_val_loss = valid_loss
+
+
+test_df = get_embed_clustered_df(
+    embedding_path=f"../data/embeddings/ankh_embeddings/{input_data}_2d.h5",
+    csv_path=f"../data/embeddings/input_csv/{input_data}.csv",
+)
+
+testing_set = SequenceDataset(test_df)
+testing_dataloader = DataLoader(
+    testing_set,
+    num_workers=num_workers,
+    shuffle=False,
+    batch_size=1,
+)
+metrics_dict = evaluate_fn(models_data, testing_dataloader, DEVICE)
+metrics_df = pd.DataFrame(metrics_dict, index=[0])
+logger.report_table(title=input_data, series="Metrics", table_plot=metrics_df)
 task.close()

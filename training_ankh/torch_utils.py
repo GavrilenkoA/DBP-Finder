@@ -1,12 +1,21 @@
 import random
-
+from scipy.stats import mode
+from collections import defaultdict
 import ankh
+from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
 import yaml
-from sklearn.metrics import (accuracy_score, f1_score, matthews_corrcoef,
-                             precision_score, recall_score, roc_auc_score)
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    matthews_corrcoef,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+    roc_curve,
+)
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import BatchSampler, Dataset, SequentialSampler
 
@@ -67,7 +76,7 @@ class CustomBatchSampler(BatchSampler):
             key=lambda i: self.dataset.lengths[i], reverse=True
         )  # Sort indices by sequence length
         batches = [
-            indices[i:i + self.batch_size]
+            indices[i : i + self.batch_size]
             for i in range(0, len(indices), self.batch_size)
         ]
         for batch in batches:
@@ -78,8 +87,8 @@ class CustomBatchSampler(BatchSampler):
         return len(self.dataset) // self.batch_size
 
 
-def train_fn(binary_classification_model, train_dataloader, optimizer, DEVICE):
-    binary_classification_model.train()
+def train_fn(model, train_dataloader, optimizer, DEVICE):
+    model.train()
     loss = 0.0
     for x, y in train_dataloader:
         x = x.to(DEVICE)
@@ -88,7 +97,7 @@ def train_fn(binary_classification_model, train_dataloader, optimizer, DEVICE):
         y = y.unsqueeze(1)
 
         optimizer.zero_grad()
-        output = binary_classification_model(x, y)
+        output = model(x, y)
         output.loss.backward()
         optimizer.step()
 
@@ -99,13 +108,9 @@ def train_fn(binary_classification_model, train_dataloader, optimizer, DEVICE):
 
 
 def calculate_metrics(
-    all_labels: list, all_preds: list, logits: list
+    all_logits: list[float], all_labels: list[float], all_preds: list[float]
 ) -> dict[str, float]:
-    all_labels = np.array(all_labels)
-    all_preds = np.array(all_preds)
-    logits = np.array(logits)
-
-    auc = roc_auc_score(all_labels, logits)
+    auc = roc_auc_score(all_labels, all_logits)
     accuracy = accuracy_score(all_labels, all_preds)
     mcc = matthews_corrcoef(all_labels, all_preds)
     precision = precision_score(all_labels, all_preds)
@@ -113,7 +118,7 @@ def calculate_metrics(
     specificity = recall_score(all_labels, all_preds, pos_label=0)
     f1 = f1_score(all_labels, all_preds)
 
-    metrics = {
+    metrics_dict = {
         "Accuracy": accuracy,
         "Sensitivity": recall,
         "Specificity": specificity,
@@ -122,15 +127,23 @@ def calculate_metrics(
         "F1": f1,
         "MCC": mcc,
     }
-    return metrics
+    return metrics_dict
 
 
-def validate_fn(binary_classification_model, valid_dataloader, scheduler, DEVICE):
-    binary_classification_model.eval()
+def calculate_optimal_threshold(
+    all_labels: list[int], all_logits: list[float]
+) -> float:
+    fpr, tpr, thresholds = roc_curve(all_labels, all_logits)
+    optimal_idx = np.argmax(tpr - fpr)
+    optimal_threshold = thresholds[optimal_idx]
+    return optimal_threshold
+
+
+def validate_fn(model, valid_dataloader, DEVICE):
+    model.eval()
     loss = 0.0
-    all_preds = []
     all_labels = []
-    logits = []
+    all_logits = []
 
     with torch.no_grad():
         for x, y in valid_dataloader:
@@ -139,24 +152,50 @@ def validate_fn(binary_classification_model, valid_dataloader, scheduler, DEVICE
 
             y = y.unsqueeze(1)
 
-            output = binary_classification_model(x, y)
+            output = model(x, y)
             loss += output.loss.item()
 
-            preds = (output.logits > 0.5).float()
-
-            logits.extend(output.logits.cpu().numpy())
-            all_preds.extend(preds.cpu().numpy())
+            all_logits.extend(output.logits.cpu().numpy())
             all_labels.extend(y.cpu().numpy())
 
     epoch_loss = loss / len(valid_dataloader)
-    scheduler.step(epoch_loss)
-    metrics = calculate_metrics(all_labels, all_preds, logits)
-    return epoch_loss, metrics
+    # scheduler.step(epoch_loss)
+    optimal_threshold = calculate_optimal_threshold(all_labels, all_logits)
+    all_preds = [1 if logit >= optimal_threshold else 0 for logit in all_logits]
+    metrics_dict = calculate_metrics(all_logits, all_labels, all_preds)
+    return epoch_loss, metrics_dict, optimal_threshold
 
 
-def collect_logits_labels(models, testing_dataloader, DEVICE):
+def plot_roc_auc(y_true, y_probs, save_path=None):
+    # Calculate the false positive rate, true positive rate, and thresholds
+    fpr, tpr, _ = roc_curve(y_true, y_probs)
+
+    # Calculate the AUC
+    auc = roc_auc_score(y_true, y_probs)
+    print(f"AUC: {auc:.2f}")
+
+    # Plot the ROC curve
+    plt.figure()
+    plt.plot(fpr, tpr, color="blue", lw=2, label=f"ROC curve (area = {auc:.2f})")
+    plt.plot([0, 1], [0, 1], color="gray", lw=2, linestyle="--")
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title("Receiver Operating Characteristic (ROC) Curve")
+    plt.legend(loc="lower right")
+
+    if save_path:
+        plt.savefig(save_path, format="svg")
+
+    # Show the plot
+    plt.show()
+
+
+def evaluate_fn(models_data, testing_dataloader, DEVICE):
     all_labels = []
     all_logits = []
+    pred_models = defaultdict(list)
 
     with torch.no_grad():
         for x, y in testing_dataloader:
@@ -166,13 +205,17 @@ def collect_logits_labels(models, testing_dataloader, DEVICE):
             y = y.unsqueeze(1)
             ens_logits = []
 
-            for model in models:
+            for i in models_data:
+                model, threshold = models_data[i]
+
                 model.eval()
                 model = model.to(DEVICE)
                 output = model(x, y)
 
-                logits = output.logits
-                ens_logits.append(logits)
+                y_pred = 1 if output.logits >= threshold else 0
+                pred_models[i].append(y_pred)
+
+                ens_logits.append(output.logits)
 
             ens_logits = torch.stack(ens_logits, dim=0)
             ens_logits = torch.mean(ens_logits, dim=0)
@@ -180,41 +223,10 @@ def collect_logits_labels(models, testing_dataloader, DEVICE):
             all_logits.extend(ens_logits.cpu().numpy())
             all_labels.extend(y.cpu().numpy())
 
-    return all_logits, all_labels
-
-
-def inference(models, testing_dataloader, DEVICE) -> pd.DataFrame:
-    identifiers = []
-    scores = []
-
-    with torch.no_grad():
-        for id_, x in testing_dataloader:
-            x = x.to(DEVICE)
-            ens_logits = []
-
-            for model in models:
-                model.eval()
-                model = model.to(DEVICE)
-                output = model(x)
-
-                logits = output.logits
-                ens_logits.append(logits)
-
-            ens_logits = torch.stack(ens_logits, dim=0)
-            ens_logits = torch.mean(ens_logits, dim=0)
-            prob_score = torch.sigmoid(ens_logits)
-
-            identifiers.extend(id_)
-            scores.append(prob_score.cpu().numpy().item())
-
-    df = pd.DataFrame({"identifier": identifiers, "score": scores})
-    return df
-
-
-def evaluate_fn(all_labels: list, all_logits: list) -> dict[str, float]:
-    all_preds = [1 if logit > 0.5 else 0 for logit in all_logits]
-    metrics = calculate_metrics(all_labels, all_preds, all_logits)
-    return metrics
+    predictions = np.vstack([pred_models[i] for i in range(len(models_data))])
+    all_preds, _ = mode(predictions, axis=0).tolist()
+    metrics_dict = calculate_metrics(all_logits, all_labels, all_preds)
+    return metrics_dict
 
 
 def load_models(
@@ -253,3 +265,31 @@ def load_models(
         models.append(binary_classification_model)
 
     return models
+
+
+def inference(models, testing_dataloader, DEVICE) -> pd.DataFrame:
+    identifiers = []
+    scores = []
+
+    with torch.no_grad():
+        for id_, x in testing_dataloader:
+            x = x.to(DEVICE)
+            ens_logits = []
+
+            for model in models:
+                model.eval()
+                model = model.to(DEVICE)
+                output = model(x)
+
+                logits = output.logits
+                ens_logits.append(logits)
+
+            ens_logits = torch.stack(ens_logits, dim=0)
+            ens_logits = torch.mean(ens_logits, dim=0)
+            prob_score = torch.sigmoid(ens_logits)
+
+            identifiers.extend(id_)
+            scores.append(prob_score.cpu().numpy().item())
+
+    df = pd.DataFrame({"identifier": identifiers, "score": scores})
+    return df
