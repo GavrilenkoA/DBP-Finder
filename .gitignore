@@ -37,7 +37,7 @@ data/uniprot/rna_binders_human.fasta
 data/processed
 data/go_terms/uniprot_annotation_all_exPDB186.tsv
 
-
+hmmer/*
 models
 notes.txt
 wget_data
