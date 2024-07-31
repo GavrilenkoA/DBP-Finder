@@ -9,7 +9,7 @@
 data/clusters/*
 !data/clusters/.gitkeep
 data/fasta/*
-!data/clusters/.gitkeep
+!data/fasta/.gitkeep
 data/DBP_papers_data
 data/embeddings/ankh_embeddings/*
 !data/embeddings/ankh_embeddings/.gitkeep
