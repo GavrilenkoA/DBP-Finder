@@ -16,7 +16,7 @@ def prepare_neg_samples() -> pd.DataFrame:
     return df
 
 
-def merge_neg_samples(df_1: pd.DataFrame, df_2: pd.DataFrame):
+def merge_df(df_1: pd.DataFrame, df_2: pd.DataFrame):
     return df_1.merge(df_2, on="identifier")
 
 
@@ -38,7 +38,7 @@ def prepare_training_data(
     non_binders = convert_fasta_to_df(non_binders_path)
 
     neg_samples = prepare_neg_samples()
-    non_binders = merge_neg_samples(non_binders, neg_samples)
+    non_binders = merge_df(non_binders, neg_samples)
 
     non_binders["label"] = 0
     binders["label"] = 1
