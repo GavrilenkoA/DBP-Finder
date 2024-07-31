@@ -6,9 +6,11 @@
 .ruff_cache
 
 # ignore data
-data/clusters/
+data/clusters/*
+!data/clusters/.gitkeep
+data/fasta/*
+!data/clusters/.gitkeep
 data/DBP_papers_data
-data/fasta/
 data/embeddings/ankh_embeddings/*
 !data/embeddings/ankh_embeddings/.gitkeep
 data/embeddings/esm_embeddings/
@@ -41,5 +43,6 @@ hmmer
 models
 notes.txt
 wget_data
+training_ankh/checkpoints
 tmp
 logs
