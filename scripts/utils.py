@@ -43,14 +43,15 @@ def save_csv(
     df.to_csv(path, index=False)
 
 
-def filter_df(df: pd.DataFrame) -> pd.DataFrame:
+def filter_df(df: pd.DataFrame, min_len: int = 50, max_len: int = 1024) -> pd.DataFrame:
     def valid_sequence(sequence: str) -> bool:
         valid_amino_acids = "SNYLRQDPMFCEWGTKIVAH"
         return all(char in valid_amino_acids for char in sequence)
 
     df = df[df["sequence"].apply(valid_sequence)]
-    df = df[df["sequence"].apply(lambda x: 49 < len(x) < 1025)]
+    df = df[df["sequence"].apply(lambda x: min_len <= len(x) <= max_len)]
     df = df.drop_duplicates(subset=["sequence"])
+    df = df.drop_duplicates(subset=["identifier"])
     return df
 
 
@@ -99,15 +100,6 @@ def convert_fasta_to_df(fasta_file: str) -> pd.DataFrame:
         content = fi.read()
     df = collect_df(content)
     return df
-
-
-def extract_columns(
-    fasta_file: str, column1: str = "identifier", column2: str = "sequence"
-) -> tuple[list]:
-    df = convert_fasta_to_df(fasta_file)
-    part_1 = df.loc[:, column1].to_list()
-    part_2 = df.loc[:, column2].to_list()
-    return part_1, part_2
 
 
 def select_columns(columns):

@@ -12,7 +12,7 @@ from utils import convert_fasta_to_df, filter_df
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    filename="logs/model_org.log",
+    filename="logs/annotation.log",
     filemode="a",
 )
 logger = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ def read_yaml(yml_path: str) -> set[str]:
 
 
 def search_annotation(
-        id_protein: str, go_id: set[str]) -> bool:
+        id_protein: str, go_id: set[str]) -> bool | None:
     url = f"https://www.ebi.ac.uk/QuickGO/services/annotation/search?geneProductId={id_protein}"
     page = 1
     has_annotation = False
@@ -75,7 +75,8 @@ def write_not_annotated_seqs(df: pd.DataFrame, go_id: set[str]) -> dict[str, boo
     info = {}
     for row in tqdm(df.itertuples(), total=len(df)):
         annotation = search_annotation(row.identifier, go_id)
-        info[row.identifier] = annotation
+        if annotation is not None:
+            info[row.identifier] = annotation
     return info
 
 

@@ -224,7 +224,8 @@ def evaluate_fn(models_data, testing_dataloader, DEVICE):
             all_labels.extend(y.cpu().numpy())
 
     predictions = np.vstack([pred_models[i] for i in range(len(models_data))])
-    all_preds, _ = mode(predictions, axis=0).tolist()
+    all_preds, _ = mode(predictions, axis=0)
+    all_preds = all_preds.tolist()
     metrics_dict = calculate_metrics(all_logits, all_labels, all_preds)
     return metrics_dict
 

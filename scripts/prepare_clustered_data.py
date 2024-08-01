@@ -3,23 +3,12 @@ import os
 
 import pandas as pd
 from train_test_cluster import cluster_data
-from utils import make_balanced_df, reduce_train
+from utils import make_balanced_df, reduce_train, write_fasta
 
 
-def make_redundant_train(path_train: str, path_test: str) -> tuple[pd.DataFrame, pd.DataFrame]:
-    train = pd.read_csv(path_train)
-    test = pd.read_csv(path_test)
-
-    output_mmseq = cluster_data(train, test)
-    clustered_train, clustered_test = reduce_train(output_mmseq)
-
-    train_ = train.merge(clustered_train, on="identifier")
-    train_ = make_balanced_df(train_)
-
-    test_ = test.merge(clustered_test, on="identifier")
-    assert len(test_) == len(test), "Lost test sequences"
-
-    return train_, test_
+# train_ = make_balanced_df(train_)
+# test_ = test.merge(clustered_test, on="identifier")
+# assert len(test_) == len(test), "Lost test sequences"
 
 
 def make_single_for_cluster_train(train, input_test):
@@ -50,11 +39,17 @@ def main():
     parser.add_argument("path_test", type=str, help="A string argument")
     args = parser.parse_args()
 
-    train, _ = make_redundant_train(args.path_train, args.path_test)
+    train = pd.read_csv(args.path_train)
+    test = pd.read_csv(args.path_test)
 
-    test_basename = os.path.basename(args.path_test)
-    output_path = f"data/splits/train_{test_basename}"
-    train.to_csv(output_path, index=False)
+    output_mmseq = cluster_data(train, test)
+    clustered_train, _ = reduce_train(output_mmseq)
+    train = train.merge(clustered_train, on="identifier")
+
+    name = os.path.splitext(os.path.basename(args.path_test))[0]
+    output_csv = f"data/splits/train_{name}.csv"
+    train.to_csv(output_csv, index=False)
+    write_fasta(train, f"train_{name}.fasta")
 
 
 if __name__ == "__main__":
