@@ -23,7 +23,6 @@ data/embeddings/input_csv/*
 !data/embeddings/input_csv/train_p2.csv
 data/interpro_data/
 data/nakb/
-data/not_annotated/*
 data/predictions/
 data/proteinfer/
 data/splits/*
