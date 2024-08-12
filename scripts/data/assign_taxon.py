@@ -3,9 +3,10 @@ import pandas as pd
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+from tqdm import tqdm
 
 
-def get_organism_name(protein_id: str):
+def get_organism_name(protein_id: str) -> str:
     url = f"https://rest.uniprot.org/uniprotkb/{protein_id}.json"
     session = requests.Session()
     retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
@@ -24,15 +25,34 @@ def get_organism_name(protein_id: str):
     if response.status_code == 200:
         data = response.json()
         organism_name = data.get("organism", {}).get(
-            "scientificName", "Organism name not found"
+            "scientificName", "not found"
         )
         return organism_name
     else:
-        return "-1"
+        return "not found"
 
 
-def add_organism_column(df, protein_id_column: str = "identifier"):
-    df["Organism"] = df[protein_id_column].apply(get_organism_name)
+def assign_kingdom(organism_name: str) -> str:
+    template = {
+        "Eukaryota Metazoa": "Metazoa",
+        "Eukaryota Fungi": "Fungi",
+        "Eukaryota Viridiplantae": "Viridiplantae",
+    }
+
+    if organism_name in template:
+        return template[organism_name]
+    elif organism_name.startswith("Eukaryota"):
+        return "Protists"
+    elif organism_name == "not found":
+        return organism_name
+    else:
+        return organism_name.split(" ")[0]
+
+
+def add_organism_column(df: pd.DataFrame) -> pd.DataFrame:
+    tqdm.pandas(desc="Processing proteins")
+    df["Organism"] = df["identifier"].progress_apply(get_organism_name)
+    df["Kingdom"] = df["Organism"].apply(assign_kingdom)
     return df
 
 
@@ -41,7 +61,7 @@ def main():
         description="Process protein IDs to add organism names to a CSV file."
     )
     parser.add_argument("input_csv", type=str, help="Path to the input CSV file")
-    parser.add_argument("output_csv", type=str, help="Path to the input CSV file")
+    parser.add_argument("output_csv", type=str, help="Path to the output CSV file")
 
     args = parser.parse_args()
 
@@ -53,10 +73,6 @@ def main():
 
     # Save the updated DataFrame to the output CSV file
     df_with_organism.to_csv(args.output_csv, index=False)
-
-    print(
-        f"The DataFrame has been updated with the 'Organism' column and saved to '{args.output_csv}'."
-    )
 
 
 if __name__ == "__main__":
