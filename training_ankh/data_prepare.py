@@ -21,7 +21,7 @@ def load_dict_from_hdf5(filename):
 
 
 def make_folds(
-    df: pd.DataFrame, n_splits: int = 5
+    df: pd.DataFrame, n_splits: int = 7
 ) -> tuple[list[pd.DataFrame], list[pd.DataFrame]]:
     # Prepare data for GroupKFold
     X = df["sequence"]

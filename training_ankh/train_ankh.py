@@ -60,7 +60,7 @@ input_data = input()
 
 
 df = get_embed_clustered_df(
-    embedding_path="../data/embeddings/ankh_embeddings/train_p3_2d.h5",
+    embedding_path="../../../../ssd2/dbp_finder/ankh_embeddings/train_p3_2d.h5",
     csv_path=f"../data/splits/train_{input_data}.csv",
 )
 train_folds, valid_folds = make_folds(df)
@@ -149,7 +149,7 @@ for i in range(len(train_folds)):
 
 
 test_df = get_embed_clustered_df(
-    embedding_path=f"../data/embeddings/ankh_embeddings/{input_data}_2d.h5",
+    embedding_path=f"../../../../ssd2/dbp_finder/ankh_embeddings/{input_data}_2d.h5",
     csv_path=f"../data/embeddings/input_csv/{input_data}.csv",
 )
 

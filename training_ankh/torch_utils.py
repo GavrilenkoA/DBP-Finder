@@ -1,6 +1,4 @@
 import random
-from scipy.stats import mode
-from collections import defaultdict
 import ankh
 from matplotlib import pyplot as plt
 import numpy as np
@@ -79,6 +77,7 @@ class CustomBatchSampler(BatchSampler):
             indices[i : i + self.batch_size]
             for i in range(0, len(indices), self.batch_size)
         ]
+        random.shuffle(batches)
         for batch in batches:
             random.shuffle(batch)
             yield batch
