@@ -28,7 +28,7 @@ def main():
         help="Model name for embeddings (default: 'ankh')",
     )
     parser.add_argument(
-        "--device", type=str, default="cuda:3", help="Device to use"
+        "--device", type=str, default="cuda:0", help="Device to use"
     )
     args = parser.parse_args()
 
