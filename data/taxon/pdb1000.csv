@@ -1,0 +1,1001 @@
+identifier,organism,kingdom
+P13123,Sulfolobus acidocaldarius (strain ATCC 33909 / DSM 639 / JCM 8929 / NBRC 15157 / NCIMB 11770),Archaea
+P39075,Bacillus subtilis (strain 168),Bacteria
+P9WMF9,Mycobacterium tuberculosis (strain ATCC 25618 / H37Rv),Bacteria
+P20384,Staphylococcus aureus,Bacteria
+O68014,Acinetobacter baylyi (strain ATCC 33305 / BD413 / ADP1),Bacteria
+P21866,Escherichia coli (strain K12),Bacteria
+Q9HAW0,Homo sapiens,Metazoa
+Q9P6H9,Schizosaccharomyces pombe (strain 972 / ATCC 24843),Fungi
+P35203,Saccharomyces cerevisiae (strain ATCC 204508 / S288c),Fungi
+O14593,Homo sapiens,Metazoa
+O60158,Schizosaccharomyces pombe (strain 972 / ATCC 24843),Fungi
+P25555,Saccharomyces cerevisiae (strain ATCC 204508 / S288c),Fungi
+P32504,Saccharomyces cerevisiae (strain ATCC 204508 / S288c),Fungi
+P32569,Saccharomyces cerevisiae (strain ATCC 204508 / S288c),Fungi
+P40356,Saccharomyces cerevisiae (strain ATCC 204508 / S288c),Fungi
+P48382,Homo sapiens,Metazoa
+P61991,Saccharolobus solfataricus (strain ATCC 35092 / DSM 1617 / JCM 11322 / P2),Archaea
+P9WIH9,Mycobacterium tuberculosis (strain ATCC 25618 / H37Rv),Bacteria
+Q12343,Saccharomyces cerevisiae (strain ATCC 204508 / S288c),Fungi
+Q96TL7,Schizosaccharomyces pombe (strain 972 / ATCC 24843),Fungi
+Q9HBU1,Homo sapiens,Metazoa
+Q9SNC0,Arabidopsis thaliana,Viridiplantae
+Q9UBL3,Homo sapiens,Metazoa
+Q9XUB2,Caenorhabditis elegans,Metazoa
+Q9Z104,Mus musculus,Metazoa
+A9A1T2,Nitrosopumilus maritimus (strain SCM1),Archaea
+P15308,Xenopus laevis,Metazoa
+E5AV36,Mycetohabitans rhizoxinica (strain DSM 19002 / CIP 109453 / HKI 454),Bacteria
+P01549,Streptomyces macromomyceticus,Bacteria
+P01551,Streptomyces globisporus,Bacteria
+P94632,Corynebacterium glutamicum (strain ATCC 13032 / DSM 20300 / JCM 1318 / BCRC 11384 / CCUG 27702 / LMG 3730 / NBRC 12168 / NCIMB 10025 / NRRL B-2784 / 534),Bacteria
+O44548,Caenorhabditis elegans,Metazoa
+P05026,Homo sapiens,Metazoa
+P05027,Sus scrofa,Metazoa
+P0A951,Escherichia coli (strain K12),Bacteria
+P10719,Rattus norvegicus,Metazoa
+P18434,Sus scrofa,Metazoa
+P38182,Saccharomyces cerevisiae (strain ATCC 204508 / S288c),Fungi
+Q8NBU5,Homo sapiens,Metazoa
+Q9BSB4,Homo sapiens,Metazoa
+Q9W0K4,Drosophila melanogaster,Metazoa
+P28809,Pseudomonas aeruginosa (strain ATCC 15692 / DSM 22644 / CIP 104116 / JCM 14847 / LMG 12228 / 1C / PRS 101 / PAO1),Bacteria
+P43161,Streptomyces lividans,Bacteria
+P22035,Saccharomyces cerevisiae (strain ATCC 204508 / S288c),Fungi
+Q9Z205,Mus musculus,Metazoa
+O33813,Staphylococcus xylosus,Bacteria
+P13967,Escherichia coli,Bacteria
+Q24312,Drosophila melanogaster,Metazoa
+P21538,Saccharomyces cerevisiae (strain ATCC 204508 / S288c),Fungi
+P52605,Escherichia coli,Bacteria
+P33651,Streptomyces cacaoi,Bacteria
+Q9H503,Homo sapiens,Metazoa
+O94160,Alternaria alternata,Fungi
+Q52279,Escherichia coli,Bacteria
+Q01954,Homo sapiens,Metazoa
+O07458,Rhodopseudomonas palustris (strain ATCC BAA-98 / CGA009),Bacteria
+P52659,Streptomyces antibioticus,Bacteria
+P06022,Escherichia phage Mu,Viruses
+P39970,Saccharomyces cerevisiae (strain ATCC 204508 / S288c),Fungi
+Q92G85,Rickettsia conorii (strain ATCC VR-613 / Malish 7),Bacteria
+P33251,Mycoplasmoides gallisepticum (strain R(low / passage 15 / clone 2)),Bacteria
+P98196,Homo sapiens,Metazoa
+Q9N0Z4,Oryctolagus cuniculus,Metazoa
+Q9QZW0,Mus musculus,Metazoa
+Q8VDN2,Mus musculus,Metazoa
+P04074,Ovis aries,Metazoa
+A2VDL6,Bos taurus,Metazoa
+P50993,Homo sapiens,Metazoa
+Q13733,Homo sapiens,Metazoa
+Q9JM72,Cavia porcellus,Metazoa
+P97370,Mus musculus,Metazoa
+O14983,Homo sapiens,Metazoa
+Q64578,Rattus norvegicus,Metazoa
+O55143,Mus musculus,Metazoa
+Q93084,Homo sapiens,Metazoa
+G5E829,Mus musculus,Metazoa
+Q01814,Homo sapiens,Metazoa
+Q64568,Rattus norvegicus,Metazoa
+Q64542,Rattus norvegicus,Metazoa
+Q64566,Rattus norvegicus,Metazoa
+A3FIN4,Mus musculus,Metazoa
+Q8K341,Mus musculus,Metazoa
+Q8BHE3,Mus musculus,Metazoa
+O95352,Homo sapiens,Metazoa
+L0R819,Homo sapiens,Metazoa
+F4HRV8,Arabidopsis thaliana,Viridiplantae
+Q2QLC6,Carollia perspicillata,Metazoa
+Q07E43,Dasypus novemcinctus,Metazoa
+A0M8T3,Felis catus,Metazoa
+A4D7T3,Notamacropus eugenii,Metazoa
+Q07E17,Mustela putorius furo,Metazoa
+Q07DZ7,Ornithorhynchus anatinus,Metazoa
+Q8WMX7,Papio anubis,Metazoa
+Q09YH1,Saimiri boliviensis boliviensis,Metazoa
+Q9GKS6,Macaca fascicularis,Metazoa
+Q69UE6,Oryza sativa subsp. japonica,Viridiplantae
+Q5XF89,Mus musculus,Metazoa
+F4J8V5,Arabidopsis thaliana,Viridiplantae
+Q7XHC4,Oryza sativa subsp. japonica,Viridiplantae
+Q8GYD7,Arabidopsis thaliana,Viridiplantae
+Q9FH32,Arabidopsis thaliana,Viridiplantae
+Q92030,Anguilla anguilla,Metazoa
+P50997,Canis lupus familiaris,Metazoa
+P09572,Gallus gallus,Metazoa
+Q9N0Z6,Oryctolagus cuniculus,Metazoa
+P30714,Rhinella marina,Metazoa
+P58312,Oreochromis mossambicus,Metazoa
+P05029,Tetronarce californica,Metazoa
+P43002,Rhinella marina,Metazoa
+Q3T0C6,Bos taurus,Metazoa
+Q202B1,Xenopus laevis,Metazoa
+P0CH03,Arabidopsis thaliana,Viridiplantae
+A2QFJ9,Aspergillus niger (strain ATCC MYA-4892 / CBS 513.88 / FGSC A1513),Fungi
+A6SSM3,Botryotinia fuckeliana (strain B05.10),Fungi
+A1DG37,Neosartorya fischeri (strain ATCC 1020 / DSM 3700 / CBS 544.65 / FGSC A1164 / JCM 1740 / NRRL 181 / WB 181),Fungi
+Q2UD74,Aspergillus oryzae (strain ATCC 42149 / RIB 40),Fungi
+A6S3R7,Botryotinia fuckeliana (strain B05.10),Fungi
+Q5AVT9,Emericella nidulans (strain FGSC A4 / ATCC 38163 / CBS 112.46 / NRRL 194 / M139),Fungi
+A7EXE6,Sclerotinia sclerotiorum (strain ATCC 18683 / 1980 / Ss-1),Fungi
+P13585,Gallus gallus,Metazoa
+Q92105,Pelophylax lessonae,Metazoa
+Q03669,Gallus gallus,Metazoa
+P20647,Oryctolagus cuniculus,Metazoa
+Q9YGL9,Gallus gallus,Metazoa
+Q98SH2,Gallus gallus,Metazoa
+Q5R5K5,Pongo abelii,Metazoa
+A7L9Z8,Mus musculus,Metazoa
+Q0D154,Aspergillus terreus (strain NIH 2624 / FGSC A1156),Fungi
+Q5JNT2,Oryza sativa subsp. japonica,Viridiplantae
+Q5VTU8,Homo sapiens,Metazoa
+Q9CQQ7,Mus musculus,Metazoa
+Q9CR84,Mus musculus,Metazoa
+Q06056,Ovis aries,Metazoa
+P56384,Mus musculus,Metazoa
+Q3T136,Bos taurus,Metazoa
+Q9ULK2,Homo sapiens,Metazoa
+Q0DKA5,Oryza sativa subsp. japonica,Viridiplantae
+P98199,Mus musculus,Metazoa
+Q9M1K9,Arabidopsis thaliana,Viridiplantae
+F6QV99,Bos taurus,Metazoa
+A7YWC4,Bos taurus,Metazoa
+Q0CS61,Aspergillus terreus (strain NIH 2624 / FGSC A1156),Fungi
+O45100,Caenorhabditis elegans,Metazoa
+A8XKM2,Caenorhabditis briggsae,Metazoa
+Q9W5X9,Drosophila melanogaster,Metazoa
+Q4Q9X8,Leishmania major,Protists
+B2RZF9,Xenopus tropicalis,Metazoa
+Q0CJ62,Aspergillus terreus (strain NIH 2624 / FGSC A1156),Fungi
+P54209,Dunaliella bioculata,Viridiplantae
+O59868,Schizosaccharomyces pombe (strain 972 / ATCC 24843),Fungi
+F4IHR4,Arabidopsis thaliana,Viridiplantae
+F4JIK2,Arabidopsis thaliana,Viridiplantae
+Q8L817,Arabidopsis thaliana,Viridiplantae
+P47317,Mycoplasma genitalium (strain ATCC 33530 / DSM 19775 / NCTC 10195 / G37),Bacteria
+Q9X5V3,Rhizobium leguminosarum bv. viciae,Bacteria
+Q0CJ60,Aspergillus terreus (strain NIH 2624 / FGSC A1156),Fungi
+P35315,Trypanosoma brucei brucei,Protists
+Q503W7,Danio rerio,Metazoa
+Q6PAX2,Xenopus laevis,Metazoa
+P0A952,Escherichia coli O157:H7,Bacteria
+O96539,Drosophila melanogaster,Metazoa
+O14133,Schizosaccharomyces pombe (strain 972 / ATCC 24843),Fungi
+Q0CJ57,Aspergillus terreus (strain NIH 2624 / FGSC A1156),Fungi
+P53296,Saccharomyces cerevisiae (strain ATCC 204508 / S288c),Fungi
+Q0UXN8,Phaeosphaeria nodorum (strain SN15 / ATCC MYA-4574 / FGSC 10173),Fungi
+A6ZWA5,Saccharomyces cerevisiae (strain YJM789),Fungi
+Q6FQY7,Candida glabrata (strain ATCC 2001 / BCRC 20586 / JCM 3761 / NBRC 0622 / NRRL Y-65 / CBS 138),Fungi
+A7TEY0,Vanderwaltozyma polyspora (strain ATCC 22028 / DSM 70294 / BCRC 21397 / CBS 2163 / NBRC 10782 / NRRL Y-8283 / UCD 57-17),Fungi
+Q9LRP7,Arabidopsis thaliana,Viridiplantae
+Q0C804,Aspergillus terreus (strain NIH 2624 / FGSC A1156),Fungi
+Q1E4K5,Coccidioides immitis (strain RS),Fungi
+P0CO54,Cryptococcus neoformans var. neoformans serotype D (strain JEC21 / ATCC MYA-565),Fungi
+Q5B2U9,Emericella nidulans (strain FGSC A4 / ATCC 38163 / CBS 112.46 / NRRL 194 / M139),Fungi
+Q51MW4,Pyricularia oryzae (strain 70-15 / ATCC MYA-4617 / FGSC 8958),Fungi
+Q5QFG1,Pichia angusta,Fungi
+A3GFU8,Scheffersomyces stipitis (strain ATCC 58785 / CBS 6054 / NBRC 10063 / NRRL Y-11545),Fungi
+Q4P2U6,Ustilago maydis (strain 521 / FGSC 9021),Fungi
+A6ZKM4,Saccharomyces cerevisiae (strain YJM789),Fungi
+Q51WZ9,Pyricularia oryzae (strain 70-15 / ATCC MYA-4617 / FGSC 8958),Fungi
+Q7S4D7,Neurospora crassa (strain ATCC 24698 / 74-OR23-1A / CBS 708.71 / DSM 1257 / FGSC 987),Fungi
+Q0UYL2,Phaeosphaeria nodorum (strain SN15 / ATCC MYA-4574 / FGSC 10173),Fungi
+A7KAI7,Pichia angusta,Fungi
+A5DEX5,Meyerozyma guilliermondii (strain ATCC 6260 / CBS 566 / DSM 6381 / JCM 1539 / NBRC 10279 / NRRL Y-324),Fungi
+Q876N4,Komagataella pastoris,Fungi
+A3LZS3,Scheffersomyces stipitis (strain ATCC 58785 / CBS 6054 / NBRC 10063 / NRRL Y-11545),Fungi
+A7ERK1,Sclerotinia sclerotiorum (strain ATCC 18683 / 1980 / Ss-1),Fungi
+Q4P683,Ustilago maydis (strain 521 / FGSC 9021),Fungi
+A7TR50,Vanderwaltozyma polyspora (strain ATCC 22028 / DSM 70294 / BCRC 21397 / CBS 2163 / NBRC 10782 / NRRL Y-8283 / UCD 57-17),Fungi
+A6ZXH8,Saccharomyces cerevisiae (strain YJM789),Fungi
+Q2HJE0,Bos taurus,Metazoa
+A6UVD8,Methanococcus aeolicus (strain ATCC BAA-1280 / DSM 17508 / OCM 812 / Nankai-3),Archaea
+Q3IR98,Natronomonas pharaonis (strain ATCC 35678 / DSM 2160 / CIP 103997 / JCM 8858 / NBRC 14720 / NCIMB 2260 / Gabara),Archaea
+Q9UZN0,Pyrococcus abyssi (strain GE5 / Orsay),Archaea
+O58843,Pyrococcus horikoshii (strain ATCC 700860 / DSM 12428 / JCM 9974 / NBRC 100139 / OT-3),Archaea
+Q9HI54,Thermoplasma acidophilum (strain ATCC 25905 / DSM 1728 / JCM 9062 / NBRC 15155 / AMRC-C165),Archaea
+B6YUR8,Thermococcus onnurineus (strain NA1),Archaea
+P37209,Caenorhabditis elegans,Metazoa
+Q5RFJ9,Pongo abelii,Metazoa
+Q05482,Camelpox virus (strain CP-1),Viruses
+Q9TT99,Canis lupus familiaris,Metazoa
+Q9WUC4,Rattus norvegicus,Metazoa
+Q757F3,Eremothecium gossypii (strain ATCC 10895 / CBS 109.51 / FGSC 9923 / NRRL Y-1056),Fungi
+P87127,Schizosaccharomyces pombe (strain 972 / ATCC 24843),Fungi
+O59673,Schizosaccharomyces pombe (strain 972 / ATCC 24843),Fungi
+Q2TZA3,Aspergillus oryzae (strain ATCC 42149 / RIB 40),Fungi
+P0CQ27,Cryptococcus neoformans var. neoformans serotype D (strain B-3501A),Fungi
+Q6BK77,Debaryomyces hansenii (strain ATCC 36239 / CBS 767 / BCRC 21394 / JCM 1990 / NBRC 0083 / IGC 2968),Fungi
+Q6CTY3,Kluyveromyces lactis (strain ATCC 8585 / CBS 2359 / DSM 70799 / NBRC 1267 / NRRL Y-1140 / WM37),Fungi
+Q9CWQ3,Mus musculus,Metazoa
+A5DB08,Meyerozyma guilliermondii (strain ATCC 6260 / CBS 566 / DSM 6381 / JCM 1539 / NBRC 10279 / NRRL Y-324),Fungi
+Q5BKJ4,Xenopus tropicalis,Metazoa
+C8ZFP7,Saccharomyces cerevisiae (strain Lalvin EC1118 / Prise de mousse),Fungi
+C0NWC4,Ajellomyces capsulatus (strain G186AR / H82 / ATCC MYA-2454 / RMSCC 2432),Fungi
+B0XVA3,Aspergillus fumigatus (strain CBS 144.89 / FGSC A1163 / CEA10),Fungi
+C7YY76,Fusarium vanettenii (strain ATCC MYA-4622 / CBS 123669 / FGSC 9596 / NRRL 45880 / 77-13-4),Fungi
+C1FZ15,Paracoccidioides brasiliensis (strain Pb18),Fungi
+D1ZCP6,Sordaria macrospora (strain ATCC MYA-333 / DSM 997 / K(L3346) / K-hell),Fungi
+B8MPW2,Talaromyces stipitatus (strain ATCC 10500 / CBS 375.48 / QM 6759 / NRRL 1006),Fungi
+C7GL28,Saccharomyces cerevisiae (strain JAY291),Fungi
+Q03153,Saccharomyces cerevisiae (strain ATCC 204508 / S288c),Fungi
+P50996,Canis lupus familiaris,Metazoa
+P20648,Homo sapiens,Metazoa
+P27112,Oryctolagus cuniculus,Metazoa
+P33704,Canis lupus familiaris,Metazoa
+Q96252,Arabidopsis thaliana,Viridiplantae
+P34539,Caenorhabditis elegans,Metazoa
+Q9FT52,Arabidopsis thaliana,Viridiplantae
+P31399,Rattus norvegicus,Metazoa
+P29419,Rattus norvegicus,Metazoa
+Q8SPH6,Macaca fascicularis,Metazoa
+Q28852,Bos taurus,Metazoa
+Q9CPQ8,Mus musculus,Metazoa
+Q99766,Homo sapiens,Metazoa
+Q60CS0,Methylococcus capsulatus (strain ATCC 33009 / NCIMB 11132 / Bath),Bacteria
+Q6LLG2,Photobacterium profundum (strain SS9),Bacteria
+B1WUH7,Crocosphaera subtropica (strain ATCC 51142 / BH68),Bacteria
+Q3A603,Syntrophotalea carbinolica (strain DSM 2380 / NBRC 103641 / GraBd1),Bacteria
+B1XRK3,Picosynechococcus sp. (strain ATCC 27264 / PCC 7002 / PR-6),Bacteria
+Q6FFK6,Acinetobacter baylyi (strain ATCC 33305 / BD413 / ADP1),Bacteria
+B0VNJ8,Acinetobacter baumannii (strain SDF),Bacteria
+A5FVJ0,Acidiphilium cryptum (strain JF-5),Bacteria
+A3N2V0,Actinobacillus pleuropneumoniae serotype 5b (strain L20),Bacteria
+Q1HRS5,Aedes aegypti,Metazoa
+A9CK03,Agrobacterium fabrum (strain C58 / ATCC 33970),Bacteria
+P48893,Albinaria caerulea,Metazoa
+Q0A4M2,Alkalilimnicola ehrlichii (strain ATCC BAA-1101 / DSM 17681 / MLHE-1),Bacteria
+P50364,Allomyces macrogynus,Fungi
+Q2IHP4,Anaeromyxobacter dehalogenans (strain 2CP-C),Bacteria
+A7HIW9,Anaeromyxobacter sp. (strain Fw109-5),Bacteria
+B7GMF9,Anoxybacillus flavithermus (strain DSM 21510 / WK1),Bacteria
+P24876,Ascaris suum,Metazoa
+P25965,Alkalihalobacillus alcalophilus,Bacteria
+P22476,Alkalihalophilus pseudofirmus (strain ATCC BAA-2126 / JCM 17055 / OF4),Bacteria
+A7Z9Q6,Bacillus velezensis (strain DSM 23117 / BGSC 10A6 / LMG 26770 / FZB42),Bacteria
+Q6G5L2,Bartonella henselae (strain ATCC 49882 / DSM 28221 / CCUG 30454 / Houston 1),Bacteria
+Q6G0H3,Bartonella quintana (strain Toulouse),Bacteria
+Q2KU30,Bordetella avium (strain 197N),Bacteria
+A9HY34,Bordetella petrii (strain ATCC BAA-461 / DSM 12804 / CCUG 43448),Bacteria
+O47426,Branchiostoma floridae,Metazoa
+A4Z2B4,Bradyrhizobium sp. (strain ORS 278),Bacteria
+P57118,Buchnera aphidicola subsp. Acyrthosiphon pisum (strain APS),Bacteria
+Q8HEC5,Caenorhabditis briggsae,Metazoa
+O03200,Ceratotherium simum,Metazoa
+Q3ANW6,Chlorobium chlorochromatii (strain CaD3),Bacteria
+Q1QSC4,Chromohalobacter salexigens (strain ATCC BAA-138 / DSM 3043 / CIP 106854 / NCIMB 13768 / 1H11),Bacteria
+O05097,Clostridium acetobutylicum (strain ATCC 824 / DSM 792 / JCM 1419 / IAM 19013 / LMG 5710 / NBRC 13948 / NRRL B-527 / VKM B-1787 / 2291 / W),Bacteria
+B6J957,Coxiella burnetii (strain CbuK_Q154),Bacteria
+Q83AG1,Coxiella burnetii (strain RSA 493 / Nine Mile phase I),Bacteria
+P24946,Cyprinus carpio,Metazoa
+A8ZUM7,Desulfosudis oleivorans (strain DSM 6200 / JCM 39069 / Hxd3),Bacteria
+Q2LCR6,Dictyostelium citrinum,Protists
+A8LKI0,Dinoroseobacter shibae (strain DSM 16493 / NCIMB 14021 / DFL 12),Bacteria
+P00850,Drosophila melanogaster,Metazoa
+C5BF34,Edwardsiella ictaluri (strain 93-146),Bacteria
+Q2I3G9,Elephas maximus,Metazoa
+Q830Z9,Enterococcus faecalis (strain ATCC 700802 / V583),Bacteria
+P48894,Felis catus,Metazoa
+P55778,Gadus morhua,Metazoa
+Q5KUI7,Geobacillus kaustophilus (strain HTA426),Bacteria
+C6E8P0,Geobacter sp. (strain M21),Bacteria
+Q4QN58,Haemophilus influenzae (strain 86-028NP),Bacteria
+P38591,Halichoerus grypus,Metazoa
+B5Z7J3,Helicobacter pylori (strain G27),Bacteria
+P56085,Helicobacter pylori (strain ATCC 700392 / 26695),Bacteria
+Q0C0X3,Hyphomonas neptunium (strain ATCC 15444),Bacteria
+A5VIQ5,Limosilactobacillus reuteri (strain DSM 20016),Bacteria
+Q5X2Q6,Legionella pneumophila (strain Paris),Bacteria
+Q8Y4B6,Listeria monocytogenes serovar 1/2a (strain ATCC BAA-679 / EGD-e),Bacteria
+O79551,Lycodon semicarinatus,Metazoa
+Q0AMJ4,Maricaulis maris (strain MCS10),Bacteria
+B0ULY1,Methylobacterium sp. (strain 4-46),Bacteria
+B2HQK8,Mycobacterium marinum (strain ATCC BAA-535 / M),Bacteria
+A0PUK6,Mycobacterium ulcerans (strain Agy99),Bacteria
+A6Q3A6,Nitratiruptor sp. (strain SB155-2),Bacteria
+B2J053,Nostoc punctiforme (strain ATCC 29133 / PCC 73102),Bacteria
+Q8EM77,Oceanobacillus iheyensis (strain DSM 14371 / CIP 107618 / JCM 11309 / KCTC 3954 / HTE831),Bacteria
+Q36964,Oncorhynchus masou,Metazoa
+A1R7V8,Paenarthrobacter aurescens (strain TC1),Bacteria
+A7HQY7,Parvibaculum lavamentivorans (strain DS-1 / DSM 13023 / NCIMB 13966),Bacteria
+Q21ZA2,Albidiferax ferrireducens (strain ATCC BAA-621 / DSM 15236 / T118),Bacteria
+Q6NBI2,Rhodopseudomonas palustris (strain ATCC BAA-98 / CGA009),Bacteria
+Q1RGZ3,Rickettsia bellii (strain RML369-C),Bacteria
+A8F0C9,Rickettsia massiliae (strain Mtu5),Bacteria
+A8GQF6,Rickettsia rickettsii (strain Sheila Smith),Bacteria
+A1AXU8,Ruthia magnifica subsp. Calyptogena magnifica,Bacteria
+Q57HX3,Salmonella choleraesuis (strain SC-B67),Bacteria
+C0Q2N8,Salmonella paratyphi C (strain RKS4594),Bacteria
+Q8XGC2,Salmonella typhi,Bacteria
+A8G7M2,Serratia proteamaculans (strain 568),Bacteria
+A4YCI4,Shewanella putrefaciens (strain CN-32 / ATCC BAA-453),Bacteria
+Q0HD73,Shewanella sp. (strain MR-4),Bacteria
+Q1GU79,Sphingopyxis alaskensis (strain DSM 13593 / LMG 18877 / RB2256),Bacteria
+A5IUQ4,Staphylococcus aureus (strain JH9),Bacteria
+Q6GEW6,Staphylococcus aureus (strain MRSA252),Bacteria
+Q49Z56,Staphylococcus saprophyticus subsp. saprophyticus (strain ATCC 15305 / DSM 20229 / NCIMB 8711 / NCTC 7292 / S-41),Bacteria
+O21402,Struthio camelus,Metazoa
+P95784,Streptococcus mutans serotype c (strain ATCC 700610 / UA159),Bacteria
+Q5XCY5,Streptococcus pyogenes serotype M6 (strain ATCC BAA-946 / MGAS10394),Bacteria
+Q1JHP0,Streptococcus pyogenes serotype M2 (strain MGAS10270),Bacteria
+B5XKP6,Streptococcus pyogenes serotype M49 (strain NZ131),Bacteria
+A3CM09,Streptococcus sanguinis (strain SK36),Bacteria
+Q30QW4,Sulfurimonas denitrificans (strain ATCC 33889 / DSM 1251),Bacteria
+Q2JSV5,Synechococcus sp. (strain JA-3-3Ab),Bacteria
+A5GV77,Synechococcus sp. (strain RCC307),Bacteria
+Q3AHK0,Synechococcus sp. (strain CC9605),Bacteria
+Q8W9G8,Tachyglossus aculeatus aculeatus,Metazoa
+Q3SF60,Thiobacillus denitrificans (strain ATCC 25259),Bacteria
+Q36835,Trichophyton rubrum,Fungi
+Q0H8Y6,Ustilago maydis (strain 521 / FGSC 9021),Fungi
+B5FCZ7,Aliivibrio fischeri (strain MJ11),Bacteria
+P48879,Wickerhamomyces canadensis,Fungi
+Q5JCK6,Aedes albopictus,Metazoa
+Q9XMI9,Orycteropus afer,Metazoa
+Q9ZXY0,Papio hamadryas,Metazoa
+Q35537,Petromyzon marinus,Metazoa
+Q9XN27,Salvelinus alpinus,Metazoa
+O78751,Ovis aries,Metazoa
+Q831A3,Enterococcus faecalis (strain ATCC 700802 / V583),Bacteria
+P30392,Euglena gracilis,Protists
+A6H2D7,Flavobacterium psychrophilum (strain ATCC 49511 / DSM 21280 / CIP 103535 / JIP02/86),Bacteria
+Q14K08,Francisella tularensis subsp. tularensis (strain FSC 198),Bacteria
+B2SEX9,Francisella tularensis subsp. mediasiatica (strain FSC147),Bacteria
+Q5KUJ1,Geobacillus kaustophilus (strain HTA426),Bacteria
+C6E9F3,Geobacter sp. (strain M21),Bacteria
+Q0BQE6,Granulibacter bethesdensis (strain ATCC BAA-1260 / CGDNIH1),Bacteria
+Q4QN62,Haemophilus influenzae (strain 86-028NP),Bacteria
+Q0I5X1,Histophilus somni (strain 129Pt),Bacteria
+Q7VJ23,Helicobacter hepaticus (strain ATCC 51449 / 3B1),Bacteria
+B2UUP2,Helicobacter pylori (strain Shi470),Bacteria
+B0UWG7,Histophilus somni (strain 2336),Bacteria
+Q5SCX6,Huperzia lucidula,Viridiplantae
+A6MMS9,Illicium oligandrum,Viridiplantae
+A6W7G7,Kineococcus radiotolerans (strain ATCC BAA-149 / DSM 14245 / SRS30216),Bacteria
+C5CIV6,Kosmotoga olearia (strain ATCC BAA-1733 / DSM 21960 / TBF 19.5.1),Bacteria
+Q1GAW7,Lactobacillus delbrueckii subsp. bulgaricus (strain ATCC 11842 / DSM 20081 / BCRC 10696 / JCM 1002 / NBRC 13953 / NCIMB 11778 / NCTC 12712 / WDCM 00102 / Lb 14),Bacteria
+A8YUJ9,Lactobacillus helveticus (strain DPC 4571),Bacteria
+Q88UU1,Lactiplantibacillus plantarum (strain ATCC BAA-793 / NCIMB 8826 / WCFS1),Bacteria
+Q04S16,Leptospira borgpetersenii serovar Hardjo-bovis (strain JB197),Bacteria
+Q72SY1,Leptospira interrogans serogroup Icterohaemorrhagiae serovar copenhageni (strain Fiocruz L1-130),Bacteria
+P63674,Mycobacterium bovis (strain ATCC BAA-935 / AF2122/97),Bacteria
+Q4A8W1,Mesomycoplasma hyopneumoniae (strain 7448),Bacteria
+Q6MS92,Mycoplasma mycoides subsp. mycoides SC (strain PG1),Bacteria
+A3Q3B3,Mycobacterium sp. (strain JLS),Bacteria
+P9WPU7,Mycobacterium tuberculosis (strain ATCC 25618 / H37Rv),Bacteria
+B2A3G4,Natranaerobius thermophilus (strain ATCC BAA-1301 / DSM 18059 / JW/NM-WN-LF),Bacteria
+Q9TL16,Nephroselmis olivacea,Viridiplantae
+Q1QQS5,Nitrobacter hamburgensis (strain DSM 10229 / NCIMB 13809 / X14),Bacteria
+A1SHI9,Nocardioides sp. (strain ATCC BAA-499 / JS614),Bacteria
+B6JD06,Afipia carboxidovorans (strain ATCC 49405 / DSM 1227 / KCTC 32145 / OM5),Bacteria
+P0C2Z5,Oryza sativa subsp. indica,Viridiplantae
+P08215,Pisum sativum,Viridiplantae
+A1ALL5,Pelobacter propionicus (strain DSM 2379 / NBRC 103807 / OttBd1),Bacteria
+A4GGB2,Phaseolus vulgaris,Viridiplantae
+P80021,Sus scrofa,Metazoa
+A4GYP3,Populus trichocarpa,Viridiplantae
+P29706,Propionigenium modestum,Bacteria
+B7V793,Pseudomonas aeruginosa (strain LESB58),Bacteria
+Q1I2I5,Pseudomonas entomophila (strain L48),Bacteria
+A5WBA5,Pseudomonas putida (strain ATCC 700007 / DSM 6899 / BCRC 17059 / F1),Bacteria
+Q87TT2,Pseudomonas syringae pv. tomato (strain ATCC BAA-871 / DC3000),Bacteria
+Q8XU74,Ralstonia nicotianae (strain ATCC BAA-1114 / GMI1000),Bacteria
+A6MVW4,Rhodomonas salina,Protists
+C1A1Y0,Rhodococcus erythropolis (strain PR4 / NBRC 100887),Bacteria
+A8GY42,Rickettsia bellii (strain OSU 85-389),Bacteria
+O50288,Rickettsia prowazekii (strain Madrid E),Bacteria
+Q6L3A1,Saccharum hybrid,Viridiplantae
+Q57HX7,Salmonella choleraesuis (strain SC-B67),Bacteria
+A4XAW4,Salinispora tropica (strain ATCC BAA-916 / DSM 44818 / JCM 13857 / NBRC 105044 / CNB-440),Bacteria
+Q31UN4,Shigella boydii serotype 4 (strain Sb227),Bacteria
+C3M9S3,Sinorhizobium fredii (strain NBRC 101917 / NGR234),Bacteria
+B1W0A5,Streptomyces griseus subsp. griseus (strain JCM 4626 / CBS 651.72 / NBRC 13350 / KCC S-0626 / ISP 5235),Bacteria
+P0DA02,Streptococcus pyogenes serotype M3 (strain ATCC BAA-595 / MGAS315),Bacteria
+Q1JMJ1,Streptococcus pyogenes serotype M12 (strain MGAS9429),Bacteria
+Q48UD5,Streptococcus pyogenes serotype M28 (strain MGAS6180),Bacteria
+Q5M5J3,Streptococcus thermophilus (strain ATCC BAA-250 / LMG 18311),Bacteria
+Q30QP9,Sulfurimonas denitrificans (strain ATCC 33889 / DSM 1251),Bacteria
+C1CLK8,Streptococcus pneumoniae (strain P1031),Bacteria
+Q1KVU0,Tetradesmus obliquus,Viridiplantae
+B8GRC0,Thioalkalivibrio sulfidiphilus (strain HL-EbGR7),Bacteria
+Q83HY2,Tropheryma whipplei (strain TW08/27),Bacteria
+Q8D3J5,Wigglesworthia glossinidia brevipalpis,Bacteria
+Q8PGG5,Xanthomonas axonopodis pv. citri (strain 306),Bacteria
+B2SQB2,Xanthomonas oryzae pv. oryzae (strain PXO99A),Bacteria
+A9R5U1,Yersinia pestis bv. Antiqua (strain Angola),Bacteria
+Q5NQZ1,Zymomonas mobilis subsp. mobilis (strain ATCC 31821 / ZM4 / CP4),Bacteria
+Q3JXV8,Burkholderia pseudomallei (strain 1710b),Bacteria
+Q2STE9,Burkholderia thailandensis (strain ATCC 700388 / DSM 13276 / CCUG 48851 / CIP 106301 / E264),Bacteria
+A0AFR1,Listeria welshimeri serovar 6b (strain ATCC 35897 / DSM 20650 / CCUG 15529 / CIP 8149 / NCTC 11857 / SLCC 5334 / V8),Bacteria
+Q6LLG8,Photobacterium profundum (strain SS9),Bacteria
+Q07VU4,Shewanella frigidimarina (strain NCIMB 400),Bacteria
+A3P8M2,Burkholderia pseudomallei (strain 1106a),Bacteria
+Q8KAC9,Chlorobaculum tepidum (strain ATCC 49652 / DSM 12025 / NBRC 103806 / TLS),Bacteria
+Q5FNZ3,Gluconobacter oxydans (strain 621H),Bacteria
+Q98QB6,Mycoplasmopsis pulmonis (strain UAB CTIP),Bacteria
+A1T0Y9,Psychromonas ingrahamii (strain DSM 17664 / CCUG 51855 / 37),Bacteria
+Q39ZU1,Syntrophotalea carbinolica (strain DSM 2380 / NBRC 103641 / GraBd1),Bacteria
+P17614,Nicotiana plumbaginifolia,Viridiplantae
+A8ZNR6,Acaryochloris marina (strain MBIC 11017),Bacteria
+P41168,Acidithiobacillus ferridurans,Bacteria
+B3H2P3,Actinobacillus pleuropneumoniae serotype 7 (strain AP76),Bacteria
+P62626,Aegilops columnaris,Viridiplantae
+A4QJK6,Aethionema grandiflorum,Viridiplantae
+Q9TMQ4,Albuca bracteata,Viridiplantae
+A8MJV9,Alkaliphilus oremlandii (strain OhILAs),Bacteria
+B3EST8,Amoebophilus asiaticus (strain 5a2),Bacteria
+Q5PAN2,Anaplasma marginale (strain St. Maries),Bacteria
+P28250,Angiopteris lygodiifolia,Viridiplantae
+O67828,Aquifex aeolicus (strain VF5),Bacteria
+Q8S8W8,Atropa belladonna,Viridiplantae
+C3P1F4,Bacillus anthracis (strain A0248),Bacteria
+A0RL95,Bacillus thuringiensis (strain Al Hakam),Bacteria
+Q6FYM3,Bartonella quintana (strain Toulouse),Bacteria
+A9HY42,Bordetella petrii (strain ATCC BAA-461 / DSM 12804 / CCUG 43448),Bacteria
+Q85V57,Bowiea volubilis,Viridiplantae
+A4YKE0,Bradyrhizobium sp. (strain ORS 278),Bacteria
+Q8YJ35,Brucella melitensis biotype 1 (strain ATCC 23456 / CCUG 17765 / NCTC 10094 / 16M),Bacteria
+Q89B39,Buchnera aphidicola subsp. Baizongia pistaciae (strain Bp),Bacteria
+Q39KX6,Burkholderia lata (strain ATCC 17760 / DSM 23089 / LMG 22485 / NCIMB 9086 / R18194 / 383),Bacteria
+B9MS68,Caldicellulosiruptor bescii (strain ATCC BAA-1888 / DSM 6725 / KCTC 15123 / Z-1320),Bacteria
+Q9A2V9,Caulobacter vibrioides (strain ATCC 19089 / CIP 103742 / CB 15),Bacteria
+Q9BA96,Chamaerops humilis,Viridiplantae
+P35110,Chlorobium limicola,Bacteria
+A4SC45,Chlorobium phaeovibrioides (strain DSM 265 / 1930),Bacteria
+B3QUP6,Chloroherpeton thalassium (strain ATCC 35110 / GB-78),Bacteria
+A8ACN6,Citrobacter koseri (strain ATCC BAA-895 / CDC 4225-83 / SGSC4696),Bacteria
+A7FQH9,Clostridium botulinum (strain ATCC 19397 / Type A),Bacteria
+A5HY52,Clostridium botulinum (strain Hall / ATCC 3502 / NCTC 13319 / Type A),Bacteria
+B1KSS8,Clostridium botulinum (strain Loch Maree / Type A3),Bacteria
+Q8XID4,Clostridium perfringens (strain 13 / Type A),Bacteria
+Q8MBM3,Convolvulus arvensis,Viridiplantae
+C3PFR5,Corynebacterium aurimucosum (strain ATCC 700975 / DSM 44827 / CIP 107346 / CN-1),Bacteria
+B1VFY7,Corynebacterium urealyticum (strain ATCC 43042 / DSM 7109),Bacteria
+A4QKT8,Crucihimalaya wallichii,Viridiplantae
+Q46VY0,Cupriavidus pinatubonensis (strain JMP 134 / LMG 1197),Bacteria
+Q8MBG5,Cuscuta pentagona,Viridiplantae
+Q9TM41,Cyanidium caldarium,Protists
+P48081,Cyanophora paradoxa,Protists
+A9BPU7,Delftia acidovorans (strain DSM 14801 / SPH-1),Bacteria
+B7M588,Escherichia coli O8 (strain IAI1),Bacteria
+B1X9W0,Escherichia coli (strain K12 / DH10B),Bacteria
+Q5FGY3,Ehrlichia ruminantium (strain Gardel),Bacteria
+C5BF40,Edwardsiella ictaluri (strain 93-146),Bacteria
+B2VCA4,Erwinia tasmaniensis (strain DSM 17950 / CFBP 7177 / CIP 109463 / NCPPB 4357 / Et1/99),Bacteria
+A5FLS1,Flavobacterium johnsoniae (strain ATCC 17061 / DSM 2064 / JCM 8514 / BCRC 14874 / CCUG 350202 / NBRC 14942 / NCIMB 11054 / UW101),Bacteria
+A7NEH4,Francisella tularensis subsp. holarctica (strain FTNF002-00 / FTA),Bacteria
+A0Q8D9,Francisella tularensis subsp. novicida (strain U112),Bacteria
+Q2PQH4,Fucus vesiculosus,Protists
+B9LZ84,Geotalea daltonii (strain DSM 22248 / JCM 15807 / FRC-32),Bacteria
+Q74GY0,Geobacter sulfurreducens (strain ATCC 51573 / DSM 12127 / PCA),Bacteria
+A5G9D8,Geotalea uraniireducens (strain Rf4),Bacteria
+Q2L917,Gossypium hirsutum,Viridiplantae
+O78491,Guillardia theta,Protists
+A5UGY9,Haemophilus influenzae (strain PittGG),Bacteria
+Q2S6P1,Hahella chejuensis (strain KCTC 2396),Bacteria
+B0THN2,Heliobacterium modesticaldum (strain ATCC 51547 / Ice1),Bacteria
+A9AVV4,Herpetosiphon aurantiacus (strain ATCC 23779 / DSM 785 / 114-95),Bacteria
+Q31DM0,Hydrogenovibrio crunogenus (strain DSM 25203 / XCL-2),Bacteria
+P07137,Ipomoea batatas,Viridiplantae
+P26532,Pylaiella littoralis,Protists
+Q07UZ5,Rhodopseudomonas palustris (strain BisA53),Bacteria
+A4WUM7,Cereibacter sphaeroides (strain ATCC 17025 / ATH 2.4.3),Bacteria
+Q4UK18,Rickettsia felis (strain ATCC VR-1525 / URRWXCal2),Bacteria
+A8GTS6,Rickettsia rickettsii (strain Sheila Smith),Bacteria
+Q7HHX4,Roystonea regia,Viridiplantae
+B5RFW3,Salmonella gallinarum (strain 287/91 / NCTC 13346),Bacteria
+A9MXA6,Salmonella paratyphi B (strain ATCC BAA-1250 / SPB7),Bacteria
+Q07233,Schizaphis graminum,Metazoa
+A3QJR0,Shewanella loihica (strain ATCC BAA-1088 / PV-4),Bacteria
+A8G1W5,Shewanella sediminis (strain HAW-EB3),Bacteria
+Q31UN2,Shigella boydii serotype 4 (strain Sb227),Bacteria
+A6UDM1,Sinorhizobium medicae (strain WSM419),Bacteria
+Q2VEH0,Solanum tuberosum,Viridiplantae
+Q1GQS5,Sphingopyxis alaskensis (strain DSM 13593 / LMG 18877 / RB2256),Bacteria
+P00825,Spinacia oleracea,Viridiplantae
+Q32RY8,Staurastrum punctulatum,Viridiplantae
+Q82J84,Streptomyces avermitilis (strain ATCC 31267 / DSM 46492 / JCM 5070 / NBRC 14893 / NCIMB 12804 / NRRL 8165 / MA-4680),Bacteria
+B1W0A3,Streptomyces griseus subsp. griseus (strain JCM 4626 / CBS 651.72 / NBRC 13350 / KCC S-0626 / ISP 5235),Bacteria
+Q04HT9,Streptococcus pneumoniae serotype 2 (strain D39 / NCTC 7466),Bacteria
+Q8P1K5,Streptococcus pyogenes serotype M18 (strain MGAS8232),Bacteria
+P0DA05,Streptococcus pyogenes serotype M3 (strain SSI-1),Bacteria
+A4W1V7,Streptococcus suis (strain 98HAH33),Bacteria
+Q5M5J1,Streptococcus thermophilus (strain ATCC BAA-250 / LMG 18311),Bacteria
+P26527,Synechocystis sp. (strain PCC 6803 / Kazusa),Bacteria
+B7IG44,Thermosipho africanus (strain TCF52B),Bacteria
+B1LBB9,Thermotoga sp. (strain RQ2),Bacteria
+P00826,Nicotiana tabacum,Viridiplantae
+B5ZAW1,Ureaplasma urealyticum serovar 10 (strain ATCC 33699 / Western),Bacteria
+A5CVI6,Vesicomyosocius okutanii subsp. Calyptogena okutanii (strain HA),Bacteria
+Q5E1N7,Aliivibrio fischeri (strain ATCC 700601 / ES114),Bacteria
+P20858,Triticum aestivum,Viridiplantae
+P42470,Wolinella succinogenes (strain ATCC 29543 / DSM 1740 / CCUG 13145 / JCM 31913 / LMG 7466 / NCTC 11488 / FDC 602W),Bacteria
+B2GAU2,Limosilactobacillus fermentum (strain NBRC 3956 / LMG 18251),Bacteria
+A9KK95,Lachnoclostridium phytofermentans (strain ATCC 700394 / DSM 18823 / ISDg),Bacteria
+Q1MRC0,Lawsonia intracellularis (strain PHE/MN1-00),Bacteria
+Q04ZU2,Leptospira borgpetersenii serovar Hardjo-bovis (strain L550),Bacteria
+Q927W1,Listeria innocua serovar 6a (strain ATCC BAA-680 / CLIP 11262),Bacteria
+Q65Q04,Mannheimia succiniciproducens (strain MBEL55E),Bacteria
+Q60CR7,Methylococcus capsulatus (strain ATCC 33009 / NCIMB 11132 / Bath),Bacteria
+B0UE42,Methylobacterium sp. (strain 4-46),Bacteria
+Q9D3D9,Mus musculus,Metazoa
+Q98QU2,Mycoplasmopsis pulmonis (strain UAB CTIP),Bacteria
+B4RJF7,Neisseria gonorrhoeae (strain NCCP11945),Bacteria
+Q0AJB3,Nitrosomonas eutropha (strain DSM 101675 / C91 / Nm57),Bacteria
+Q3SVJ5,Nitrobacter winogradskyi (strain ATCC 25391 / DSM 10237 / CIP 104748 / NCIMB 11846 / Nb-255),Bacteria
+Q8EM80,Oceanobacillus iheyensis (strain DSM 14371 / CIP 107618 / JCM 11309 / KCTC 3954 / HTE831),Bacteria
+A6L8N6,Parabacteroides distasonis (strain ATCC 8503 / DSM 20701 / CIP 104284 / JCM 5825 / NCTC 11152),Bacteria
+Q6CYJ2,Pectobacterium atrosepticum (strain SCRI 1043 / ATCC BAA-672),Bacteria
+Q92LK5,Rhizobium meliloti (strain 1021),Bacteria
+Q2J3I1,Rhodopseudomonas palustris (strain HaA2),Bacteria
+B3Q748,Rhodopseudomonas palustris (strain TIE-1),Bacteria
+A8GTS9,Rickettsia rickettsii (strain Sheila Smith),Bacteria
+A1AXU5,Ruthia magnifica subsp. Calyptogena magnifica,Bacteria
+Q12HP8,Shewanella denitrificans (strain OS217 / ATCC BAA-1090 / DSM 15013),Bacteria
+B8CVU8,Shewanella piezotolerans (strain WP3 / JCM 13877),Bacteria
+B1KQ37,Shewanella woodyi (strain ATCC 51908 / MS32),Bacteria
+P99109,Staphylococcus aureus (strain N315),Bacteria
+Q4L7Y7,Staphylococcus haemolyticus (strain JCSC1435),Bacteria
+C0M717,Streptococcus equi subsp. equi (strain 4047),Bacteria
+Q1JMJ2,Streptococcus pyogenes serotype M12 (strain MGAS9429),Bacteria
+B2IQX3,Streptococcus pneumoniae (strain CGSP14),Bacteria
+Q5M5J4,Streptococcus thermophilus (strain ATCC BAA-250 / LMG 18311),Bacteria
+Q30QP8,Sulfurimonas denitrificans (strain ATCC 33889 / DSM 1251),Bacteria
+A0LLG1,Syntrophobacter fumaroxidans (strain DSM 10017 / MPOB),Bacteria
+B3CN52,Wolbachia pipientis subsp. Culex pipiens (strain wPip),Bacteria
+Q4UQF1,Xanthomonas campestris pv. campestris (strain 8004),Bacteria
+Q5H4Y7,Xanthomonas oryzae pv. oryzae (strain KACC10331 / KXO85),Bacteria
+Q12165,Saccharomyces cerevisiae (strain ATCC 204508 / S288c),Fungi
+A1JTD0,Yersinia enterocolitica serotype O:8 / biotype 1B (strain NCTC 13174 / 8081),Bacteria
+Q3A604,Syntrophotalea carbinolica (strain DSM 2380 / NBRC 103641 / GraBd1),Bacteria
+Q13IW4,Paraburkholderia xenovorans (strain LB400),Bacteria
+A3M145,Acinetobacter baumannii (strain ATCC 17978 / DSM 105126 / CIP 53.77 / LMG 1025 / NCDC KC755 / 5377),Bacteria
+P59328,Mus musculus,Metazoa
+P46153,Rattus norvegicus,Metazoa
+Q8HWS3,Homo sapiens,Metazoa
+Q8C7R7,Mus musculus,Metazoa
+P51514,Rattus norvegicus,Metazoa
+Q9S7C9,Arabidopsis thaliana,Viridiplantae
+Q9C5W6,Arabidopsis thaliana,Viridiplantae
+P14196,Dictyostelium discoideum,Protists
+Q9SJN0,Arabidopsis thaliana,Viridiplantae
+D4AT77,Arthroderma benhamiae (strain ATCC MYA-4681 / CBS 112371),Fungi
+D4AL61,Arthroderma benhamiae (strain ATCC MYA-4681 / CBS 112371),Fungi
+B0XVV1,Aspergillus fumigatus (strain CBS 144.89 / FGSC A1163 / CEA10),Fungi
+Q0CHR0,Aspergillus terreus (strain NIH 2624 / FGSC A1156),Fungi
+C1G966,Paracoccidioides brasiliensis (strain Pb18),Fungi
+P51827,Mus musculus,Metazoa
+Q12732,Aspergillus parasiticus (strain ATCC 56775 / NRRL 5862 / SRRC 143 / SU-1),Fungi
+Q9UW95,Aspergillus parasiticus (strain ATCC 56775 / NRRL 5862 / SRRC 143 / SU-1),Fungi
+Q12120,Aspergillus parasiticus (strain ATCC 56775 / NRRL 5862 / SRRC 143 / SU-1),Fungi
+Q9LSB2,Arabidopsis thaliana,Viridiplantae
+Q9M2K8,Arabidopsis thaliana,Viridiplantae
+P29386,Arabidopsis thaliana,Viridiplantae
+Q9FLL0,Arabidopsis thaliana,Viridiplantae
+Q38876,Arabidopsis thaliana,Viridiplantae
+Q9Z3R4,Rhizobium meliloti (strain 1021),Bacteria
+P70773,Aeromonas salmonicida,Bacteria
+A7MR91,Cronobacter sakazakii (strain ATCC BAA-894),Bacteria
+Q57K51,Salmonella choleraesuis (strain SC-B67),Bacteria
+B4T5G4,Salmonella newport (strain SL254),Bacteria
+B5BFM9,Salmonella paratyphi A (strain AKU_12601),Bacteria
+B2U0T2,Shigella boydii serotype 18 (strain CDC 3083-94 / BS512),Bacteria
+Q9KUN3,Vibrio cholerae serotype O1 (strain ATCC 39315 / El Tor Inaba N16961),Bacteria
+Q8DC96,Vibrio vulnificus (strain CMCP6),Bacteria
+A1JPP6,Yersinia enterocolitica serotype O:8 / biotype 1B (strain NCTC 13174 / 8081),Bacteria
+E7F888,Danio rerio,Metazoa
+Q49XM7,Staphylococcus saprophyticus subsp. saprophyticus (strain ATCC 15305 / DSM 20229 / NCIMB 8711 / NCTC 7292 / S-41),Bacteria
+Q9Z4S3,Thermotoga neapolitana (strain ATCC 49049 / DSM 4359 / NBRC 107923 / NS-E),Bacteria
+Q4J9L2,Sulfolobus acidocaldarius (strain ATCC 33909 / DSM 639 / JCM 8929 / NBRC 15157 / NCIMB 11770),Archaea
+Q9FXD6,Arabidopsis thaliana,Viridiplantae
+P0A3J6,Aeromonas salmonicida,Bacteria
+Q9ZU70,Arabidopsis thaliana,Viridiplantae
+O23208,Arabidopsis thaliana,Viridiplantae
+B5DLV1,Drosophila pseudoobscura pseudoobscura,Metazoa
+O35451,Mus musculus,Metazoa
+Q11178,Caenorhabditis elegans,Metazoa
+G5EFZ3,Caenorhabditis elegans,Metazoa
+Q8GXM7,Arabidopsis thaliana,Viridiplantae
+Q9ZU11,Arabidopsis thaliana,Viridiplantae
+Q8LFD3,Arabidopsis thaliana,Viridiplantae
+P0CJ65,Arabidopsis thaliana,Viridiplantae
+B4JND4,Drosophila grimshawi,Metazoa
+B4H4H5,Drosophila persimilis,Metazoa
+B4M7J1,Drosophila virilis,Metazoa
+Q8RWU4,Arabidopsis thaliana,Viridiplantae
+P40467,Saccharomyces cerevisiae (strain ATCC 204508 / S288c),Fungi
+Q91X20,Mus musculus,Metazoa
+Q5AR44,Emericella nidulans (strain FGSC A4 / ATCC 38163 / CBS 112.46 / NRRL 194 / M139),Fungi
+P09774,Drosophila melanogaster,Metazoa
+Q0D158,Aspergillus terreus (strain NIH 2624 / FGSC A1156),Fungi
+Q940J1,Arabidopsis thaliana,Viridiplantae
+Q9LVR0,Arabidopsis thaliana,Viridiplantae
+O04292,Arabidopsis thaliana,Viridiplantae
+B4NEU8,Drosophila willistoni,Metazoa
+O93602,Gallus gallus,Metazoa
+Q5R9C9,Pongo abelii,Metazoa
+P22018,Ustilago maydis,Fungi
+O07465,Rhodopseudomonas palustris (strain ATCC BAA-98 / CGA009),Bacteria
+Q9VLU0,Drosophila melanogaster,Metazoa
+P0DH89,Oryza sativa subsp. japonica,Viridiplantae
+P22019,Ustilago maydis,Fungi
+P22020,Ustilago maydis,Fungi
+P22021,Ustilago maydis,Fungi
+O80831,Arabidopsis thaliana,Viridiplantae
+Q9DCT6,Mus musculus,Metazoa
+Q8VIB5,Mus musculus,Metazoa
+Q05175,Rattus norvegicus,Metazoa
+E5AW45,Mycetohabitans rhizoxinica (strain DSM 19002 / CIP 109453 / HKI 454),Bacteria
+Q5VSA8,Oryza sativa subsp. japonica,Viridiplantae
+P15935,Clostridium perfringens,Bacteria
+Q9HEV5,Neurospora crassa (strain ATCC 24698 / 74-OR23-1A / CBS 708.71 / DSM 1257 / FGSC 987),Fungi
+P10083,Drosophila melanogaster,Metazoa
+P48731,Arabidopsis thaliana,Viridiplantae
+P46667,Arabidopsis thaliana,Viridiplantae
+P46897,Arabidopsis thaliana,Viridiplantae
+Q9ZVD3,Arabidopsis thaliana,Viridiplantae
+Q9M9B9,Arabidopsis thaliana,Viridiplantae
+Q9LZJ8,Arabidopsis thaliana,Viridiplantae
+Q9ZWJ9,Arabidopsis thaliana,Viridiplantae
+P44337,Haemophilus influenzae (strain ATCC 51907 / DSM 11121 / KW20 / Rd),Bacteria
+P10084,Drosophila melanogaster,Metazoa
+Q6NW59,Danio rerio,Metazoa
+Q3ZCH6,Bos taurus,Metazoa
+Q6P9S1,Mus musculus,Metazoa
+I1RF57,Gibberella zeae (strain ATCC MYA-4620 / CBS 123657 / FGSC 9075 / NRRL 31084 / PH-1),Fungi
+P69229,Escherichia coli O6:H1 (strain CFT073 / ATCC 700928 / UPEC),Bacteria
+Q32LD1,Bos taurus,Metazoa
+Q503F2,Danio rerio,Metazoa
+Q8LC03,Arabidopsis thaliana,Viridiplantae
+Q8LAT0,Arabidopsis thaliana,Viridiplantae
+Q9FN29,Arabidopsis thaliana,Viridiplantae
+P78962,Schizosaccharomyces pombe (strain 972 / ATCC 24843),Fungi
+B8NLU5,Aspergillus flavus (strain ATCC 200026 / FGSC A1120 / IAM 13836 / NRRL 3357 / JCM 12722 / SRRC 167),Fungi
+P92953,Arabidopsis thaliana,Viridiplantae
+P46668,Arabidopsis thaliana,Viridiplantae
+Q8IRC7,Drosophila melanogaster,Metazoa
+Q6P026,Danio rerio,Metazoa
+Q5RBU9,Pongo abelii,Metazoa
+Q8N1L9,Homo sapiens,Metazoa
+Q9FWS6,Arabidopsis thaliana,Viridiplantae
+Q19787,Caenorhabditis elegans,Metazoa
+Q8GZ13,Arabidopsis thaliana,Viridiplantae
+P17444,Escherichia coli (strain K12),Bacteria
+Q1PF17,Arabidopsis thaliana,Viridiplantae
+Q700E3,Arabidopsis thaliana,Viridiplantae
+Q56XR0,Arabidopsis thaliana,Viridiplantae
+Q9C670,Arabidopsis thaliana,Viridiplantae
+Q9C690,Arabidopsis thaliana,Viridiplantae
+Q8H102,Arabidopsis thaliana,Viridiplantae
+F4IQQ9,Arabidopsis thaliana,Viridiplantae
+Q9ASX9,Arabidopsis thaliana,Viridiplantae
+O80482,Arabidopsis thaliana,Viridiplantae
+F4JIJ7,Arabidopsis thaliana,Viridiplantae
+Q0H8X2,Ustilago maydis (strain 521 / FGSC 9021),Fungi
+I1RF54,Gibberella zeae (strain ATCC MYA-4620 / CBS 123657 / FGSC 9075 / NRRL 31084 / PH-1),Fungi
+G3XMC5,Aspergillus niger (strain ATCC 1015 / CBS 113.46 / FGSC A1144 / LSHB Ac4 / NCTC 3858a / NRRL 328 / USDA 3528.7),Fungi
+P41696,Saccharomyces cerevisiae (strain ATCC 204508 / S288c),Fungi
+P22016,Ustilago maydis,Fungi
+P63157,Mus musculus,Metazoa
+Q9W6D8,Gallus gallus,Metazoa
+Q9ER42,Mus musculus,Metazoa
+O08686,Mus musculus,Metazoa
+Q9I6Z9,Pseudomonas aeruginosa (strain ATCC 15692 / DSM 22644 / CIP 104116 / JCM 14847 / LMG 12228 / 1C / PRS 101 / PAO1),Bacteria
+P55924,Drosophila subobscura,Metazoa
+Q84TK1,Arabidopsis thaliana,Viridiplantae
+Q8S3F1,Arabidopsis thaliana,Viridiplantae
+Q9LUK7,Arabidopsis thaliana,Viridiplantae
+Q2HIV9,Arabidopsis thaliana,Viridiplantae
+Q8VZ02,Arabidopsis thaliana,Viridiplantae
+O81037,Arabidopsis thaliana,Viridiplantae
+Q6NKN9,Arabidopsis thaliana,Viridiplantae
+Q9FJL4,Arabidopsis thaliana,Viridiplantae
+Q9C707,Arabidopsis thaliana,Viridiplantae
+Q9LND0,Arabidopsis thaliana,Viridiplantae
+Q9FIX5,Arabidopsis thaliana,Viridiplantae
+Q9FYE6,Arabidopsis thaliana,Viridiplantae
+Q9LET0,Arabidopsis thaliana,Viridiplantae
+Q9LRJ4,Arabidopsis thaliana,Viridiplantae
+Q8GT73,Arabidopsis thaliana,Viridiplantae
+Q9STJ6,Arabidopsis thaliana,Viridiplantae
+Q66GR3,Arabidopsis thaliana,Viridiplantae
+Q9FGB0,Arabidopsis thaliana,Viridiplantae
+F4I4E1,Arabidopsis thaliana,Viridiplantae
+Q8R1H8,Mus musculus,Metazoa
+Q8GUC3,Hordeum vulgare,Viridiplantae
+O06703,Bordetella bronchiseptica (strain ATCC BAA-588 / NCTC 13252 / RB50),Bacteria
+Q93Y00,Arabidopsis thaliana,Viridiplantae
+O23090,Arabidopsis thaliana,Viridiplantae
+Q9S7Y1,Arabidopsis thaliana,Viridiplantae
+Q9LTS4,Arabidopsis thaliana,Viridiplantae
+Q9CAA9,Arabidopsis thaliana,Viridiplantae
+Q9SVU7,Arabidopsis thaliana,Viridiplantae
+Q9LXA9,Arabidopsis thaliana,Viridiplantae
+Q9ZUG9,Arabidopsis thaliana,Viridiplantae
+Q8S3D5,Arabidopsis thaliana,Viridiplantae
+Q9LK48,Arabidopsis thaliana,Viridiplantae
+Q9LSQ3,Arabidopsis thaliana,Viridiplantae
+Q84WK0,Arabidopsis thaliana,Viridiplantae
+Q69WS3,Oryza sativa subsp. japonica,Viridiplantae
+Q9FKQ6,Arabidopsis thaliana,Viridiplantae
+Q8VZ22,Arabidopsis thaliana,Viridiplantae
+Q9SFZ3,Arabidopsis thaliana,Viridiplantae
+Q94JL3,Arabidopsis thaliana,Viridiplantae
+Q3E7L7,Arabidopsis thaliana,Viridiplantae
+Q9SUM5,Arabidopsis thaliana,Viridiplantae
+Q75KV9,Oryza sativa subsp. japonica,Viridiplantae
+Q7XJU2,Arabidopsis thaliana,Viridiplantae
+Q89VI3,Bradyrhizobium diazoefficiens (strain JCM 10833 / BCRC 13528 / IAM 13628 / NBRC 14792 / USDA 110),Bacteria
+Q9I1M3,Pseudomonas aeruginosa (strain ATCC 15692 / DSM 22644 / CIP 104116 / JCM 14847 / LMG 12228 / 1C / PRS 101 / PAO1),Bacteria
+Q9SJ56,Arabidopsis thaliana,Viridiplantae
+Q9FWS9,Arabidopsis thaliana,Viridiplantae
+Q9SIW1,Arabidopsis thaliana,Viridiplantae
+P0ABE3,Escherichia coli O6:H1 (strain CFT073 / ATCC 700928 / UPEC),Bacteria
+P0ABE4,Shigella flexneri,Bacteria
+Q9VLD6,Drosophila melanogaster,Metazoa
+Q9C9X6,Arabidopsis thaliana,Viridiplantae
+Q29S07,Bos taurus,Metazoa
+Q9W0K7,Drosophila melanogaster,Metazoa
+Q66KV4,Xenopus laevis,Metazoa
+Q5HZM3,Xenopus laevis,Metazoa
+P61283,Bos taurus,Metazoa
+Q8IXM2,Homo sapiens,Metazoa
+Q91XV3,Mus musculus,Metazoa
+E5AW43,Mycetohabitans rhizoxinica (strain DSM 19002 / CIP 109453 / HKI 454),Bacteria
+Q6PQQ4,Arabidopsis thaliana,Viridiplantae
+Q7XH85,Oryza sativa subsp. japonica,Viridiplantae
+Q8GWK7,Arabidopsis thaliana,Viridiplantae
+Q9LNJ5,Arabidopsis thaliana,Viridiplantae
+Q9FLI1,Arabidopsis thaliana,Viridiplantae
+Q9XEF0,Arabidopsis thaliana,Viridiplantae
+Q8LEG1,Arabidopsis thaliana,Viridiplantae
+Q3EAI1,Arabidopsis thaliana,Viridiplantae
+Q8GY61,Arabidopsis thaliana,Viridiplantae
+Q9M0R0,Arabidopsis thaliana,Viridiplantae
+Q8S3D2,Arabidopsis thaliana,Viridiplantae
+Q8GX46,Arabidopsis thaliana,Viridiplantae
+Q5XVH0,Arabidopsis thaliana,Viridiplantae
+Q9LT67,Arabidopsis thaliana,Viridiplantae
+Q9STJ7,Arabidopsis thaliana,Viridiplantae
+Q8GXT3,Arabidopsis thaliana,Viridiplantae
+Q9ZW81,Arabidopsis thaliana,Viridiplantae
+P0CB25,Arabidopsis thaliana,Viridiplantae
+Q9XIJ1,Arabidopsis thaliana,Viridiplantae
+P18358,Staphylococcus aureus,Bacteria
+Q9SW80,Arabidopsis thaliana,Viridiplantae
+Q9SJJ3,Arabidopsis thaliana,Viridiplantae
+Q0JXE7,Arabidopsis thaliana,Viridiplantae
+Q24206,Drosophila melanogaster,Metazoa
+A4QNR3,Xenopus tropicalis,Metazoa
+W6QV39,Penicillium roqueforti (strain FM164),Fungi
+B2RRD7,Mus musculus,Metazoa
+Q1LVW0,Danio rerio,Metazoa
+A8XAC6,Caenorhabditis briggsae,Metazoa
+Q32PE7,Bos taurus,Metazoa
+Q8BVR0,Mus musculus,Metazoa
+P22809,Drosophila melanogaster,Metazoa
+Q9BZE3,Homo sapiens,Metazoa
+Q9N0M2,Ovis aries,Metazoa
+P80723,Homo sapiens,Metazoa
+P0DH88,Oryza sativa subsp. japonica,Viridiplantae
+Q9BXY8,Homo sapiens,Metazoa
+Q24040,Drosophila melanogaster,Metazoa
+C9JSJ3,Homo sapiens,Metazoa
+Q9LEZ3,Arabidopsis thaliana,Viridiplantae
+Q9FMB6,Arabidopsis thaliana,Viridiplantae
+Q9FXG8,Arabidopsis thaliana,Viridiplantae
+Q8S897,Arabidopsis thaliana,Viridiplantae
+P22017,Ustilago maydis,Fungi
+Q6NTS2,Xenopus laevis,Metazoa
+Q9FH80,Arabidopsis thaliana,Viridiplantae
+P63156,Rattus norvegicus,Metazoa
+Q9NY43,Homo sapiens,Metazoa
+Q9UMQ3,Homo sapiens,Metazoa
+P80724,Bos taurus,Metazoa
+Q8LSN2,Brassica napus,Viridiplantae
+Q93VJ4,Arabidopsis thaliana,Viridiplantae
+P39404,Escherichia coli (strain K12),Bacteria
+Q8W2F1,Arabidopsis thaliana,Viridiplantae
+Q9SVU6,Arabidopsis thaliana,Viridiplantae
+Q9LTC7,Arabidopsis thaliana,Viridiplantae
+Q9SN74,Arabidopsis thaliana,Viridiplantae
+Q84RD0,Arabidopsis thaliana,Viridiplantae
+Q9M128,Arabidopsis thaliana,Viridiplantae
+Q69V10,Oryza sativa subsp. japonica,Viridiplantae
+Q700E4,Arabidopsis thaliana,Viridiplantae
+A4D998,Arabidopsis thaliana,Viridiplantae
+Q9LV17,Arabidopsis thaliana,Viridiplantae
+Q9FJ00,Arabidopsis thaliana,Viridiplantae
+Q84T08,Oryza sativa subsp. japonica,Viridiplantae
+Q9SK91,Arabidopsis thaliana,Viridiplantae
+Q9C7T4,Arabidopsis thaliana,Viridiplantae
+Q8L467,Arabidopsis thaliana,Viridiplantae
+Q9C682,Arabidopsis thaliana,Viridiplantae
+Q9FLI0,Arabidopsis thaliana,Viridiplantae
+Q9LQ08,Arabidopsis thaliana,Viridiplantae
+Q93W88,Arabidopsis thaliana,Viridiplantae
+A3KNX5,Danio rerio,Metazoa
+Q5RJB0,Mus musculus,Metazoa
+S0E028,Gibberella fujikuroi (strain CBS 195.34 / IMI 58289 / NRRL A-6831),Fungi
+Q9CAA4,Arabidopsis thaliana,Viridiplantae
+P52660,Proteus vulgaris,Bacteria
+O65685,Arabidopsis thaliana,Viridiplantae
+Q56585,Vibrio alginolyticus,Bacteria
+P22015,Ustilago maydis (strain 521 / FGSC 9021),Fungi
+Q8L3U3,Brassica napus,Viridiplantae
+O23487,Arabidopsis thaliana,Viridiplantae
+Q9C8Z9,Arabidopsis thaliana,Viridiplantae
+O22901,Arabidopsis thaliana,Viridiplantae
+Q7XJU1,Arabidopsis thaliana,Viridiplantae
+Q9LDE2,Arabidopsis thaliana,Viridiplantae
+P37335,Paraburkholderia xenovorans (strain LB400),Bacteria
+Q4R318,Macaca fascicularis,Metazoa
+Q4V8D6,Rattus norvegicus,Metazoa
+A0A0A7HJC7,Hapsidospora chrysogena,Fungi
+Q58L83,Penicillium camembertii,Fungi
+P94403,Bacillus subtilis (strain 168),Bacteria
+P59640,Shigella flexneri,Bacteria
+Q9U2M8,Caenorhabditis elegans,Metazoa
+Q0JHZ2,Oryza sativa subsp. japonica,Viridiplantae
+Q3ECU8,Arabidopsis thaliana,Viridiplantae
+Q9C9N3,Arabidopsis thaliana,Viridiplantae
+Q6K687,Oryza sativa subsp. japonica,Viridiplantae
+Q8GX84,Arabidopsis thaliana,Viridiplantae
+Q6FLB8,Candida glabrata (strain ATCC 2001 / BCRC 20586 / JCM 3761 / NBRC 0622 / NRRL Y-65 / CBS 138),Fungi
+Q9FRI0,Arabidopsis thaliana,Viridiplantae
+Q9W6U8,Gallus gallus,Metazoa
+Q60929,Mus musculus,Metazoa
+O08574,Mus musculus,Metazoa
+Q09436,Caenorhabditis elegans,Metazoa
+P9WMB7,Mycobacterium tuberculosis (strain ATCC 25618 / H37Rv),Bacteria
+Q91685,Xenopus laevis,Metazoa
+P59759,Mus musculus,Metazoa
+P27347,Zea mays,Viridiplantae
+Q6FQ87,Candida glabrata (strain ATCC 2001 / BCRC 20586 / JCM 3761 / NBRC 0622 / NRRL Y-65 / CBS 138),Fungi
+Q5REW7,Pongo abelii,Metazoa
+Q63943,Mus musculus,Metazoa
+Q7ZY13,Xenopus laevis,Metazoa
+P0ACH8,Escherichia coli (strain K12),Bacteria
+Q9BRJ9,Homo sapiens,Metazoa
+Q8IYA7,Homo sapiens,Metazoa
+Q9HAP2,Homo sapiens,Metazoa
+P79703,Cyprinus carpio,Metazoa
+P24898,Rattus norvegicus,Metazoa
+Q4WDE9,Aspergillus fumigatus (strain ATCC MYA-4609 / CBS 101355 / FGSC A1100 / Af293),Fungi
+Q6CJ48,Kluyveromyces lactis (strain ATCC 8585 / CBS 2359 / DSM 70799 / NBRC 1267 / NRRL Y-1140 / WM37),Fungi
+Q8IS98,Crithidia fasciculata,Protists
+Q2UNX4,Aspergillus oryzae (strain ATCC 42149 / RIB 40),Fungi
+P9WGN1,Mycobacterium tuberculosis (strain ATCC 25618 / H37Rv),Bacteria
+Q60843,Mus musculus,Metazoa
+Q41330,Solanum lycopersicum,Viridiplantae
+O04135,Malus domestica,Viridiplantae
+P48000,Arabidopsis thaliana,Viridiplantae
+Q9FPQ8,Arabidopsis thaliana,Viridiplantae
+Q75LX9,Oryza sativa subsp. japonica,Viridiplantae
+Q10EC6,Oryza sativa subsp. japonica,Viridiplantae
+P56660,Zea mays,Viridiplantae
+P56662,Zea mays,Viridiplantae
+P56666,Zea mays,Viridiplantae
+P56667,Zea mays,Viridiplantae
+P31507,Apis mellifera,Metazoa
+P19653,Escherichia phage P1,Viruses
+O65154,Arabidopsis thaliana,Viridiplantae
+Q3KRE6,Rattus norvegicus,Metazoa
+P13965,Escherichia coli,Bacteria
+O35819,Rattus norvegicus,Metazoa
+A2Y007,Oryza sativa subsp. indica,Viridiplantae
+O65034,Oryza sativa subsp. indica,Viridiplantae
+Q43484,Hordeum vulgare,Viridiplantae
+Q9W7E8,Xenopus laevis,Metazoa
+Q01871,Euscelis plebejus,Metazoa
+Q01793,Tribolium castaneum,Metazoa
+Q03474,Vibrio parahaemolyticus serotype O3:K6 (strain RIMD 2210633),Bacteria
+Q7XAQ6,Oryza sativa subsp. japonica,Viridiplantae
+P37425,Serratia marcescens,Bacteria
+Q9S7R3,Arabidopsis thaliana,Viridiplantae
+Q9ZVA0,Arabidopsis thaliana,Viridiplantae
+Q976J7,Sulfurisphaera tokodaii (strain DSM 16993 / JCM 10545 / NBRC 100140 / 7),Archaea
+P37934,Schizophyllum commune,Fungi
+A2YNI2,Oryza sativa subsp. indica,Viridiplantae
+Q6VAM4,Oryza sativa subsp. japonica,Viridiplantae
+Q02990,Cochliobolus heterostrophus,Fungi
+Q9P445,Cochliobolus sativus,Fungi
+O93958,Yarrowia lipolytica,Fungi
+Q6WRX6,Schizosaccharomyces kambucha,Fungi
+Q6WRX9,Schizosaccharomyces kambucha,Fungi
+A8AIC3,Citrobacter koseri (strain ATCC BAA-895 / CDC 4225-83 / SGSC4696),Bacteria
+B7UN35,Escherichia coli O127:H6 (strain E2348/69 / EPEC),Bacteria
+B7M885,Escherichia coli O8 (strain IAI1),Bacteria
+Q1RDQ8,Escherichia coli (strain UTI89 / UPEC),Bacteria
+Q4QKK3,Haemophilus influenzae (strain 86-028NP),Bacteria
+P44161,Haemophilus influenzae (strain ATCC 51907 / DSM 11121 / KW20 / Rd),Bacteria
+A7FJT1,Yersinia pseudotuberculosis serotype O:1b (strain IP 31758),Bacteria
+P9WII1,Mycobacterium tuberculosis (strain ATCC 25618 / H37Rv),Bacteria
+Q7A2N3,Staphylococcus aureus (strain Mu50 / ATCC 700699),Bacteria
+Q9F7V5,Staphylococcus epidermidis,Bacteria
+Q9LXT3,Arabidopsis thaliana,Viridiplantae
+Q5B8Y4,Emericella nidulans (strain FGSC A4 / ATCC 38163 / CBS 112.46 / NRRL 194 / M139),Fungi
+O94700,Schizosaccharomyces pombe (strain 972 / ATCC 24843),Fungi
+O54862,Cricetulus griseus,Metazoa
+P34418,Caenorhabditis elegans,Metazoa
+P21711,Xenopus laevis,Metazoa
+Q8GWA2,Arabidopsis thaliana,Viridiplantae
+A1V0S7,Burkholderia mallei (strain SAVP1),Bacteria
+Q47A95,Dechloromonas aromatica (strain RCB),Bacteria
+Q313R2,Oleidesulfovibrio alaskensis (strain ATCC BAA-1058 / DSM 17464 / G20),Bacteria
+Q24TD7,Desulfitobacterium hafniense (strain Y51),Bacteria
+B8DP87,Nitratidesulfovibrio vulgaris (strain DSM 19637 / Miyazaki F),Bacteria
+B8E089,Dictyoglomus turgidum (strain DSM 6724 / Z-1310),Bacteria
+O34913,Enterococcus hirae,Bacteria
+B0S0Y8,Finegoldia magna (strain ATCC 29328 / DSM 20472 / WAL 2508),Bacteria
+Q0RNQ0,Frankia alni (strain DSM 45986 / CECT 9034 / ACN14a),Bacteria
+B3E3Z1,Trichlorobacter lovleyi (strain ATCC BAA-1151 / DSM 17278 / SZ),Bacteria
+Q748C9,Geobacter sulfurreducens (strain ATCC 51573 / DSM 12127 / PCA),Bacteria
+A1WYV2,Halorhodospira halophila (strain DSM 244 / SL1),Bacteria
+Q0BXT3,Hyphomonas neptunium (strain ATCC 15444),Bacteria
+A6WCY3,Kineococcus radiotolerans (strain ATCC BAA-149 / DSM 14245 / SRS30216),Bacteria
+B2GJQ7,Kocuria rhizophila (strain ATCC 9341 / DSM 348 / NBRC 103217 / DC2201),Bacteria
+Q1GAU1,Lactobacillus delbrueckii subsp. bulgaricus (strain ATCC 11842 / DSM 20081 / BCRC 10696 / JCM 1002 / NBRC 13953 / NCIMB 11778 / NCTC 12712 / WDCM 00102 / Lb 14),Bacteria
+Q042P3,Lactobacillus gasseri (strain ATCC 33323 / DSM 20243 / BCRC 14619 / CIP 102991 / JCM 1131 / KCTC 3163 / NCIMB 11718 / NCTC 13722 / AM63),Bacteria
+A9KM87,Lachnoclostridium phytofermentans (strain ATCC 700394 / DSM 18823 / ISDg),Bacteria
+B2G6K0,Limosilactobacillus reuteri subsp. reuteri (strain JCM 1112),Bacteria
+Q5X6J1,Legionella pneumophila (strain Paris),Bacteria
+Q5ZX20,Legionella pneumophila subsp. pneumophila (strain Philadelphia 1 / ATCC 33152 / DSM 7513),Bacteria
+B1XY19,Leptothrix cholodnii (strain ATCC 51168 / LMG 8142 / SP-6),Bacteria
+C1KWZ5,Listeria monocytogenes serotype 4b (strain CLIP80459),Bacteria
+Q65RX7,Mannheimia succiniciproducens (strain MBEL55E),Bacteria
+Q6F169,Mesoplasma florum (strain ATCC 33453 / NBRC 100688 / NCTC 11704 / L1),Bacteria
+A2SCX6,Methylibium petroleiphilum (strain ATCC BAA-1232 / LMG 22953 / PM1),Bacteria
+A0QF43,Mycobacterium avium (strain 104),Bacteria
+B1MP28,Mycobacteroides abscessus (strain ATCC 19977 / DSM 44196 / CCUG 20993 / CIP 104536 / JCM 13569 / NCTC 13031 / TMC 1543 / L948),Bacteria
+C1AQ82,Mycobacterium bovis (strain BCG / Tokyo 172 / ATCC 35737 / TMC 1019),Bacteria
+P47463,Mycoplasma genitalium (strain ATCC 33530 / DSM 19775 / NCTC 10195 / G37),Bacteria
+Q98Q74,Mycoplasmopsis pulmonis (strain UAB CTIP),Bacteria
+B2A2G3,Natranaerobius thermophilus (strain ATCC BAA-1301 / DSM 18059 / JW/NM-WN-LF),Bacteria
+Q9K0Z1,Neisseria meningitidis serogroup B (strain MC58),Bacteria
+Q2Y629,Nitrosospira multiformis (strain ATCC 25196 / NCIMB 11849 / C 71),Bacteria
+B2SYY4,Paraburkholderia phytofirmans (strain DSM 17436 / LMG 22146 / PsJN),Bacteria
+B1J1Y1,Pseudomonas putida (strain W619),Bacteria
+Q1ME24,Rhizobium johnstonii (strain DSM 114642 / LMG 32736 / 3841),Bacteria
+C1AU64,Rhodococcus opacus (strain B4),Bacteria
+Q3J4N4,Cereibacter sphaeroides (strain ATCC 17023 / DSM 158 / JCM 6121 / CCUG 31486 / LMG 2827 / NBRC 12203 / NCIMB 8253 / ATH 2.4.1.),Bacteria
+C3PP00,Rickettsia africae (strain ESF-5),Bacteria
+A8EYC4,Rickettsia canadensis (strain McKiel),Bacteria
+Q9ZCY1,Rickettsia prowazekii (strain Madrid E),Bacteria
+A7NIA3,Roseiflexus castenholzii (strain DSM 13941 / HLO8),Bacteria
+A5UZS8,Roseiflexus sp. (strain RS-1),Bacteria
+A1S2F0,Shewanella amazonensis (strain ATCC BAA-1098 / SB2B),Bacteria
+A9KY20,Shewanella baltica (strain OS195),Bacteria
+B0TQM8,Shewanella halifaxensis (strain HAW-EB4),Bacteria
+A8H993,Shewanella pealeana (strain ATCC 700345 / ANG-SQ1),Bacteria
+B8CM47,Shewanella piezotolerans (strain WP3 / JCM 13877),Bacteria
+A1REY7,Shewanella sp. (strain W3-18-1),Bacteria
+Q2YXE4,Staphylococcus aureus (strain bovine RF122 / ET3-1),Bacteria
+Q2LR40,Syntrophus aciditrophicus (strain SB),Bacteria
+C4LA16,Tolumonas auensis (strain DSM 9187 / NBRC 110442 / TA 4),Bacteria
+B2S2Y0,Treponema pallidum subsp. pallidum (strain SS14),Bacteria
+Q9PQA5,Ureaplasma parvum serovar 3 (strain ATCC 700970),Bacteria
+C5CNE5,Variovorax paradoxus (strain S110),Bacteria
+Q2NZB0,Xanthomonas oryzae pv. oryzae (strain MAFF 311018),Bacteria
+A7IGF5,Xanthobacter autotrophicus (strain ATCC BAA-1158 / Py2),Bacteria
+Q87AF1,Xylella fastidiosa (strain Temecula1 / ATCC 700964),Bacteria
+Q19A40,Pan troglodytes,Metazoa
+Q9ET58,Rattus norvegicus,Metazoa
+O04134,Malus domestica,Viridiplantae
+O04136,Malus domestica,Viridiplantae
+P46640,Arabidopsis thaliana,Viridiplantae
+P48002,Arabidopsis thaliana,Viridiplantae
+Q0E3C3,Oryza sativa subsp. japonica,Viridiplantae
+P46609,Oryza sativa subsp. japonica,Viridiplantae
+P56661,Zea mays,Viridiplantae
+P56668,Zea mays,Viridiplantae
+P0CL12,Salmonella typhimurium (strain LT2 / SGSC1412 / ATCC 700720),Bacteria
+Q59RR3,Candida albicans (strain SC5314 / ATCC MYA-2876),Fungi
+O05797,Mycobacterium tuberculosis (strain ATCC 25618 / H37Rv),Bacteria
+P07074,Enterobacteria phage T4,Viruses
+B8BLT3,Oryza sativa subsp. indica,Viridiplantae
+P58501,Mus musculus,Metazoa
+Q9SX99,Arabidopsis thaliana,Viridiplantae
+Q9P0W2,Homo sapiens,Metazoa
+Q9LZS0,Arabidopsis thaliana,Viridiplantae
+O22921,Arabidopsis thaliana,Viridiplantae
