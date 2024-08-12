@@ -1,4 +1,5 @@
 import logging
+import os
 
 import ankh
 import clearml
@@ -43,7 +44,9 @@ seed = config["training_config"]["seed"]
 num_workers = config["training_config"]["num_workers"]
 
 
-DEVICE = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+DEVICE = "cuda"
 
 
 def set_seed(seed):
@@ -72,8 +75,7 @@ task = Task.init(
 logger = Logger.current_logger()
 task.connect_configuration(config)
 
-models_data = {}
-
+models = {}
 for i in range(len(train_folds)):
     train_dataset = SequenceDataset(train_folds[i])
     train_sampler = CustomBatchSampler(train_dataset, batch_size)
@@ -109,10 +111,11 @@ for i in range(len(train_folds)):
     scheduler = CosineAnnealingLR(optimizer, T_max=epochs)
 
     best_val_loss = float("inf")
+    best_model_path = f"checkpoints/{input_data}_best_model_{i}.pth"
     for epoch in range(epochs):
         train_loss = train_fn(model, train_dataloader, optimizer, DEVICE)
         scheduler.step()
-        valid_loss, metrics_dict, optimal_threshold = validate_fn(
+        valid_loss, metrics_dict = validate_fn(
             model, valid_dataloader, DEVICE
         )
 
@@ -138,15 +141,10 @@ for i in range(len(train_folds)):
             )
 
         if valid_loss < best_val_loss:
-            message = (
-                f"Model {i} on epoch {epoch} with Validation Loss: {best_val_loss}"
-            )
+            models[i] = model
+            torch.save(model.state_dict(), best_model_path)
+            message = f"Saved Best Model on epoch {epoch} with Validation Loss: {best_val_loss}"
             logger.report_text(message, level=logging.DEBUG, print_console=False)
-
-            message = f"Model {i} on epoch {epoch} with optimal threshold: {optimal_threshold}"
-            logger.report_text(message, level=logging.DEBUG, print_console=False)
-
-            models_data[i] = (model, optimal_threshold)
             best_val_loss = valid_loss
 
 
@@ -162,7 +160,7 @@ testing_dataloader = DataLoader(
     shuffle=False,
     batch_size=1,
 )
-metrics_dict = evaluate_fn(models_data, testing_dataloader, DEVICE)
+metrics_dict = evaluate_fn(models, testing_dataloader, DEVICE)
 metrics_df = pd.DataFrame(metrics_dict, index=[0])
 logger.report_table(title=input_data, series="Metrics", table_plot=metrics_df)
 task.close()

@@ -130,18 +130,10 @@ def calculate_metrics(
     return metrics_dict
 
 
-def calculate_optimal_threshold(
-    all_labels: list[int], all_logits: list[float]
-) -> float:
-    fpr, tpr, thresholds = roc_curve(all_labels, all_logits)
-    optimal_idx = np.argmax(tpr - fpr)
-    optimal_threshold = thresholds[optimal_idx]
-    return optimal_threshold
-
-
 def validate_fn(model, valid_dataloader, DEVICE):
     model.eval()
     loss = 0.0
+    all_preds = []
     all_labels = []
     all_logits = []
 
@@ -155,15 +147,16 @@ def validate_fn(model, valid_dataloader, DEVICE):
             output = model(x, y)
             loss += output.loss.item()
 
+            prob = torch.sigmoid(output.logits)
+            preds = (prob > 0.5).float()
+
             all_logits.extend(output.logits.cpu().numpy())
+            all_preds.extend(preds.cpu().numpy())
             all_labels.extend(y.cpu().numpy())
 
     epoch_loss = loss / len(valid_dataloader)
-    # scheduler.step(epoch_loss)
-    optimal_threshold = calculate_optimal_threshold(all_labels, all_logits)
-    all_preds = [1 if logit >= optimal_threshold else 0 for logit in all_logits]
     metrics_dict = calculate_metrics(all_logits, all_labels, all_preds)
-    return epoch_loss, metrics_dict, optimal_threshold
+    return epoch_loss, metrics_dict
 
 
 def plot_roc_auc(y_true, y_probs, save_path=None):
@@ -192,10 +185,9 @@ def plot_roc_auc(y_true, y_probs, save_path=None):
     plt.show()
 
 
-def evaluate_fn(models_data, testing_dataloader, DEVICE):
+def evaluate_fn(models, testing_dataloader, DEVICE):
     all_labels = []
     all_logits = []
-    pred_models = defaultdict(list)
 
     with torch.no_grad():
         for x, y in testing_dataloader:
@@ -205,28 +197,25 @@ def evaluate_fn(models_data, testing_dataloader, DEVICE):
             y = y.unsqueeze(1)
             ens_logits = []
 
-            for i in models_data:
-                model, threshold = models_data[i]
+            for i in models:
+                model = models[i]
 
                 model.eval()
                 model = model.to(DEVICE)
                 output = model(x, y)
-
-                y_pred = 1 if output.logits >= threshold else 0
-                pred_models[i].append(y_pred)
-
                 ens_logits.append(output.logits)
 
             ens_logits = torch.stack(ens_logits, dim=0)
             ens_logits = torch.mean(ens_logits, dim=0)
-
             all_logits.extend(ens_logits.cpu().numpy())
+
             all_labels.extend(y.cpu().numpy())
 
-    predictions = np.vstack([pred_models[i] for i in range(len(models_data))])
-    all_preds, _ = mode(predictions, axis=0)
-    all_preds = all_preds.tolist()
+    all_logits_tensor = torch.tensor(np.array(all_logits))
+    prob = torch.sigmoid(all_logits_tensor)
+    all_preds = (prob > 0.5).float().tolist()
     metrics_dict = calculate_metrics(all_logits, all_labels, all_preds)
+    plot_roc_auc(all_labels, all_logits)
     return metrics_dict
 
 

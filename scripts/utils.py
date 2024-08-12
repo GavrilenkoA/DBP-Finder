@@ -4,8 +4,22 @@ from functools import wraps
 
 import h5py
 import pandas as pd
+import yaml
 
 SEED = 42
+
+
+def prepare_neg_samples(path: str) -> pd.DataFrame:
+    with open(path, "r") as file:
+        neg_samples_annotation = yaml.safe_load(file)
+
+    identifiers = list()
+    for protein_id in neg_samples_annotation:
+        if not neg_samples_annotation[protein_id]:
+            identifiers.append(protein_id)
+
+    df = pd.DataFrame(list(identifiers), columns=["identifier"])
+    return df
 
 
 def make_balanced_df(df, seed=SEED):

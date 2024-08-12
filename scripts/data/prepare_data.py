@@ -1,20 +1,6 @@
 import argparse
 import pandas as pd
-import yaml
-from ..utils import convert_fasta_to_df, filter_df, make_balanced_df
-
-
-def prepare_neg_samples(path: str) -> pd.DataFrame:
-    with open(path, "r") as file:
-        neg_samples_annotation = yaml.safe_load(file)
-
-    identifiers = list()
-    for protein_id in neg_samples_annotation:
-        if not neg_samples_annotation[protein_id]:
-            identifiers.append(protein_id)
-
-    df = pd.DataFrame(list(identifiers), columns=["identifier"])
-    return df
+from ..utils import convert_fasta_to_df, filter_df, make_balanced_df, prepare_neg_samples
 
 
 def merge_df(df_1: pd.DataFrame, df_2: pd.DataFrame):
