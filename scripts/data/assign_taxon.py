@@ -1,58 +1,50 @@
 import argparse
 import pandas as pd
 import requests
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
 from tqdm import tqdm
 
 
-def get_organism_name(protein_id: str) -> str:
-    url = f"https://rest.uniprot.org/uniprotkb/{protein_id}.json"
-    session = requests.Session()
-    retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
-    session.mount("https://", HTTPAdapter(max_retries=retries))
-
-    try:
-        response = session.get(url, timeout=10, verify=True)
-        response.raise_for_status()
-    except requests.exceptions.SSLError as ssl_err:
-        print(f"SSL error: {ssl_err}")
-        return "-1"
-    except requests.exceptions.RequestException as req_err:
-        print(f"Request error: {req_err}")
-        return "-1"
-
-    if response.status_code == 200:
-        data = response.json()
-        organism_name = data.get("organism", {}).get(
-            "scientificName", "not found"
-        )
-        return organism_name
-    else:
-        return "not found"
-
-
-def assign_kingdom(organism_name: str) -> str:
+def assign_kingdom(taxon: str) -> str:
     template = {
         "Eukaryota Metazoa": "Metazoa",
         "Eukaryota Fungi": "Fungi",
         "Eukaryota Viridiplantae": "Viridiplantae",
     }
 
-    if organism_name in template:
-        return template[organism_name]
-    elif organism_name.startswith("Eukaryota"):
+    if taxon in template:
+        return template[taxon]
+    elif taxon.startswith("Eukaryota"):
         return "Protists"
-    elif organism_name == "not found":
-        return organism_name
+    elif taxon == "not found":
+        return taxon
     else:
-        return organism_name.split(" ")[0]
+        return taxon.split(" ")[0]
 
 
-def add_organism_column(df: pd.DataFrame) -> pd.DataFrame:
+def add_taxon(protein_id: str) -> tuple[str, str] | None:
+    url = f"https://rest.uniprot.org/uniprotkb/{protein_id}.json"
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        print(f"Request error: {e}")
+        return "not found"
+
+    info = response.json().get("organism", {})
+    if not info:
+        return None
+
+    organism_name = info.get("scientificName", "not found")
+    lineage = info.get("lineage", "not found")
+    taxon = " ".join(lineage[:2])
+    kingdom = assign_kingdom(taxon)
+    return organism_name, kingdom
+
+
+def process_columns(df: pd.DataFrame) -> pd.DataFrame:
     tqdm.pandas(desc="Processing proteins")
-    df["Organism"] = df["identifier"].progress_apply(get_organism_name)
-    df["Kingdom"] = df["Organism"].apply(assign_kingdom)
+    df[['organism', 'kingdom']] = df['identifier'].progress_apply(lambda x: pd.Series(add_taxon(x)))
+    df = df.drop(["sequence", "label"], axis=1)
     return df
 
 
@@ -69,7 +61,7 @@ def main():
     df = pd.read_csv(args.input_csv)
 
     # Add the 'Organism' column to the DataFrame
-    df_with_organism = add_organism_column(df)
+    df_with_organism = process_columns(df)
 
     # Save the updated DataFrame to the output CSV file
     df_with_organism.to_csv(args.output_csv, index=False)
