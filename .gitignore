@@ -20,10 +20,9 @@ data/embeddings/input_csv/*
 !data/embeddings/input_csv/pdb1000.csv
 !data/embeddings/input_csv/pdb20000.csv
 !data/embeddings/input_csv/pdb2272.csv
-!data/embeddings/input_csv/train_p2.csv
+!data/embeddings/input_csv/train_p3.csv
 data/interpro_data/
 data/nakb/
-data/not_annotated/*
 data/predictions/
 data/proteinfer/
 data/splits/*
@@ -31,12 +30,9 @@ data/splits/*
 !data/splits/train_pdb1000.csv
 !data/splits/train_pdb2272.csv
 !data/splits/train_pdb20000.csv
-!data/splits/train_p2.csv
-data/rna
-data/external
+!data/splits/train_p3.csv
 data/uniprot/uniprotkb_gene_AND_go_0003677_AND_revie_2024_02_29.fasta
 data/uniprot/uniprotkb_gene_NOT_go_0003677_NOT_go_00_2024_02_29.fasta
-data/uniprot/rna_binders_human.fasta
 data/processed
 data/go_terms/uniprot_annotation_all_exPDB186.tsv
 
