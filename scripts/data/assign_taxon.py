@@ -44,7 +44,7 @@ def add_taxon(protein_id: str) -> tuple[str, str] | None:
 def process_columns(df: pd.DataFrame) -> pd.DataFrame:
     tqdm.pandas(desc="Processing proteins")
     df[['organism', 'kingdom']] = df['identifier'].progress_apply(lambda x: pd.Series(add_taxon(x)))
-    df = df.drop(["sequence", "label"], axis=1)
+    df = df.drop(["sequence"], axis=1)
     return df
 
 
