@@ -5,8 +5,7 @@ from torch_utils import InferenceDataset, inference, load_models
 
 
 def main():
-    input_data = "../data/embeddings/ankh_embeddings/not_annotated_seqs_v1_2d.h5"
-    df = load_embeddings_to_df(input_data)
+    df = load_embeddings_to_df(embedding_path="../../../../ssd2/dbp_finder/ankh_embeddings/not_annotated_seqs_2d.h5")
     models = load_models()
     inference_dataset = InferenceDataset(df)
     inference_dataloader = DataLoader(

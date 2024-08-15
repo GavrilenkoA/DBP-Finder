@@ -129,7 +129,7 @@ def calculate_metrics(
     return metrics_dict
 
 
-def validate_fn(model, valid_dataloader, DEVICE):
+def validate_fn(model, valid_dataloader, scheduler, DEVICE):
     model.eval()
     loss = 0.0
     all_preds = []
@@ -149,11 +149,12 @@ def validate_fn(model, valid_dataloader, DEVICE):
             prob = torch.sigmoid(output.logits)
             preds = (prob > 0.5).float()
 
-            all_logits.extend(output.logits.cpu().numpy())
-            all_preds.extend(preds.cpu().numpy())
-            all_labels.extend(y.cpu().numpy())
+            all_logits.extend(output.logits.cpu().numpy().flatten())
+            all_labels.extend(y.cpu().numpy().flatten())
+            all_preds.extend(preds.cpu().numpy().flatten())
 
     epoch_loss = loss / len(valid_dataloader)
+    scheduler.step(epoch_loss)
     metrics_dict = calculate_metrics(all_logits, all_labels, all_preds)
     return epoch_loss, metrics_dict
 
@@ -192,6 +193,7 @@ def evaluate_fn(models, testing_dataloader, DEVICE):
         for x, y in testing_dataloader:
             x = x.to(DEVICE)
             y = y.to(DEVICE)
+            assert len(x) == 1, "Batch size should be 1"
 
             y = y.unsqueeze(1)
             ens_logits = []
@@ -206,9 +208,9 @@ def evaluate_fn(models, testing_dataloader, DEVICE):
 
             ens_logits = torch.stack(ens_logits, dim=0)
             ens_logits = torch.mean(ens_logits, dim=0)
-            all_logits.extend(ens_logits.cpu().numpy())
 
-            all_labels.extend(y.cpu().numpy())
+            all_logits.append(ens_logits.cpu().numpy().item())
+            all_labels.append(y.cpu().numpy().item())
 
     all_logits_tensor = torch.tensor(np.array(all_logits))
     prob = torch.sigmoid(all_logits_tensor)
@@ -219,10 +221,10 @@ def evaluate_fn(models, testing_dataloader, DEVICE):
 
 
 def load_models(
-    prefix_name: str = "checkpoints/DBP-finder_",
+    prefix_name: str = "checkpoints/DBP-Finder_",
     num_models: int = 5,
     config_path: str = "config.yml",
-):
+) -> dict[int, torch.nn.Module]:
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
 
@@ -235,9 +237,9 @@ def load_models(
     dropout = config["model_config"]["dropout"]
     pooling = config["model_config"]["pooling"]
 
-    models = []
+    models = {}
     for i in range(num_models):
-        binary_classification_model = ankh.ConvBertForBinaryClassification(
+        model = ankh.ConvBertForBinaryClassification(
             input_dim=input_dim,
             nhead=nhead,
             hidden_dim=hidden_dim,
@@ -249,9 +251,8 @@ def load_models(
         )
 
         path_model = prefix_name + f"{i}.pth"
-        binary_classification_model.load_state_dict(torch.load(path_model))
-        binary_classification_model.eval()  # Set the model to evaluation mode
-        models.append(binary_classification_model)
+        model.load_state_dict(torch.load(path_model))
+        models[i] = model.eval()
 
     return models
 
@@ -265,13 +266,10 @@ def inference(models, testing_dataloader, DEVICE) -> pd.DataFrame:
             x = x.to(DEVICE)
             ens_logits = []
 
-            for model in models:
-                model.eval()
-                model = model.to(DEVICE)
+            for i in models:
+                model = models[i].to(DEVICE)
                 output = model(x)
-
-                logits = output.logits
-                ens_logits.append(logits)
+                ens_logits.append(output.logits)
 
             ens_logits = torch.stack(ens_logits, dim=0)
             ens_logits = torch.mean(ens_logits, dim=0)
