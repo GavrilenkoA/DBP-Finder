@@ -36,6 +36,7 @@ data/uniprot/uniprotkb_gene_NOT_go_0003677_NOT_go_00_2024_02_29.fasta
 data/processed/*
 !data/processed/neg_samples_annot.yml
 !data/processed/trembl_neg_annot.yml
+data/taxon
 
 data/go_terms/uniprot_annotation_all_exPDB186.tsv
 
