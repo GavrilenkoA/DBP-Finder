@@ -84,9 +84,10 @@ def prepare_test(
     return embed_df
 
 
-def form_test_kindom(test_input: str, kingdom: str):
+def form_test_kingdom(test_input: str, kingdom: str):
+    kingdom_df = pd.read_csv(f"../data/taxon/{test_input}.csv")
+    kingdom_df = kingdom_df[kingdom_df["kingdom"] == kingdom]
+
     test_df = pd.read_csv(f"../data/embeddings/input_csv/{test_input}.csv")
-    kingdom_df = pd.read_csv(f"../data/processed/{test_input}_kingdom.csv")
-    subset_df = kingdom_df[kingdom_df["kingdom"] == f"{kingdom}"]
-    test = test_df.merge(subset_df, on="identifier")
-    return test
+    test_df = test_df.merge(kingdom_df, on="identifier")
+    return test_df

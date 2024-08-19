@@ -47,3 +47,4 @@ wget_data
 training_ankh/checkpoints
 tmp
 logs
+data/external/proteinfer_random_split.csv

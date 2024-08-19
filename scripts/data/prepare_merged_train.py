@@ -16,7 +16,7 @@ def load_my_train(path: str = "data/embeddings/input_csv/train_p3.csv") -> pd.Da
 
 
 def merge_df(df_1: pd.DataFrame, df_2: pd.DataFrame) -> pd.DataFrame:
-    df_1["identifier"] = df_1["identifier"].apply(lambda x: x + "one")
+    df_1["identifier"] = df_1["identifier"].apply(lambda x: str(x) + "one")
     df_2["identifier"] = df_2["identifier"].apply(lambda x: x + "two")
     df = pd.concat([df_1, df_2])
     df = df.drop_duplicates(subset=["sequence"])

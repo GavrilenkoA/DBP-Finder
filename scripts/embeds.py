@@ -97,5 +97,5 @@ def get_embeds(
         outputs[id_] = embedding
 
     save_dict_to_hdf5(
-        outputs, f"data/embeddings/{model_name}_embeddings/{data_name}_2d.h5"
+        outputs, f"../../../ssd2/dbp_finder/ankh_embeddings/{data_name}_2d.h5"
     )
