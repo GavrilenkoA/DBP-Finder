@@ -69,7 +69,7 @@ train_folds, valid_folds = make_folds(df)
 clearml.browser_login()
 task = Task.init(
     project_name="DBPs_search",
-    task_name=input_data,
+    task_name="DBP-Finder training",
     output_uri=True,
 )
 logger = Logger.current_logger()
@@ -113,7 +113,7 @@ for i in range(len(train_folds)):
     )
 
     best_val_loss = float("inf")
-    best_model_path = f"checkpoints/DBP-Finder_{i}.pth"
+    best_model_path = f"checkpoints/DBP-Finder-{i}.pth"
     for epoch in range(epochs):
         train_loss = train_fn(model, train_dataloader, optimizer, DEVICE)
         valid_loss, metrics_dict = validate_fn(
@@ -149,19 +149,19 @@ for i in range(len(train_folds)):
             best_val_loss = valid_loss
 
 
-test_df = get_embed_clustered_df(
-    embedding_path=f"../../../../ssd2/dbp_finder/ankh_embeddings/{input_data}_2d.h5",
-    csv_path=f"../data/embeddings/input_csv/{input_data}.csv",
-)
+# test_df = get_embed_clustered_df(
+#     embedding_path=f"../../../../ssd2/dbp_finder/ankh_embeddings/{input_data}_2d.h5",
+#     csv_path=f"../data/embeddings/input_csv/{input_data}.csv",
+# )
 
-testing_set = SequenceDataset(test_df)
-testing_dataloader = DataLoader(
-    testing_set,
-    num_workers=num_workers,
-    shuffle=False,
-    batch_size=1,
-)
-metrics_dict = evaluate_fn(models, testing_dataloader, DEVICE)
-metrics_df = pd.DataFrame(metrics_dict, index=[0])
-logger.report_table(title=input_data, series="Metrics", table_plot=metrics_df)
-task.close()
+# testing_set = SequenceDataset(test_df)
+# testing_dataloader = DataLoader(
+#     testing_set,
+#     num_workers=num_workers,
+#     shuffle=False,
+#     batch_size=1,
+# )
+# metrics_dict = evaluate_fn(models, testing_dataloader, DEVICE)
+# metrics_df = pd.DataFrame(metrics_dict, index=[0])
+# logger.report_table(title=input_data, series="Metrics", table_plot=metrics_df)
+# task.close()

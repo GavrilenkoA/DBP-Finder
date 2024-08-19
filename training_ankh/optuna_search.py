@@ -28,7 +28,7 @@ task = Task.init(
 logger = Logger.current_logger()
 
 df = get_embed_clustered_df(
-    embedding_path="../data/embeddings/ankh_embeddings/train_p2_2d.h5",
+    embedding_path="../data/embeddings/ankh_embeddings/train_p3_2d.h5",
     csv_path="../data/splits/train_pdb2272.csv",
 )
 train_folds, valid_folds = make_folds(df)
@@ -42,11 +42,11 @@ def objective(trial):
     pooling = trial.suggest_categorical("pooling", ["max", "avg"])
     hidden_dim = trial.suggest_int("hidden_dim", 1425, 2120)
     dropout = trial.suggest_float("dropout", 0.0, 0.3, step=0.1)
-    num_hidden_layers = trial.suggest_int("num_hidden_layers", 1, 3)
-    num_layers = trial.suggest_int("num_layers", 1, 3)
+    num_hidden_layers = trial.suggest_int("num_hidden_layers", 1, 2)
+    num_layers = trial.suggest_int("num_layers", 1, 2)
     nhead = trial.suggest_int("nhead", 3, 6)
 
-    binary_classification_model = ankh.ConvBertForBinaryClassification(
+    model = ankh.ConvBertForBinaryClassification(
         input_dim=1536,
         nhead=nhead,
         hidden_dim=hidden_dim,
@@ -57,12 +57,12 @@ def objective(trial):
         pooling=pooling,
     )
     if torch.cuda.device_count() > 1:
-        binary_classification_model = nn.DataParallel(binary_classification_model)
+        model = nn.DataParallel(model)
 
-    binary_classification_model = binary_classification_model.to(DEVICE)
-    optimizer = AdamW(binary_classification_model.parameters(), lr=lr)
+    model = model.to(DEVICE)
+    optimizer = AdamW(model.parameters(), lr=lr)
     scheduler = ReduceLROnPlateau(
-        optimizer, mode="min", factor=0.5, patience=2, min_lr=1e-8
+        optimizer, mode="min", factor=0.5, patience=2, min_lr=1e-6
     )
 
     fold_losses = []
@@ -90,9 +90,9 @@ def objective(trial):
 
         best_val_loss = float("inf")
         for epoch in range(11):
-            train_fn(binary_classification_model, train_dataloader, optimizer, DEVICE)
+            train_fn(model, train_dataloader, optimizer, DEVICE)
             valid_loss, metrics = validate_fn(
-                binary_classification_model, valid_dataloader, scheduler, DEVICE
+                model, valid_dataloader, scheduler, DEVICE
             )
 
         if valid_loss < best_val_loss:
@@ -109,7 +109,7 @@ def objective(trial):
 
 def main():
     study = optuna.create_study(direction="minimize")
-    study.optimize(objective, n_trials=25)
+    study.optimize(objective, n_trials=15)
     trial = study.best_trial
     for key, value in trial.params.items():
         message = f"{key}: {value}"
@@ -123,7 +123,6 @@ def main():
         level=logging.INFO,
         print_console=True,
     )
-
     task.close()
 
 

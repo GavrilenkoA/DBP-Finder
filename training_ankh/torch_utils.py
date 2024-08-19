@@ -199,9 +199,7 @@ def evaluate_fn(models, testing_dataloader, DEVICE):
             ens_logits = []
 
             for i in models:
-                model = models[i]
-
-                model.eval()
+                model = models[i].eval()
                 model = model.to(DEVICE)
                 output = model(x, y)
                 ens_logits.append(output.logits)
