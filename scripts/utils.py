@@ -1,4 +1,3 @@
-import re
 import subprocess
 from functools import wraps
 
@@ -182,12 +181,6 @@ def delete_common_seqs(train: pd.DataFrame, test: pd.DataFrame) -> tuple[pd.Data
     return train, test
 
 
-def find_common_seqs(train: pd.DataFrame, test: pd.DataFrame) -> list[str]:
-    # find common seqs in test
-    common_seqs = test.merge(train, on=["sequence"])["identifier_x"].to_list()
-    return common_seqs
-
-
 def save_dict_to_hdf5(data_dict, filename):
     """
     Save a dictionary with string keys and NumPy array values to an HDF5 file.
@@ -236,44 +229,3 @@ def cluster_sequences(
     # Parse clusters
     output_mmseqs = pd.read_csv(f"{output_dir}_cluster.tsv", sep="\t", header=None)
     return output_mmseqs
-
-
-class RNADataset:
-    def __init__(self, path: str) -> None:
-        self.path = path
-
-    def raname_columns(self) -> pd.DataFrame:
-        df = pd.read_csv(self.path)
-        df.drop("Unnamed: 0", axis=1, inplace=True)
-        df.rename(columns={"Meta": "identifier", "pep": "sequence"}, inplace=True)
-        return df
-
-    def extract_test_counts(self) -> tuple[int, int]:
-        # Compile the regex pattern to find number after 'TeP'
-        pattern_pos = re.compile(r".*TeP(\d+).*")
-        pattern_neg = re.compile(r".*TeN(\d+).*")
-
-        # Perform the match
-        match_1 = pattern_pos.match(self.path)
-        match_2 = pattern_neg.match(self.path)
-
-        if match_1 and match_2:
-            return int(match_1.group(1)), int(match_2.group(1))
-        else:
-            raise ValueError("Input string does not match expected pattern.")
-
-    @staticmethod
-    def filter_length(df: pd.DataFrame, threshold: int = 1024):
-        df["sequence"] = df["sequence"].apply(
-            lambda seq: seq[:threshold] if len(seq) > threshold else seq
-        )
-
-    def get_data(self) -> tuple[pd.DataFrame, pd.DataFrame]:
-        df = self.raname_columns()
-        counts_pos, counts_neg = self.extract_test_counts()
-
-        pos_samples = df[df["label"] == 1].tail(counts_pos)
-        neg_samples = df[df["label"] == 0].tail(counts_neg)
-        sample = pd.concat([pos_samples, neg_samples])
-        self.filter_length(sample)
-        return sample

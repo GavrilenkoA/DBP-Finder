@@ -29,8 +29,8 @@ def search_annotation(
         id_protein: str, go_id: set[str]) -> bool | None:
     url = f"https://www.ebi.ac.uk/QuickGO/services/annotation/search?geneProductId={id_protein}"
     page = 1
+    failed_request = False
     has_annotation = False
-
     while True:
         # Append the page parameter to the URL for pagination
         paginated_url = f"{url}&page={page}"
@@ -40,22 +40,21 @@ def search_annotation(
                 paginated_url, timeout=15
             )  # Timeout set to 15 seconds
 
-            # Check for errors in response
             if response.status_code != 200:
                 logger.error(
                     f"Failed to fetch data: {response.status_code}, id: {id_protein}"
                 )
+                failed_request = True
                 break
 
             annotation_data = response.json()
-            # Iterate through results to find the GO term
             for item in annotation_data["results"]:
                 if item["goId"] in go_id:
                     has_annotation = True
                     break
 
             if (
-                has_annotation or page == annotation_data["pageInfo"]["total"] or annotation_data["pageInfo"]["total"] == 0
+                annotation_data["pageInfo"]["total"] == page or annotation_data["pageInfo"]["total"] == 0
             ):
                 break
 
@@ -63,12 +62,15 @@ def search_annotation(
 
         except requests.exceptions.Timeout:
             logger.error(f"Request timed out for id: {id_protein}")
+            failed_request = True
             break
         except requests.exceptions.RequestException as e:
             logger.error(f"An error occurred: {e}, {id_protein}")
+            failed_request = True
             break
 
-    return has_annotation
+    if not failed_request:
+        return has_annotation
 
 
 def write_not_annotated_seqs(df: pd.DataFrame, go_id: set[str]) -> dict[str, bool]:
@@ -77,20 +79,22 @@ def write_not_annotated_seqs(df: pd.DataFrame, go_id: set[str]) -> dict[str, boo
         annotation = search_annotation(row.identifier, go_id)
         if annotation is not None:
             info[row.identifier] = annotation
+
     return info
 
 
 def main():
     parser = argparse.ArgumentParser(description="Process FASTA file and filter based on GO terms")
-    parser.add_argument('--fasta', type=str, help='Path to FASTA file containing sequences')
+    # parser.add_argument('--fasta', type=str, help='Path to FASTA file containing sequences')
     parser.add_argument('--output_yml', type=str, help='yaml file output')
 
     args = parser.parse_args()
     yml_path = "data/go_terms/na_terms.yml"
     go_id = read_yaml(yml_path)
 
-    df = convert_fasta_to_df(args.fasta)
-    df = filter_df(df)
+    # df = convert_fasta_to_df(args.fasta)
+    # df = filter_df(df)
+    df = pd.read_csv("data/embeddings/input_csv/pdb2272.csv")
     info = write_not_annotated_seqs(df, go_id)
 
     with open(args.output_yml, 'w') as f:

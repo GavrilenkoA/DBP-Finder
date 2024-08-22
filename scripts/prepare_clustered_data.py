@@ -45,6 +45,7 @@ def main():
     output_mmseq = cluster_data(train, test)
     clustered_train, _ = reduce_train(output_mmseq)
     train = train.merge(clustered_train, on="identifier")
+    train = make_balanced_df(train)
 
     name = os.path.splitext(os.path.basename(args.path_test))[0]
     output_csv = f"data/splits/train_{name}.csv"
