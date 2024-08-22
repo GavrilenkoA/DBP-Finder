@@ -35,13 +35,14 @@ pooling = config["model_config"]["pooling"]
 
 
 epochs = config["training_config"]["epochs"]
-lr = config["training_config"]["lr"]
+lr = float(config["training_config"]["lr"])
 factor = config["training_config"]["factor"]
 patience = config["training_config"]["patience"]
-min_lr = config["training_config"]["min_lr"]
+min_lr = float(config["training_config"]["min_lr"])
 batch_size = config["training_config"]["batch_size"]
 seed = config["training_config"]["seed"]
 num_workers = config["training_config"]["num_workers"]
+weight_decay = float(config["training_config"]["weight_decay"])
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -61,7 +62,7 @@ input_data = input()
 
 df = get_embed_clustered_df(
     embedding_path="../../../../ssd2/dbp_finder/ankh_embeddings/train_p3_2d.h5",
-    csv_path=f"../data/splits/train_{input_data}.csv",
+    csv_path="../data/splits/train_p3.csv",
 )
 train_folds, valid_folds = make_folds(df)
 
@@ -69,7 +70,7 @@ train_folds, valid_folds = make_folds(df)
 clearml.browser_login()
 task = Task.init(
     project_name="DBPs_search",
-    task_name="DBP-Finder training",
+    task_name=input_data,
     output_uri=True,
 )
 logger = Logger.current_logger()
@@ -87,11 +88,11 @@ for i in range(len(train_folds)):
     )
 
     valid_dataset = SequenceDataset(valid_folds[i])
-    valid_sampler = CustomBatchSampler(valid_dataset, batch_size)
     valid_dataloader = DataLoader(
         valid_dataset,
         num_workers=num_workers,
-        batch_sampler=valid_sampler,
+        batch_size=batch_size,
+        shuffle=False,
         collate_fn=custom_collate_fn,
     )
 
@@ -107,17 +108,16 @@ for i in range(len(train_folds)):
     )
 
     model = model.to(DEVICE)
-    optimizer = AdamW(model.parameters(), lr=float(lr))
+    optimizer = AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
     scheduler = ReduceLROnPlateau(
-        optimizer, mode="min", factor=factor, patience=patience, min_lr=float(min_lr)
-    )
+        optimizer, mode="min", factor=factor, patience=patience, min_lr=min_lr)
 
     best_val_loss = float("inf")
-    best_model_path = f"checkpoints/DBP-Finder-{i}.pth"
+    best_model_path = f"checkpoints/DBP-Finder_{i}.pth"
     for epoch in range(epochs):
         train_loss = train_fn(model, train_dataloader, optimizer, DEVICE)
         valid_loss, metrics_dict = validate_fn(
-            model, valid_dataloader, scheduler, DEVICE
+            model, valid_dataloader, DEVICE
         )
 
         logger.report_scalar(
@@ -144,7 +144,7 @@ for i in range(len(train_folds)):
         if valid_loss < best_val_loss:
             models[i] = model
             torch.save(model.state_dict(), best_model_path)
-            message = f"Saved Best Model on epoch {epoch} with Validation Loss: {best_val_loss}"
+            message = f"Saved Best Model on epoch {epoch} with Validation Loss: {valid_loss}"
             logger.report_text(message, level=logging.DEBUG, print_console=False)
             best_val_loss = valid_loss
 

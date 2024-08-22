@@ -2,6 +2,7 @@ import logging
 
 import pandas as pd
 import ankh
+import os
 import clearml
 import optuna
 import torch
@@ -22,28 +23,29 @@ from torch_utils import (
 clearml.browser_login()
 task = Task.init(
     project_name="DBPs_search",
-    task_name="Optuna search pdb2272",
+    task_name="Optuna search on the full dataset",
     output_uri=False,
 )
 logger = Logger.current_logger()
 
 df = get_embed_clustered_df(
-    embedding_path="../data/embeddings/ankh_embeddings/train_p3_2d.h5",
-    csv_path="../data/splits/train_pdb2272.csv",
+    embedding_path="../../../../ssd2/dbp_finder/ankh_embeddings/train_p3_2d.h5",
+    csv_path="../data/splits/train_p3.csv",
 )
 train_folds, valid_folds = make_folds(df)
 
 
 def objective(trial):
-    DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+    DEVICE = "cuda"
 
-    batch_size = trial.suggest_categorical("batch_size", [32, 64, 128])
-    lr = trial.suggest_float("lr", 1e-5, 1e-1, log=True)
+    batch_size = trial.suggest_categorical("batch_size", [64, 128])
+    lr = trial.suggest_float("lr", 1e-5, 1e-3, log=True)
     pooling = trial.suggest_categorical("pooling", ["max", "avg"])
     hidden_dim = trial.suggest_int("hidden_dim", 1425, 2120)
     dropout = trial.suggest_float("dropout", 0.0, 0.3, step=0.1)
     num_hidden_layers = trial.suggest_int("num_hidden_layers", 1, 2)
-    num_layers = trial.suggest_int("num_layers", 1, 2)
     nhead = trial.suggest_int("nhead", 3, 6)
 
     model = ankh.ConvBertForBinaryClassification(
@@ -51,7 +53,7 @@ def objective(trial):
         nhead=nhead,
         hidden_dim=hidden_dim,
         num_hidden_layers=num_hidden_layers,
-        num_layers=num_layers,
+        num_layers=1,
         kernel_size=7,
         dropout=dropout,
         pooling=pooling,
@@ -62,7 +64,7 @@ def objective(trial):
     model = model.to(DEVICE)
     optimizer = AdamW(model.parameters(), lr=lr)
     scheduler = ReduceLROnPlateau(
-        optimizer, mode="min", factor=0.5, patience=2, min_lr=1e-6
+        optimizer, mode="min", factor=0.5, patience=2, min_lr=1e-8
     )
 
     fold_losses = []
@@ -89,7 +91,7 @@ def objective(trial):
         )
 
         best_val_loss = float("inf")
-        for epoch in range(11):
+        for epoch in range(9):
             train_fn(model, train_dataloader, optimizer, DEVICE)
             valid_loss, metrics = validate_fn(
                 model, valid_dataloader, scheduler, DEVICE
