@@ -4,15 +4,6 @@ from sklearn.model_selection import StratifiedGroupKFold
 
 
 def load_dict_from_hdf5(filename):
-    """
-    Load a dictionary with string keys and NumPy array values from an HDF5 file.
-
-    Parameters:
-    filename (str): Name of the HDF5 file to load the data from.
-
-    Returns:
-    dict: Dictionary with string keys and NumPy array values.
-    """
     loaded_dict = {}
     with h5py.File(filename, "r") as f:
         for key in f.keys():
@@ -72,9 +63,7 @@ def prepare_test(
     df: pd.DataFrame,
     embedding_path="../../../../ssd2/dbp_finder/ankh_embeddings/train_p2_2d.h5",
 ) -> pd.DataFrame:
-    # Load embeddings and process them
     embeddings = load_dict_from_hdf5(embedding_path)
-
     embeddings_df = pd.DataFrame(
         list(embeddings.items()), columns=["identifier", "embedding"]
     )

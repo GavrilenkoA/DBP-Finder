@@ -129,7 +129,7 @@ def calculate_metrics(
     return metrics_dict
 
 
-def validate_fn(model, valid_dataloader, DEVICE):
+def validate_fn(model, valid_dataloader, scheduler, DEVICE):
     model.eval()
     loss = 0.0
     all_preds = []
@@ -154,7 +154,7 @@ def validate_fn(model, valid_dataloader, DEVICE):
             all_preds.extend(preds.cpu().numpy().flatten())
 
     epoch_loss = loss / len(valid_dataloader)
-    # scheduler.step(epoch_loss)
+    scheduler.step(epoch_loss)
     metrics_dict = calculate_metrics(all_logits, all_labels, all_preds)
     return epoch_loss, metrics_dict
 
