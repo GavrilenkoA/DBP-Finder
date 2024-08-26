@@ -5,8 +5,6 @@ import h5py
 import pandas as pd
 import yaml
 
-SEED = 42
-
 
 def prepare_neg_samples(path: str) -> pd.DataFrame:
     with open(path, "r") as file:
@@ -21,7 +19,7 @@ def prepare_neg_samples(path: str) -> pd.DataFrame:
     return df
 
 
-def make_balanced_df(df, seed=SEED):
+def make_balanced_df(df, seed=42):
     pos_cls = df[df.label == 1]
     neg_cls = df[df.label == 0]
     if len(neg_cls) > len(pos_cls):
@@ -174,36 +172,18 @@ def delete_source_from_id(df: pd.DataFrame) -> pd.DataFrame:
 def delete_common_seqs(train: pd.DataFrame, test: pd.DataFrame) -> tuple[pd.DataFrame]:
     # delete common seqs from both dataframes
     common_seqs = test.merge(train, on=["sequence"])["sequence"]
-
     train = train[~train["sequence"].isin(common_seqs)]
     test = test[~test["sequence"].isin(common_seqs)]
-
     return train, test
 
 
 def save_dict_to_hdf5(data_dict, filename):
-    """
-    Save a dictionary with string keys and NumPy array values to an HDF5 file.
-
-    Parameters:
-    data_dict (dict): Dictionary with string keys and NumPy array values.
-    filename (str): Name of the HDF5 file to save the data.
-    """
     with h5py.File(filename, "w") as f:
         for key, value in data_dict.items():
             f.create_dataset(key, data=value)
 
 
 def load_dict_from_hdf5(filename):
-    """
-    Load a dictionary with string keys and NumPy array values from an HDF5 file.
-
-    Parameters:
-    filename (str): Name of the HDF5 file to load the data from.
-
-    Returns:
-    dict: Dictionary with string keys and NumPy array values.
-    """
     loaded_dict = {}
     with h5py.File(filename, "r") as f:
         for key in f.keys():

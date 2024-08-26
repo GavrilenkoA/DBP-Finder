@@ -1,5 +1,4 @@
-import pickle
-
+import h5py
 import joblib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,57 +8,59 @@ from sklearn.metrics import (accuracy_score, f1_score, matthews_corrcoef,
                              roc_curve)
 
 
-def load_obj(file_path: str) -> dict[str, np.ndarray]:
-    with open(file_path, "rb") as file:
-        obj = pickle.load(file)
-    return obj
+# def load_obj(file_path: str) -> dict[str, np.ndarray]:
+#     with open(file_path, "rb") as file:
+#         obj = pickle.load(file)
+#     return obj
 
 
-def get_embeds(file_path: str) -> pd.DataFrame:
-    dict_data = load_obj(file_path)
-    df = pd.DataFrame(list(dict_data.items()), columns=["identifier", "embedding"])
-    return df
+# def get_embeds(file_path: str) -> pd.DataFrame:
+#     dict_data = load_obj(file_path)
+#     df = pd.DataFrame(list(dict_data.items()), columns=["identifier", "embedding"])
+#     return df
 
 
-def merge_embed(df: pd.DataFrame, file_path: str) -> pd.DataFrame:
-    file_path = f"data/embeddings/ankh_embeddings/{file_path}.pkl"
-    embed_df = get_embeds(file_path)
-    out_df = df.merge(embed_df, on="identifier")
-    assert len(out_df) == len(df)
-    return out_df
+# def merge_embed(df: pd.DataFrame, file_path: str) -> pd.DataFrame:
+#     file_path = f"data/embeddings/ankh_embeddings/{file_path}.pkl"
+#     embed_df = get_embeds(file_path)
+#     out_df = df.merge(embed_df, on="identifier")
+#     assert len(out_df) == len(df)
+#     return out_df
 
 
-def make_lama_df(
-    X: np.ndarray, y: np.ndarray, clusters: None | str = None
-) -> pd.DataFrame:
-    df = pd.DataFrame(X)
-    df.columns = [f"component_{i}" for i in range(df.shape[1])]
-    df["label"] = y
-    if clusters is not None:
-        df["cluster"] = clusters
-    return df
+class EmbeddingDataset:
+    def __init__(self, df: pd.DataFrame):
+        self.df = df
+
+    @staticmethod
+    def process_embeddings(embeddings: pd.Series) -> np.ndarray:
+        embeddings = [embed.mean(axis=0).reshape(1, -1) for embed in embeddings.tolist()]
+        embeddings = np.concatenate(embeddings)
+        return embeddings
+
+    def form_df(self):
+        ids = self.df["identifier"].values
+        embeddings = self.process_embeddings(self.df["embedding"])
+        data = dict(zip(ids, embeddings))
+        df = pd.DataFrame.from_dict(data, orient="index")
+        return df
+
+    def make_lama_df(self) -> pd.DataFrame:
+        df = self.form_df()
+        df.columns = [f"component_{i}" for i in range(df.shape[1])]
+        df = df.merge(self.df, left_index=True, right_on="identifier")
+
+        df.set_index("identifier", inplace=True)
+        df.drop(["sequence", "embedding"], axis=1, inplace=True)
+        assert len(df) == len(self.df)
+        return df
 
 
-def process_embeddings(embeddings: pd.Series) -> np.ndarray:
-    embeddings = [item.reshape(1, -1) for item in embeddings.tolist()]
-    embeddings = np.concatenate(embeddings)
-    return embeddings
-
-
-def form_Xy(df: pd.DataFrame, clusters: None | str = None):
-    X = process_embeddings(df["embedding"])
-    y = df["label"].values
-    if clusters is not None:
-        clusters = df["cluster"].values
-        return X, y, clusters
-    return X, y
-
-
-def make_inference_lama_df(df: pd.DataFrame) -> pd.DataFrame:
-    X = process_embeddings(df["embedding"])
-    df = pd.DataFrame(X)
-    df.columns = [f"component_{i}" for i in range(df.shape[1])]
-    return df
+# def make_inference_lama_df(df: pd.DataFrame) -> pd.DataFrame:
+#     X = process_embeddings(df["embedding"])
+#     df = pd.DataFrame(X)
+#     df.columns = [f"component_{i}" for i in range(df.shape[1])]
+#     return df
 
 
 class Metrics:
@@ -122,3 +123,35 @@ def filter_test_by_kingdom(test: pd.DataFrame, test_input: str, kingdom: str):
     subset_df = df[df["kingdom"] == f"{kingdom}"]
     test = test.merge(subset_df, on="identifier")
     return test
+
+
+def load_dict_from_hdf5(filename):
+    loaded_dict = {}
+    with h5py.File(filename, "r") as f:
+        for key in f.keys():
+            loaded_dict[key] = f[key][:]
+    return loaded_dict
+
+
+def load_embeddings_to_df(embedding_path: str) -> pd.DataFrame:
+    # Load embeddings from the HDF5 file
+    embeddings = load_dict_from_hdf5(embedding_path)
+
+    # Convert the embeddings dictionary to a DataFrame
+    embeddings_df = pd.DataFrame(
+        list(embeddings.items()), columns=["identifier", "embedding"]
+    )
+    return embeddings_df
+
+
+def get_embed_clustered_df(
+    embedding_path="../../../../ssd2/dbp_finder/ankh_embeddings/train_p2_2d.h5",
+    csv_path="../data/splits/train_p2.csv",
+) -> pd.DataFrame:
+    # Load training data and merge with embeddings
+    df = pd.read_csv(csv_path)
+    embeddings_df = load_embeddings_to_df(embedding_path)
+
+    embed_df = df.merge(embeddings_df, on="identifier")
+    assert len(embed_df) == len(df), "embed_df and df have different lengths"
+    return embed_df

@@ -7,7 +7,6 @@ import requests
 from tqdm import tqdm
 from utils import convert_fasta_to_df, filter_df
 
-# rna binding "GO:0003723 dna binding "GO:0003677 Binding to a nucleic acid GO:0003676"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -17,11 +16,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+SEED = 42
+
 
 def read_yaml(yml_path: str) -> set[str]:
     with open(yml_path, "r") as file:
         data = yaml.safe_load(file)
-    go_id = set(data["na_terms"])
+    go_id = set(data["terms"])
     return go_id
 
 
@@ -84,20 +85,20 @@ def write_not_annotated_seqs(df: pd.DataFrame, go_id: set[str]) -> dict[str, boo
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Process FASTA file and filter based on GO terms")
+    # parser = argparse.ArgumentParser(description="Process FASTA file and filter based on GO terms")
     # parser.add_argument('--fasta', type=str, help='Path to FASTA file containing sequences')
-    parser.add_argument('--output_yml', type=str, help='yaml file output')
+    # parser.add_argument("output_yml", type=str, help='yaml file output')
+    # args = parser.parse_args()
 
-    args = parser.parse_args()
-    yml_path = "data/go_terms/na_terms.yml"
-    go_id = read_yaml(yml_path)
+    go_id_1 = read_yaml(yml_path="data/go_terms/GO:0006259.yml")
+    go_id_2 = read_yaml(yml_path="data/go_terms/GO:0003676.yml")
+    go_id = go_id_1.union(go_id_2)
 
-    # df = convert_fasta_to_df(args.fasta)
-    # df = filter_df(df)
-    df = pd.read_csv("data/embeddings/input_csv/pdb2272.csv")
+    df = convert_fasta_to_df("data/uniprot/notgo_0003723_notgo_0003677_swissprot.fasta")
     info = write_not_annotated_seqs(df, go_id)
 
-    with open(args.output_yml, 'w') as f:
+    output_yml = "data/processed/notgo_0003723_notgo_0003677_swissprot_GO:0006259|0003676.yml"
+    with open(output_yml, "w") as f:
         yaml.safe_dump(info, f)
 
 

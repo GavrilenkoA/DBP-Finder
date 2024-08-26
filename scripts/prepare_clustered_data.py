@@ -47,10 +47,10 @@ def main():
     train = train.merge(clustered_train, on="identifier")
     train = make_balanced_df(train)
 
-    name = os.path.splitext(os.path.basename(args.path_test))[0]
-    output_csv = f"data/splits/train_{name}.csv"
+    name_train = os.path.splitext(os.path.basename(args.path_train))[0]
+    name_test = os.path.splitext(os.path.basename(args.path_test))[0]
+    output_csv = f"data/splits/{name_train}_{name_test}.csv"
     train.to_csv(output_csv, index=False)
-    write_fasta(train, f"train_{name}.fasta")
 
 
 if __name__ == "__main__":
