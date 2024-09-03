@@ -5,7 +5,7 @@ import yaml
 import pandas as pd
 import requests
 from tqdm import tqdm
-from utils import convert_fasta_to_df, filter_df
+from utils import convert_fasta_to_df
 
 
 logging.basicConfig(
@@ -59,7 +59,7 @@ def search_annotation(
             ):
                 break
 
-            page += 1  # Increment the page number to fetch the next page
+            page += 1
 
         except requests.exceptions.Timeout:
             logger.error(f"Request timed out for id: {id_protein}")
@@ -90,14 +90,11 @@ def main():
     # parser.add_argument("output_yml", type=str, help='yaml file output')
     # args = parser.parse_args()
 
-    go_id_1 = read_yaml(yml_path="data/go_terms/GO:0006259.yml")
-    go_id_2 = read_yaml(yml_path="data/go_terms/GO:0003676.yml")
-    go_id = go_id_1.union(go_id_2)
-
-    df = convert_fasta_to_df("data/uniprot/notgo_0003723_notgo_0003677_swissprot.fasta")
+    go_id = read_yaml(yml_path="data/go_terms/GO:0003676.yml")
+    df = convert_fasta_to_df("data/uniprot/uniprotkb_gene_NOT_go_0006139_NOT_go_00_2024_08_26_annot_4.fasta")
     info = write_not_annotated_seqs(df, go_id)
 
-    output_yml = "data/processed/notgo_0003723_notgo_0003677_swissprot_GO:0006259|0003676.yml"
+    output_yml = "data/processed/uniprotkb_gene_NOT_go_0006139_NOT_go_00_2024_08_26_annot_4_GO:0003676.yml"
     with open(output_yml, "w") as f:
         yaml.safe_dump(info, f)
 
