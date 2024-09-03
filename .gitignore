@@ -16,6 +16,7 @@ data/embeddings/ankh_embeddings/*
 data/embeddings/esm_embeddings/
 data/embeddings/prot5_embeddings/
 data/embeddings/input_csv/*
+data/prediction
 !data/embeddings/input_csv/pdb186.csv
 !data/embeddings/input_csv/pdb1000.csv
 !data/embeddings/input_csv/pdb20000.csv
@@ -45,7 +46,12 @@ hmmer
 models
 notes.txt
 wget_data
-training_ankh/checkpoints
+notebooks
+training-pLM/checkpoints
+training-pLM/BiCaps-DBP.ipynb
+training-pLM/finetune_exp.ipynb
+training-pLM/draft.ipynb
+training-pLM/train-DBP-Finder.py
 tmp
 logs
 data/external/proteinfer_random_split.csv

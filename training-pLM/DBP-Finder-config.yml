@@ -1,0 +1,8 @@
+input_dim: 1536
+nhead: 4
+hidden_dim: 1536
+num_hidden_layers: 1
+num_layers: 1
+kernel_size: 7
+dropout: 0.2
+pooling: max
