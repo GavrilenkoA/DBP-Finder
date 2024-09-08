@@ -3,10 +3,10 @@ from evaluate import load
 import numpy as np
 import pandas as pd
 from datasets import Dataset
-from transformers import DataCollatorWithPadding
+from peft import get_peft_model, LoraConfig, TaskType
 import os
-from accelerate import Accelerator
-from peft import get_peft_config, PeftModel, PeftConfig, get_peft_model, LoraConfig, TaskType, prepare_model_for_kbit_training
+from clearml import Task
+from clearml import OutputModel
 from data_prepare import make_folds
 from HF_utils import ClearMLCallback
 
@@ -14,7 +14,9 @@ from HF_utils import ClearMLCallback
 os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
 
-accelerator = Accelerator()
+model_checkpoint = "ElnaggarLab/ankh-base"
+model_name = model_checkpoint.split("/")[-1]
+task = Task.init(project_name="DBPs_search", task_name=f"lora q, k, v {model_name} pdb2272")
 
 
 def model_init(model_checkpoint):
@@ -24,7 +26,7 @@ def model_init(model_checkpoint):
     )
 
     config = LoraConfig(
-        task_type=TaskType.SEQ_CLS,  # Changed to SEQ_CLS for sequence classification
+        task_type=TaskType.SEQ_CLS,
         r=16,
         lora_alpha=16,
         target_modules=["q", "k", "v"],
@@ -32,39 +34,32 @@ def model_init(model_checkpoint):
         bias="all",
     )
 
-    lora_model = get_peft_model(base_model, config)
-    return accelerator.prepare(lora_model)
+    model = get_peft_model(base_model, config)
+    return model
 
 
-model_checkpoint = "ElnaggarLab/ankh-base"
 model = model_init(model_checkpoint)
 tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
 batch_size = 64
 
-
+# Prepare datasets
 df = pd.read_csv("../data/splits/train_p3_pdb2272.csv")
 train_dfs, valid_dfs = make_folds(df)
-
 train = train_dfs[0]
 valid = valid_dfs[0]
 
 train_sequences = train["sequence"].tolist()
 train_labels = train["label"].tolist()
-
 valid_sequences = valid["sequence"].tolist()
 valid_labels = valid["label"].tolist()
 
 train_tokenized = tokenizer(train_sequences)
 valid_tokenized = tokenizer(valid_sequences)
-train_dataset = Dataset.from_dict(train_tokenized)
-valid_dataset = Dataset.from_dict(valid_tokenized)
 
-train_dataset = train_dataset.add_column("labels", train_labels)
-valid_dataset = valid_dataset.add_column("labels", valid_labels)
+train_dataset = Dataset.from_dict(train_tokenized).add_column("labels", train_labels)
+valid_dataset = Dataset.from_dict(valid_tokenized).add_column("labels", valid_labels)
 
-train_dataset = accelerator.prepare(train_dataset)
-valid_dataset = accelerator.prepare(valid_dataset)
-
+# Metrics
 accuracy_metric = load("accuracy")
 f1_metric = load("f1")
 matthews_metric = load("matthews_correlation")
@@ -94,13 +89,13 @@ def compute_metrics(eval_pred):
         "roc_auc": roc_auc["roc_auc"],
     }
 
+    print("Metrics computed:", metrics)  # Debugging: Print metrics
     return metrics
 
 
-model_name = model_checkpoint.split("/")[-1]
 args = TrainingArguments(
-    output_dir=f"{model_name}-Lora-finetuned",
-    evaluation_strategy="epoch",
+    output_dir=f"{model_name}-lora-finetuned",
+    evaluation_strategy="epoch",  # Ensure evaluation occurs each epoch
     save_strategy="epoch",
     learning_rate=2e-5,
     per_device_train_batch_size=batch_size,
@@ -108,11 +103,15 @@ args = TrainingArguments(
     num_train_epochs=10,
     weight_decay=0.01,
     load_best_model_at_end=True,
-    metric_for_best_model="eval_loss",
+    metric_for_best_model="eval_loss",  # Change this if you prefer another metric like accuracy
     greater_is_better=False,
+    logging_dir='./logs',  # Ensure logging directory is set
+    logging_strategy="steps",
+    logging_steps=10,  # Log metrics every 10 steps
+    report_to="clearml",  # Avoids issues with not setting a reporting tool
 )
 
-clearml_callback = ClearMLCallback(task_name=f"Lora fine-tuning {model_name}, pdb2272 train data")
+
 trainer = Trainer(
     model=model,
     args=args,
@@ -120,6 +119,9 @@ trainer = Trainer(
     eval_dataset=valid_dataset,
     tokenizer=tokenizer,
     compute_metrics=compute_metrics,
-    callbacks=[clearml_callback],
+    callbacks=[],
 )
 trainer.train()
+
+# Close the ClearML task
+task.close()
