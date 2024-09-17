@@ -1,3 +1,4 @@
+import json
 import h5py
 import pandas as pd
 from sklearn.model_selection import StratifiedGroupKFold
@@ -80,3 +81,8 @@ def form_test_kingdom(test_input: str, kingdom: str):
     test_df = pd.read_csv(f"../data/embeddings/input_csv/{test_input}.csv")
     test_df = test_df.merge(kingdom_df, on="identifier")
     return test_df
+
+
+def save_json(data, filename):
+    with open(filename, 'w') as f:
+        json.dump(data, f)

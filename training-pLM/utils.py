@@ -309,3 +309,7 @@ def inference(models, inference_dataloader, DEVICE) -> pd.DataFrame:
     prob_score = prob_score.tolist()
     predictions_df = collect_predictions(identifiers, all_labels, all_preds, prob_score)
     return predictions_df
+
+
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)

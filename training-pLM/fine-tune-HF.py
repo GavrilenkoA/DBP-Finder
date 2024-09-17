@@ -1,28 +1,31 @@
-from transformers import EarlyStoppingCallback, AutoTokenizer, AutoModelForSequenceClassification, TrainingArguments, Trainer
-from evaluate import load
-import numpy as np
-import pandas as pd
-from datasets import Dataset
-from peft import get_peft_model, LoraConfig, TaskType
+import logging
 import os
-from clearml import Task
-from clearml import OutputModel
+
+import clearml
+import numpy as np
+import torch
+import pandas as pd
+import yaml
+from clearml import Logger, Task
 from data_prepare import make_folds
-from HF_utils import ClearMLCallback
+from torch.optim import AdamW
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.utils.data import DataLoader
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from peft import get_peft_model, LoraConfig, TaskType
+
+from dataset import CustomBatchSampler, collate_fn, SequenceDataset
+from HF_model_training_utils import train_fn, validate_fn
 
 
-os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
-os.environ["TOKENIZERS_PARALLELISM"] = "true"
-
-model_checkpoint = "ElnaggarLab/ankh-base"
-model_name = model_checkpoint.split("/")[-1]
-task = Task.init(project_name="DBPs_search", task_name=f"lora q, k, v {model_name} pdb2272")
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+DEVICE = "cuda"
 
 
 def model_init(model_checkpoint):
     base_model = AutoModelForSequenceClassification.from_pretrained(
-        model_checkpoint,
-        num_labels=2
+        model_checkpoint, num_labels=1
     )
 
     config = LoraConfig(
@@ -35,93 +38,128 @@ def model_init(model_checkpoint):
     )
 
     model = get_peft_model(base_model, config)
-    return model
+    tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
+    return model, tokenizer
 
 
-model = model_init(model_checkpoint)
-tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
-batch_size = 64
-
-# Prepare datasets
-df = pd.read_csv("../data/splits/train_p3_pdb2272.csv")
-train_dfs, valid_dfs = make_folds(df)
-train = train_dfs[0]
-valid = valid_dfs[0]
-
-train_sequences = train["sequence"].tolist()
-train_labels = train["label"].tolist()
-valid_sequences = valid["sequence"].tolist()
-valid_labels = valid["label"].tolist()
-
-train_tokenized = tokenizer(train_sequences)
-valid_tokenized = tokenizer(valid_sequences)
-
-train_dataset = Dataset.from_dict(train_tokenized).add_column("labels", train_labels)
-valid_dataset = Dataset.from_dict(valid_tokenized).add_column("labels", valid_labels)
-
-# Metrics
-accuracy_metric = load("accuracy")
-f1_metric = load("f1")
-matthews_metric = load("matthews_correlation")
-precision_metric = load("precision")
-recall_metric = load("recall")
-roc_auc_metric = load("roc_auc")
+def set_seed(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
 
 
-def compute_metrics(eval_pred):
-    predictions, labels = eval_pred
-    predictions = np.argmax(predictions, axis=1)
-
-    # Compute each metric
-    accuracy = accuracy_metric.compute(predictions=predictions, references=labels)
-    f1 = f1_metric.compute(predictions=predictions, references=labels)
-    matthews = matthews_metric.compute(predictions=predictions, references=labels)
-    precision = precision_metric.compute(predictions=predictions, references=labels)
-    recall = recall_metric.compute(predictions=predictions, references=labels)
-    roc_auc = roc_auc_metric.compute(predictions=predictions, references=labels)
-
-    metrics = {
-        "accuracy": accuracy["accuracy"],
-        "f1": f1["f1"],
-        "matthews_correlation": matthews["matthews_correlation"],
-        "precision": precision["precision"],
-        "recall": recall["recall"],
-        "roc_auc": roc_auc["roc_auc"],
-    }
-
-    print("Metrics computed:", metrics)  # Debugging: Print metrics
-    return metrics
+def df_prepare():
+    df = pd.read_csv("../data/splits/train_p3_pdb2272.csv")
+    train_folds, valid_folds = make_folds(df)
+    return train_folds, valid_folds
 
 
-args = TrainingArguments(
-    output_dir=f"{model_name}-lora-finetuned",
-    evaluation_strategy="epoch",  # Ensure evaluation occurs each epoch
-    save_strategy="epoch",
-    learning_rate=2e-5,
-    per_device_train_batch_size=batch_size,
-    per_device_eval_batch_size=batch_size,
-    num_train_epochs=10,
-    weight_decay=0.01,
-    load_best_model_at_end=True,
-    metric_for_best_model="eval_loss",  # Change this if you prefer another metric like accuracy
-    greater_is_better=False,
-    logging_dir='./logs',  # Ensure logging directory is set
-    logging_strategy="steps",
-    logging_steps=10,  # Log metrics every 10 steps
-    report_to="clearml",  # Avoids issues with not setting a reporting tool
-)
+def dataset_prepare(
+    data: pd.DataFrame, tokenizer, batch_size, num_workers, shuffle=False
+):
+    dataset = SequenceDataset(data)
+    batch_sampler = CustomBatchSampler(dataset, batch_size, shuffle=shuffle)
+    dataloader = DataLoader(
+        dataset,
+        batch_sampler=batch_sampler,
+        num_workers=num_workers,
+        collate_fn=lambda x: collate_fn(x, tokenizer),
+    )
+    return dataloader
 
 
-trainer = Trainer(
-    model=model,
-    args=args,
-    train_dataset=train_dataset,
-    eval_dataset=valid_dataset,
-    tokenizer=tokenizer,
-    compute_metrics=compute_metrics,
-    callbacks=[],
-)
-trainer.train()
+def main():
+    with open("config.yml", "r") as f:
+        config = yaml.safe_load(f)
 
-# Close the ClearML task
-task.close()
+    clearml.browser_login()
+    task = Task.init(
+        project_name="DBPs_search", task_name="lora-ankh-base-training, pdb2272", output_uri=True
+    )
+
+    logger = Logger.current_logger()
+    task.connect_configuration(config)
+
+    epochs = config["training_config"]["epochs"]
+    lr = float(config["training_config"]["lr"])
+    factor = config["training_config"]["factor"]
+    patience = config["training_config"]["patience"]
+    min_lr = float(config["training_config"]["min_lr"])
+    batch_size = config["training_config"]["batch_size"]
+    seed = config["training_config"]["seed"]
+    num_workers = config["training_config"]["num_workers"]
+    weight_decay = float(config["training_config"]["weight_decay"])
+    model_checkpoint = config["training_config"]["model_checkpoint"]
+
+    set_seed(seed)
+
+    models = {}
+    best_thresholds = {}
+    train_folds, valid_folds = df_prepare()
+    for i in range(len(train_folds)):
+        train = train_folds[i]
+        valid = valid_folds[i]
+
+        model, tokenizer = model_init(model_checkpoint)
+
+        train_dataloader = dataset_prepare(
+            train, tokenizer, batch_size, num_workers, shuffle=True)
+
+        valid_dataloader = dataset_prepare(
+            valid, tokenizer, batch_size, num_workers, shuffle=False)
+
+        model = model.to(DEVICE)
+        optimizer = AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
+        scheduler = ReduceLROnPlateau(
+            optimizer, mode="min", factor=factor, patience=patience, min_lr=min_lr
+        )
+
+        best_val_loss = float("inf")
+        best_model_path = f"ankh-base-lora-finetuned/pdb2272_{i}.pth"
+        for epoch in range(epochs):
+            train_loss = train_fn(model, train_dataloader, optimizer, DEVICE)
+            valid_loss, metrics_dict, best_threshold = validate_fn(
+                model, valid_dataloader, scheduler, DEVICE
+            )
+            torch.cuda.empty_cache()
+
+            logger.report_scalar(
+                title=f"Loss model {i}",
+                series="train loss",
+                value=train_loss,
+                iteration=epoch,
+            )
+            logger.report_scalar(
+                title=f"Loss model {i}",
+                series="valid loss",
+                value=valid_loss,
+                iteration=epoch,
+            )
+
+            for metric_name, metric_value in metrics_dict.items():
+                logger.report_scalar(
+                    title=f"Metrics model {i}",
+                    series=metric_name,
+                    value=metric_value,
+                    iteration=epoch,
+                )
+
+            if valid_loss < best_val_loss:
+                models[i] = model
+                best_thresholds[i] = best_threshold
+                torch.save(model.state_dict(), best_model_path)
+                training_log = (
+                    f"model {i} on epoch {epoch} with validation loss: {valid_loss}"
+                )
+                threshold_log = f"best_threshold: {best_threshold} on epoch {epoch} of model {i}"
+
+                logger.report_text(training_log, level=logging.DEBUG, print_console=False)
+                logger.report_text(threshold_log, level=logging.DEBUG, print_console=False)
+                best_val_loss = valid_loss
+
+    task.upload_artifact(name="best_thresholds", artifact_object=best_thresholds)
+    task.close()
+
+
+if __name__ == "__main__":
+    main()

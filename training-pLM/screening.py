@@ -1,7 +1,7 @@
 import torch
 from data_prepare import load_embeddings_to_df
 from torch.utils.data import DataLoader
-from torch_utils import InferenceDataset, inference, load_models
+from utils import InferenceDataset, inference, load_models
 
 
 def main():

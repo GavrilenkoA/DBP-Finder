@@ -51,7 +51,10 @@ training-pLM/checkpoints
 training-pLM/BiCaps-DBP.ipynb
 training-pLM/finetune_exp.ipynb
 training-pLM/draft.ipynb
+training-pLM/lightning_logs
+training-pLM/ankh-base-lora-finetuned
+training-pLM/ankh-lora-finetuned
 training-pLM/train-DBP-Finder.py
 tmp
 logs
-data/external/proteinfer_random_split.csv
+data/external/

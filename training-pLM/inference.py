@@ -4,11 +4,10 @@ import torch
 from clearml import Logger, Task
 from data_prepare import form_test_kingdom, get_embed_clustered_df, prepare_test
 from torch.utils.data import DataLoader
-from torch_utils import InferenceDataset, SequenceDataset, evaluate_fn, inference, load_models
+from utils import InferenceDataset, SequenceDataset, evaluate_fn, inference, load_models
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-test_data = "test_trembl_proteinfer"
-
+test_data = "test_swissprot"
 clearml.browser_login()
 task = Task.init(
     project_name="DBPs_search",

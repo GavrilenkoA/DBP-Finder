@@ -1,44 +1,33 @@
-
-
-# %%
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
-from torch.utils.data import DataLoader
 import os
-import re
 import numpy as np
 import pandas as pd
 import copy
 
 
-import transformers, datasets
 from transformers.modeling_outputs import SequenceClassifierOutput
 from transformers.models.t5.modeling_t5 import T5Config, T5PreTrainedModel, T5Stack
 from transformers.utils.model_parallel_utils import assert_device_map, get_device_map
 from transformers import T5EncoderModel, T5Tokenizer
-from transformers import EsmModel, AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from transformers import TrainingArguments, Trainer, set_seed
 
-import peft
-from peft import get_peft_config, PeftModel, PeftConfig, inject_adapter_in_model, LoraConfig
+from peft import (
+    inject_adapter_in_model,
+    LoraConfig,
+)
 
 from evaluate import load
 from datasets import Dataset
 
-from tqdm import tqdm
 import random
 
-from scipy import stats
-from sklearn.metrics import accuracy_score
 
-import matplotlib.pyplot as plt
-
-# %%
 from data_prepare import make_folds
 
-# %%
+
 accuracy_metric = load("accuracy")
 f1_metric = load("f1")
 matthews_metric = load("matthews_correlation")
@@ -53,17 +42,18 @@ os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 # %%
 checkpoint = "ElnaggarLab/ankh-base"
 
-# %%
+
 df = pd.read_csv("../data/splits/train_p3_pdb2272.csv")
 train_dfs, valid_dfs = make_folds(df)
 my_train = train_dfs[0]
 my_valid = valid_dfs[0]
 
-# %%
+
 class ClassConfig:
     def __init__(self, dropout=0.2, num_labels=1):
         self.dropout_rate = dropout
         self.num_labels = num_labels
+
 
 class T5EncoderClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
@@ -75,7 +65,6 @@ class T5EncoderClassificationHead(nn.Module):
         self.out_proj = nn.Linear(config.hidden_size, class_config.num_labels)
 
     def forward(self, hidden_states):
-
         hidden_states = torch.mean(hidden_states, dim=1)  # avg embedding
 
         hidden_states = self.dropout(hidden_states)
@@ -85,8 +74,8 @@ class T5EncoderClassificationHead(nn.Module):
         hidden_states = self.out_proj(hidden_states)
         return hidden_states
 
-class T5EncoderForSimpleSequenceClassification(T5PreTrainedModel):
 
+class T5EncoderForSimpleSequenceClassification(T5PreTrainedModel):
     def __init__(self, config: T5Config, class_config):
         super().__init__(config)
         self.num_labels = class_config.num_labels
@@ -156,7 +145,9 @@ class T5EncoderForSimpleSequenceClassification(T5PreTrainedModel):
         output_hidden_states=None,
         return_dict=None,
     ):
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+        return_dict = (
+            return_dict if return_dict is not None else self.config.use_return_dict
+        )
 
         outputs = self.encoder(
             input_ids=input_ids,
@@ -176,7 +167,9 @@ class T5EncoderForSimpleSequenceClassification(T5PreTrainedModel):
             if self.config.problem_type is None:
                 if self.num_labels == 1:
                     self.config.problem_type = "regression"
-                elif self.num_labels > 1 and (labels.dtype == torch.long or labels.dtype == torch.int):
+                elif self.num_labels > 1 and (
+                    labels.dtype == torch.long or labels.dtype == torch.int
+                ):
                     self.config.problem_type = "single_label_classification"
                 else:
                     self.config.problem_type = "multi_label_classification"
@@ -214,8 +207,12 @@ def load_T5_model(checkpoint, num_labels, half_precision, full=False, deepspeed=
     elif "prot_t5" in checkpoint:
         # possible to load the half precision model (thanks to @pawel-rezo for pointing that out)
         if half_precision and deepspeed:
-            tokenizer = T5Tokenizer.from_pretrained('Rostlab/prot_t5_xl_half_uniref50-enc', do_lower_case=False)
-            model = T5EncoderModel.from_pretrained("Rostlab/prot_t5_xl_half_uniref50-enc", torch_dtype=torch.float16)#.to(torch.device('cuda')
+            tokenizer = T5Tokenizer.from_pretrained(
+                "Rostlab/prot_t5_xl_half_uniref50-enc", do_lower_case=False
+            )
+            model = T5EncoderModel.from_pretrained(
+                "Rostlab/prot_t5_xl_half_uniref50-enc", torch_dtype=torch.float16
+            )  # .to(torch.device('cuda')
         else:
             model = T5EncoderModel.from_pretrained(checkpoint)
             tokenizer = T5Tokenizer.from_pretrained(checkpoint)
@@ -223,7 +220,9 @@ def load_T5_model(checkpoint, num_labels, half_precision, full=False, deepspeed=
     elif "ProstT5" in checkpoint:
         if half_precision and deepspeed:
             tokenizer = T5Tokenizer.from_pretrained(checkpoint, do_lower_case=False)
-            model = T5EncoderModel.from_pretrained(checkpoint, torch_dtype=torch.float16)#.to(torch.device('cuda')
+            model = T5EncoderModel.from_pretrained(
+                checkpoint, torch_dtype=torch.float16
+            )  # .to(torch.device('cuda')
         else:
             model = T5EncoderModel.from_pretrained(checkpoint)
             tokenizer = T5Tokenizer.from_pretrained(checkpoint)
@@ -245,7 +244,7 @@ def load_T5_model(checkpoint, num_labels, half_precision, full=False, deepspeed=
     # Print number of trainable parameters
     model_parameters = filter(lambda p: p.requires_grad, model.parameters())
     params = sum([np.prod(p.size()) for p in model_parameters])
-    print("T5_Classfier\nTrainable Parameter: "+ str(params))
+    print("T5_Classfier\nTrainable Parameter: " + str(params))
 
     # lora modification
     peft_config = LoraConfig(
@@ -255,8 +254,8 @@ def load_T5_model(checkpoint, num_labels, half_precision, full=False, deepspeed=
     model = inject_adapter_in_model(peft_config, model)
 
     # Unfreeze the prediction head
-    for (param_name, param) in model.classifier.named_parameters():
-                param.requires_grad = True
+    for param_name, param in model.classifier.named_parameters():
+        param.requires_grad = True
 
     # Print trainable Parameter
     model_parameters = filter(lambda p: p.requires_grad, model.parameters())
@@ -270,22 +269,26 @@ def load_esm_model(checkpoint, num_labels, half_precision, full=False, deepspeed
     tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 
     if half_precision and deepspeed:
-        model = AutoModelForSequenceClassification.from_pretrained(checkpoint, num_labels=num_labels, torch_dtype=torch.float16)
+        model = AutoModelForSequenceClassification.from_pretrained(
+            checkpoint, num_labels=num_labels, torch_dtype=torch.float16
+        )
     else:
-        model = AutoModelForSequenceClassification.from_pretrained(checkpoint, num_labels=num_labels)
+        model = AutoModelForSequenceClassification.from_pretrained(
+            checkpoint, num_labels=num_labels
+        )
 
     if full:
         return model, tokenizer
 
     peft_config = LoraConfig(
-        r=4, lora_alpha=1, bias="all", target_modules=["query","key","value","dense"]
+        r=4, lora_alpha=1, bias="all", target_modules=["query", "key", "value", "dense"]
     )
 
     model = inject_adapter_in_model(peft_config, model)
 
     # Unfreeze the prediction head
-    for (param_name, param) in model.classifier.named_parameters():
-                param.requires_grad = True
+    for param_name, param in model.classifier.named_parameters():
+        param.requires_grad = True
 
     return model, tokenizer
 
@@ -297,48 +300,41 @@ ds_config = {
         "loss_scale_window": 1000,
         "initial_scale_power": 16,
         "hysteresis": 2,
-        "min_loss_scale": 1
+        "min_loss_scale": 1,
     },
-
     "optimizer": {
         "type": "AdamW",
         "params": {
             "lr": "auto",
             "betas": "auto",
             "eps": "auto",
-            "weight_decay": "auto"
-        }
+            "weight_decay": "auto",
+        },
     },
-
     "scheduler": {
         "type": "WarmupLR",
         "params": {
             "warmup_min_lr": "auto",
             "warmup_max_lr": "auto",
-            "warmup_num_steps": "auto"
-        }
+            "warmup_num_steps": "auto",
+        },
     },
-
     "zero_optimization": {
         "stage": 2,
-        "offload_optimizer": {
-            "device": "cpu",
-            "pin_memory": True
-        },
+        "offload_optimizer": {"device": "cpu", "pin_memory": True},
         "allgather_partitions": True,
         "allgather_bucket_size": 2e8,
         "overlap_comm": True,
         "reduce_scatter": True,
         "reduce_bucket_size": 2e8,
-        "contiguous_gradients": True
+        "contiguous_gradients": True,
     },
-
     "gradient_accumulation_steps": "auto",
     "gradient_clipping": "auto",
     "steps_per_print": 2000,
     "train_batch_size": "auto",
     "train_micro_batch_size_per_gpu": "auto",
-    "wall_clock_breakdown": False
+    "wall_clock_breakdown": False,
 }
 
 
@@ -356,27 +352,26 @@ def create_dataset(tokenizer, seqs, labels):
 
     return dataset
 
+
 # Main training fuction
 def train_per_protein(
-        checkpoint,      # checkpoint
-        train_df,         #training data
-        valid_df,         #validation data
-        num_labels=2,   #1 for regression, >1 for classification
-
-        # effective training batch size is batch * accum
-        # we recommend an effective batch size of 8
-        batch=4,        #for training
-        accum=2,        #gradient accumulation
-
-        val_batch=16,   #batch size for evaluation
-        epochs=10,      #training epochs
-        lr=3e-4,        #recommended learning rate
-        seed=42,        #random seed
-        deepspeed=False,#if gpu is large enough disable deepspeed for training speedup
-        mixed=True,     #enable mixed precision training
-        full=False,     #enable training of the full model (instead of LoRA)
-        gpu=2):        #gpu selection (1 for first gpu)
-
+    checkpoint,  # checkpoint
+    train_df,  # training data
+    valid_df,  # validation data
+    num_labels=2,  # 1 for regression, >1 for classification
+    # effective training batch size is batch * accum
+    # we recommend an effective batch size of 8
+    batch=4,  # for training
+    accum=2,  # gradient accumulation
+    val_batch=16,  # batch size for evaluation
+    epochs=10,  # training epochs
+    lr=3e-4,  # recommended learning rate
+    seed=42,  # random seed
+    deepspeed=False,  # if gpu is large enough disable deepspeed for training speedup
+    mixed=True,  # enable mixed precision training
+    full=False,  # enable training of the full model (instead of LoRA)
+    gpu=2,
+):  # gpu selection (1 for first gpu)
     print("Model used:", checkpoint, "\n")
 
     # Correct incompatible training settings
@@ -393,7 +388,9 @@ def train_per_protein(
 
     # load model
     if "esm" in checkpoint:
-        model, tokenizer = load_esm_model(checkpoint, num_labels, mixed, full, deepspeed)
+        model, tokenizer = load_esm_model(
+            checkpoint, num_labels, mixed, full, deepspeed
+        )
     else:
         model, tokenizer = load_T5_model(checkpoint, num_labels, mixed, full, deepspeed)
 
@@ -404,23 +401,35 @@ def train_per_protein(
 
     # Add spaces between each amino acid for ProtT5 and ProstT5 to correctly use them
     if "Rostlab" in checkpoint:
-        train_df['sequence'] = train_df.apply(lambda row: " ".join(row["sequence"]), axis=1)
-        valid_df['sequence'] = valid_df.apply(lambda row: " ".join(row["sequence"]), axis=1)
+        train_df["sequence"] = train_df.apply(
+            lambda row: " ".join(row["sequence"]), axis=1
+        )
+        valid_df["sequence"] = valid_df.apply(
+            lambda row: " ".join(row["sequence"]), axis=1
+        )
 
     # Add <AA2fold> for ProstT5 to inform the model of the input type (amino acid sequence here)
     if "ProstT5" in checkpoint:
-        train_df['sequence'] = train_df.apply(lambda row: "<AA2fold> " + row["sequence"], axis=1)
-        valid_df['sequence'] = valid_df.apply(lambda row: "<AA2fold> " + row["sequence"], axis=1)
+        train_df["sequence"] = train_df.apply(
+            lambda row: "<AA2fold> " + row["sequence"], axis=1
+        )
+        valid_df["sequence"] = valid_df.apply(
+            lambda row: "<AA2fold> " + row["sequence"], axis=1
+        )
 
-    train_set = create_dataset(tokenizer, list(train_df['sequence']), list(train_df['label']))
-    valid_set = create_dataset(tokenizer, list(valid_df['sequence']), list(valid_df['label']))
+    train_set = create_dataset(
+        tokenizer, list(train_df["sequence"]), list(train_df["label"])
+    )
+    valid_set = create_dataset(
+        tokenizer, list(valid_df["sequence"]), list(valid_df["label"])
+    )
 
     # Huggingface Trainer arguments
     args = TrainingArguments(
         output_dir="ankh-lora-finetuned",
         logging_strategy="epoch",
         eval_strategy="epoch",  # Ensure evaluation occurs each epoch
-        save_strategy="epoch",
+        save_strategy="no",
         learning_rate=lr,
         per_device_train_batch_size=batch,
         per_device_eval_batch_size=val_batch,
@@ -429,10 +438,6 @@ def train_per_protein(
         seed=seed,
         deepspeed=ds_config if deepspeed else None,
         fp16=mixed,
-
-        metric_for_best_model="eval_loss",
-        greater_is_better=False,
-        load_best_model_at_end=True,
         weight_decay=0.01,
     )
 
@@ -440,10 +445,16 @@ def train_per_protein(
         predictions, labels = eval_pred
         predicted_labels = np.argmax(predictions, axis=1)
 
-        accuracy = accuracy_metric.compute(predictions=predicted_labels, references=labels)
+        accuracy = accuracy_metric.compute(
+            predictions=predicted_labels, references=labels
+        )
         f1 = f1_metric.compute(predictions=predicted_labels, references=labels)
-        matthews = matthews_metric.compute(predictions=predicted_labels, references=labels)
-        precision = precision_metric.compute(predictions=predicted_labels, references=labels)
+        matthews = matthews_metric.compute(
+            predictions=predicted_labels, references=labels
+        )
+        precision = precision_metric.compute(
+            predictions=predicted_labels, references=labels
+        )
         recall = recall_metric.compute(predictions=predicted_labels, references=labels)
 
         metrics = {
@@ -464,14 +475,34 @@ def train_per_protein(
         train_dataset=train_set,
         eval_dataset=valid_set,
         tokenizer=tokenizer,
-        compute_metrics=compute_metrics
+        compute_metrics=compute_metrics,
     )
     # Train model
     trainer.train()
 
+    # Save model and tokenizer manually
+    model_save_path = os.path.join("ankh-lora-finetuned", "final_model")
+    tokenizer_save_path = os.path.join("ankh-lora-finetuned", "final_tokenizer")
+
+    model.save_pretrained(model_save_path)
+    tokenizer.save_pretrained(tokenizer_save_path)
+
+    print(f"Model saved to {model_save_path}")
+    print(f"Tokenizer saved to {tokenizer_save_path}")
+
     return tokenizer, model, trainer.state.log_history
 
 
-tokenizer, model, history = train_per_protein(checkpoint, my_train, my_valid,
-                                              num_labels=2, batch=10, val_batch=16, accum=1,
-                                              epochs=5, seed=42, mixed=False, deepspeed=False)
+tokenizer, model, history = train_per_protein(
+    checkpoint,
+    my_train,
+    my_valid,
+    num_labels=2,
+    batch=10,
+    val_batch=10,
+    accum=2,
+    epochs=7,
+    seed=42,
+    mixed=False,
+    deepspeed=False,
+)

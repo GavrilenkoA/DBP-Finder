@@ -45,7 +45,7 @@ def main():
     output_mmseq = cluster_data(train, test)
     clustered_train, _ = reduce_train(output_mmseq)
     train = train.merge(clustered_train, on="identifier")
-    train = make_balanced_df(train)
+    # train = make_balanced_df(train)
 
     name_train = os.path.splitext(os.path.basename(args.path_train))[0]
     name_test = os.path.splitext(os.path.basename(args.path_test))[0]
