@@ -4,14 +4,14 @@ import torch
 from clearml import Logger, Task
 from data_prepare import form_test_kingdom, get_embed_clustered_df, prepare_test
 from torch.utils.data import DataLoader
-from utils import InferenceDataset, SequenceDataset, evaluate_fn, inference, load_models
+from utils import InferenceDataset, SequenceDataset, evaluate_fn, inference, load_models, evaluate_ensemble_threshold
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-test_data = "test_swissprot"
+test_data = "test_swissprot_MF"
 clearml.browser_login()
 task = Task.init(
     project_name="DBPs_search",
-    task_name=test_data,
+    task_name=f"v1-{test_data}",
     output_uri=False,
 )
 logger = Logger.current_logger()
@@ -43,7 +43,7 @@ def evaluate_on_taxon(test_data) -> None:
 
 
 def evaluate_on_test(test_data: str) -> None:
-    models = load_models()
+    models = load_models(prefix_name="checkpoints/DBP-Finder_", config_path="DBP-Finder-config.yml")
     test_df = get_embed_clustered_df(
         embedding_path=f"../../../../ssd2/dbp_finder/ankh_embeddings/{test_data}_2d.h5",
         csv_path=f"../data/splits/{test_data}.csv")
@@ -63,11 +63,12 @@ def evaluate_on_test(test_data: str) -> None:
         batch_size=1,
     )
 
-    metrics_dict = evaluate_fn(models, testing_dataloader, DEVICE)
+    metrics_dict, thresholds = evaluate_ensemble_threshold(models, testing_dataloader, DEVICE)
     metrics_df = pd.DataFrame(metrics_dict, index=[test_data])
     logger.report_table(title="Metrics", series=test_data, table_plot=metrics_df)
-    predictions_df = inference(models, inference_dataloader, DEVICE)
-    predictions_df.to_csv("../data/prediction/proteinfer_predictions.csv", index=False)
+    task.upload_artifact(name="thresholds ensemble", artifact_object=thresholds)
+    # predictions_df = inference(models, inference_dataloader, DEVICE)
+    # predictions_df.to_csv(f"../data/prediction/DBP-Finder-{test_data}.csv", index=False)
     task.close()
 
 

@@ -5,7 +5,6 @@ import ankh
 import clearml
 import numpy as np
 import torch
-import pandas as pd
 import yaml
 from clearml import Logger, Task
 from data_prepare import get_embed_clustered_df, make_folds
@@ -16,7 +15,6 @@ from utils import (
     CustomBatchSampler,
     SequenceDataset,
     custom_collate_fn,
-    evaluate_fn,
     train_fn,
     validate_fn,
 )
@@ -46,7 +44,7 @@ weight_decay = float(config["training_config"]["weight_decay"])
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 DEVICE = "cuda"
 
 
@@ -57,20 +55,19 @@ def set_seed(seed):
 
 
 set_seed(seed)
-test_data = input()
-
 
 df = get_embed_clustered_df(
     embedding_path="../../../../ssd2/dbp_finder/ankh_embeddings/train_2d.h5",
-    csv_path=f"../data/splits/train_p3_{test_data}.csv",
+    csv_path="../data/splits/train_p3.csv",
 )
+
 train_folds, valid_folds = make_folds(df)
 
 
 clearml.browser_login()
 task = Task.init(
     project_name="DBPs_search",
-    task_name=f"{test_data}",
+    task_name="DBP-Finder_training_batch_64",
     output_uri=True,
 )
 logger = Logger.current_logger()
@@ -92,9 +89,8 @@ for i in range(len(train_folds)):
     valid_dataloader = DataLoader(
         valid_dataset,
         num_workers=num_workers,
-        batch_size=batch_size,
+        batch_size=1,
         shuffle=False,
-        collate_fn=custom_collate_fn,
     )
 
     model = ankh.ConvBertForBinaryClassification(
@@ -114,7 +110,7 @@ for i in range(len(train_folds)):
         optimizer, mode="min", factor=factor, patience=patience, min_lr=min_lr)
 
     best_val_loss = float("inf")
-    best_model_path = f"checkpoints/{test_data}_{i}.pth"
+    best_model_path = f"checkpoints/models/DBP-Finder_batch_64{i}.pth"
     for epoch in range(epochs):
         train_loss = train_fn(model, train_dataloader, optimizer, DEVICE)
         valid_loss, metrics_dict, threshold = validate_fn(
@@ -156,21 +152,4 @@ for i in range(len(train_folds)):
 
 
 task.upload_artifact(name="thresholds k folds", artifact_object=thresholds)
-test_df = get_embed_clustered_df(
-    embedding_path=f"../../../../ssd2/dbp_finder/ankh_embeddings/{test_data}_2d.h5",
-    csv_path=f"../data/embeddings/input_csv/{test_data}.csv",
-)
-
-testing_set = SequenceDataset(test_df)
-testing_dataloader = DataLoader(
-    testing_set,
-    num_workers=num_workers,
-    shuffle=False,
-    batch_size=1,
-)
-
-metrics_dict, threshold = evaluate_fn(models, testing_dataloader, DEVICE)
-metrics_df = pd.DataFrame(metrics_dict, index=[0])
-logger.report_table(title=test_data, series="Metrics", table_plot=metrics_df)
-task.upload_artifact(name="threshold on the test", artifact_object=threshold)
 task.close()

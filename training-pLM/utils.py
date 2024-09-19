@@ -1,3 +1,4 @@
+from collections import defaultdict
 import random
 from typing import Any
 import ankh
@@ -17,6 +18,7 @@ from sklearn.metrics import (
 )
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import BatchSampler, Dataset, SequentialSampler
+from scipy.stats import mode
 
 
 class SequenceDataset(Dataset):
@@ -136,12 +138,19 @@ def calculate_metrics(
     return metrics_dict
 
 
+def find_best_threshold(y_true: list[float], y_scores: list[float]) -> float:
+    # Calculate ROC curve
+    fpr, tpr, thresholds = roc_curve(y_true, y_scores)
+    optimal_idx = np.argmax(tpr - fpr)
+    best_threshold = thresholds[optimal_idx]
+    return best_threshold
+
+
 def validate_fn(model, valid_dataloader, scheduler, DEVICE):
     model.eval()
     loss = 0.0
-    all_preds = []
     all_labels = []
-    all_logits = []
+    all_scores = []
 
     with torch.no_grad():
         for x, y in valid_dataloader:
@@ -154,16 +163,16 @@ def validate_fn(model, valid_dataloader, scheduler, DEVICE):
             loss += output.loss.item()
 
             prob = torch.sigmoid(output.logits)
-            preds = (prob > 0.5).float()
 
-            all_logits.extend(output.logits.cpu().numpy().flatten())
+            all_scores.extend(prob.cpu().numpy().flatten())
             all_labels.extend(y.cpu().numpy().flatten())
-            all_preds.extend(preds.cpu().numpy().flatten())
 
     epoch_loss = loss / len(valid_dataloader)
     scheduler.step(epoch_loss)
-    metrics_dict = calculate_metrics(all_logits, all_labels, all_preds)
-    return epoch_loss, metrics_dict
+    threshold = find_best_threshold(all_labels, all_scores)
+    all_preds = (np.array(all_scores) >= threshold).astype(float).tolist()
+    metrics_dict = calculate_metrics(all_scores, all_labels, all_preds)
+    return epoch_loss, metrics_dict, threshold
 
 
 def plot_roc_auc(y_true, y_probs, save_path=None):
@@ -208,17 +217,17 @@ def collect_predictions(identifiers: list[str],
     return predictions_df
 
 
-def evaluate_fn(models, testing_dataloader, DEVICE):
+def evaluate_fn(models, dataloader, DEVICE):
     all_labels = []
     all_logits = []
 
     with torch.no_grad():
-        for x, y in testing_dataloader:
+        for x, y in dataloader:
             x = x.to(DEVICE)
             y = y.to(DEVICE)
+
             assert len(x) == 1, "Batch size should be 1"
 
-            y = y.unsqueeze(1)
             ens_logits = []
 
             for i in models:
@@ -230,15 +239,52 @@ def evaluate_fn(models, testing_dataloader, DEVICE):
             ens_logits = torch.stack(ens_logits, dim=0)
             ens_logits = torch.mean(ens_logits, dim=0)
 
-            all_logits.append(ens_logits.cpu().numpy().item())
-            all_labels.append(y.cpu().numpy().item())
+            all_logits.extend(ens_logits.cpu().numpy().flatten())
+            all_labels.extend(y.cpu().numpy().flatten())
 
     all_logits_tensor = torch.tensor(np.array(all_logits))
-    prob_score = torch.sigmoid(all_logits_tensor)
-    all_preds = (prob_score > 0.5).float().tolist()
-    metrics_dict = calculate_metrics(all_logits, all_labels, all_preds)
-    plot_roc_auc(all_labels, all_logits)
-    return metrics_dict
+    prob_scores = torch.sigmoid(all_logits_tensor).cpu().numpy().flatten()
+    prob_scores = prob_scores.tolist()
+
+    threshold = find_best_threshold(all_labels, prob_scores)
+    all_preds = (np.array(prob_scores) >= threshold).astype(float).tolist()
+
+    plot_roc_auc(all_labels, prob_scores)
+    metrics_dict = calculate_metrics(prob_scores, all_labels, all_preds)
+    return metrics_dict, threshold
+
+
+def evaluate_ensemble_based_on_threshold(models, dataloader, thresholds, DEVICE):
+    all_labels = []
+    score_per_model = defaultdict(list)
+    prediction_per_model = defaultdict(list)
+
+    with torch.no_grad():
+        for x, y in dataloader:
+            x = x.to(DEVICE)
+            all_labels.extend(y.cpu().numpy().flatten())
+
+            for i, model in models.items():
+                model.eval().to(DEVICE)
+                output = model(x)
+                score = torch.sigmoid(output.logits).cpu().numpy().flatten()
+                score_per_model[i].extend(score)
+
+                pred = (score >= thresholds[i]).astype(int)
+                prediction_per_model[i].extend(pred)
+
+    # Convert defaultdicts to lists
+    prediction_per_model = list(prediction_per_model.values())
+    score_per_model = list(score_per_model.values())
+
+    # Majority voting for predictions
+    predictions = mode(prediction_per_model, axis=0)[0].tolist()
+    scores = np.mean(score_per_model, axis=0).tolist()
+
+    plot_roc_auc(all_labels, scores)
+    metrics_dict = calculate_metrics(scores, all_labels, predictions)
+
+    return metrics_dict, scores, all_labels
 
 
 def load_models(
@@ -249,14 +295,14 @@ def load_models(
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
 
-    input_dim = config["input_dim"]
-    nhead = config["nhead"]
-    hidden_dim = config["hidden_dim"]
-    num_hidden_layers = config["num_hidden_layers"]
-    num_layers = config["num_layers"]
-    kernel_size = config["kernel_size"]
-    dropout = config["dropout"]
-    pooling = config["pooling"]
+    input_dim = config["model_config"]["input_dim"]
+    nhead = config["model_config"]["nhead"]
+    hidden_dim = config["model_config"]["hidden_dim"]
+    num_hidden_layers = config["model_config"]["num_hidden_layers"]
+    num_layers = config["model_config"]["num_layers"]
+    kernel_size = config["model_config"]["kernel_size"]
+    dropout = config["model_config"]["dropout"]
+    pooling = config["model_config"]["pooling"]
 
     models = {}
     for i in range(num_models):
