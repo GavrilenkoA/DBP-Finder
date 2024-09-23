@@ -54,7 +54,6 @@ training-pLM/draft.ipynb
 training-pLM/lightning_logs
 training-pLM/ankh-base-lora-finetuned
 training-pLM/ankh-lora-finetuned
-training-pLM/train-DBP-Finder.py
 tmp
 logs
 data/external/
