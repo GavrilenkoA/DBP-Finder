@@ -92,9 +92,8 @@ for i in range(len(train_folds)):
     valid_dataloader = DataLoader(
         valid_dataset,
         num_workers=num_workers,
-        batch_size=batch_size,
-        shuffle=False,
-        collate_fn=custom_collate_fn,
+        batch_size=1,
+        shuffle=False
     )
 
     model = ankh.ConvBertForBinaryClassification(
@@ -110,8 +109,7 @@ for i in range(len(train_folds)):
 
     model = model.to(DEVICE)
     optimizer = AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
-    scheduler = ReduceLROnPlateau(
-        optimizer, mode="min", factor=factor, patience=patience, min_lr=min_lr)
+    scheduler = ReduceLROnPlateau(optimizer, mode="min", factor=factor, patience=patience, min_lr=min_lr)
 
     best_val_loss = float("inf")
     best_model_path = f"checkpoints/{test_data}_{i}.pth"
@@ -169,8 +167,7 @@ testing_dataloader = DataLoader(
     batch_size=1,
 )
 
-metrics_dict, threshold = evaluate_fn(models, testing_dataloader, DEVICE)
-metrics_df = pd.DataFrame(metrics_dict, index=[0])
+metrics_dict = evaluate_fn(models, testing_dataloader, thresholds, DEVICE)
+metrics_df = pd.DataFrame(metrics_dict, index=[test_data])
 logger.report_table(title=test_data, series="Metrics", table_plot=metrics_df)
-task.upload_artifact(name="threshold on the test", artifact_object=threshold)
 task.close()

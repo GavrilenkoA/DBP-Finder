@@ -35,7 +35,7 @@ class CustomBatchSampler(Sampler):
 def collate_fn(batch, tokenizer):
     # Extract the sequences and labels from the batch
     sequences = [item[0] for item in batch]
-    labels = torch.tensor([item[1] for item in batch], dtype=torch.float)
+    labels = torch.tensor([item[1] for item in batch], dtype=torch.float16)
 
     # Tokenize the sequences
     tokenized = tokenizer(
@@ -45,8 +45,11 @@ def collate_fn(batch, tokenizer):
         return_tensors="pt",
         add_special_tokens=True)
 
-    return {'input_ids': tokenized['input_ids'],
-            'attention_mask': tokenized['attention_mask'],
+    input_ids = tokenized['input_ids']
+    attention_mask = tokenized['attention_mask']
+
+    return {'input_ids': input_ids,
+            'attention_mask': attention_mask,
             'labels': labels}
 
 

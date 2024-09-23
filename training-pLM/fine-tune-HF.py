@@ -11,7 +11,7 @@ from data_prepare import make_folds
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, BitsAndBytesConfig
 from peft import get_peft_model, LoraConfig, TaskType
 
 from dataset import CustomBatchSampler, collate_fn, SequenceDataset
@@ -23,21 +23,25 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 DEVICE = "cuda"
 
 
-def model_init(model_checkpoint):
-    base_model = AutoModelForSequenceClassification.from_pretrained(
-        model_checkpoint, num_labels=1
+def model_init(model_checkpoint, config_lora):
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.bfloat16
     )
+    base_model = AutoModelForSequenceClassification.from_pretrained(model_checkpoint, num_labels=1, quantization_config=bnb_config)
 
-    config = LoraConfig(
+    lora_config = LoraConfig(
         task_type=TaskType.SEQ_CLS,
-        r=16,
-        lora_alpha=16,
-        target_modules=["q", "k", "v"],
-        lora_dropout=0.1,
-        bias="all",
+        r=config_lora["r"],
+        lora_alpha=config_lora["lora_alpha"],
+        target_modules=config_lora["target_modules"],
+        lora_dropout=config_lora["lora_dropout"],
+        bias=config_lora["bias"],
     )
 
-    model = get_peft_model(base_model, config)
+    model = get_peft_model(base_model, lora_config)
     tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
     return model, tokenizer
 
@@ -49,7 +53,7 @@ def set_seed(seed):
 
 
 def df_prepare():
-    df = pd.read_csv("../data/splits/train_p3_pdb2272.csv")
+    df = pd.read_csv("../data/splits/train_p3.csv")
     train_folds, valid_folds = make_folds(df)
     return train_folds, valid_folds
 
@@ -74,7 +78,7 @@ def main():
 
     clearml.browser_login()
     task = Task.init(
-        project_name="DBPs_search", task_name="lora-ankh-base-training, pdb2272", output_uri=True
+        project_name="DBPs_search", task_name="lora quantized ankh train_p3", output_uri=True
     )
 
     logger = Logger.current_logger()
@@ -91,6 +95,8 @@ def main():
     weight_decay = float(config["training_config"]["weight_decay"])
     model_checkpoint = config["training_config"]["model_checkpoint"]
 
+    config_lora = config["lora_config"]
+
     set_seed(seed)
 
     models = {}
@@ -100,7 +106,7 @@ def main():
         train = train_folds[i]
         valid = valid_folds[i]
 
-        model, tokenizer = model_init(model_checkpoint)
+        model, tokenizer = model_init(model_checkpoint, config_lora)
 
         train_dataloader = dataset_prepare(
             train, tokenizer, batch_size, num_workers, shuffle=True)
@@ -115,7 +121,7 @@ def main():
         )
 
         best_val_loss = float("inf")
-        best_model_path = f"ankh-base-lora-finetuned/pdb2272_{i}.pth"
+        best_model_path = f"ankh-base-lora-finetuned/DBP-Finder_{i}.pth"
         for epoch in range(epochs):
             train_loss = train_fn(model, train_dataloader, optimizer, DEVICE)
             valid_loss, metrics_dict, best_threshold = validate_fn(

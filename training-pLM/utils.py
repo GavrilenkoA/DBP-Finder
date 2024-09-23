@@ -99,8 +99,7 @@ def train_fn(model, train_dataloader, optimizer, DEVICE):
     model.train()
     loss = 0.0
     for x, y in train_dataloader:
-        x = x.to(DEVICE)
-        y = y.to(DEVICE)
+        x, y = x.to(DEVICE), y.to(DEVICE)
 
         y = y.unsqueeze(1)
 
@@ -116,15 +115,15 @@ def train_fn(model, train_dataloader, optimizer, DEVICE):
 
 
 def calculate_metrics(
-    all_logits: list[float], all_labels: list[float], all_preds: list[float]
+    scores: np.ndarray[float], labels: np.ndarray[float], predictions: np.ndarray[float]
 ) -> dict[str, float]:
-    auc = roc_auc_score(all_labels, all_logits)
-    accuracy = accuracy_score(all_labels, all_preds)
-    mcc = matthews_corrcoef(all_labels, all_preds)
-    precision = precision_score(all_labels, all_preds)
-    recall = recall_score(all_labels, all_preds)
-    specificity = recall_score(all_labels, all_preds, pos_label=0)
-    f1 = f1_score(all_labels, all_preds)
+    auc = roc_auc_score(labels, scores)
+    accuracy = accuracy_score(labels, predictions)
+    mcc = matthews_corrcoef(labels, predictions)
+    precision = precision_score(labels, predictions)
+    recall = recall_score(labels, predictions)
+    specificity = recall_score(labels, predictions, pos_label=0)
+    f1 = f1_score(labels, predictions)
 
     metrics_dict = {
         "Accuracy": accuracy,
@@ -138,7 +137,7 @@ def calculate_metrics(
     return metrics_dict
 
 
-def find_best_threshold(y_true: list[float], y_scores: list[float]) -> float:
+def find_best_threshold(y_true: list[float | int], y_scores: list[float]) -> float:
     # Calculate ROC curve
     fpr, tpr, thresholds = roc_curve(y_true, y_scores)
     optimal_idx = np.argmax(tpr - fpr)
@@ -146,32 +145,42 @@ def find_best_threshold(y_true: list[float], y_scores: list[float]) -> float:
     return best_threshold
 
 
-def validate_fn(model, valid_dataloader, scheduler, DEVICE):
+def validate_fn(model: torch.nn.Module, valid_dataloader: torch.utils.data.DataLoader,
+                scheduler: torch.optim.lr_scheduler._LRScheduler, DEVICE: torch.device):
     model.eval()
-    loss = 0.0
-    all_labels = []
-    all_scores = []
+    total_loss = 0.0
+    labels = []
+    scores = []
 
     with torch.no_grad():
         for x, y in valid_dataloader:
-            x = x.to(DEVICE)
-            y = y.to(DEVICE)
+            x, y = x.to(DEVICE), y.to(DEVICE)
 
             y = y.unsqueeze(1)
-
             output = model(x, y)
-            loss += output.loss.item()
+            total_loss += output.loss.item()
 
-            prob = torch.sigmoid(output.logits)
+            score = torch.sigmoid(output.logits)
 
-            all_scores.extend(prob.cpu().numpy().flatten())
-            all_labels.extend(y.cpu().numpy().flatten())
+            scores.append(score.cpu().numpy().flatten())
+            labels.append(y.cpu().numpy().flatten())
 
-    epoch_loss = loss / len(valid_dataloader)
+    # Flattening the collected lists
+    scores = np.concatenate(scores)
+    labels = np.concatenate(labels)
+
+    # Compute average loss per batch
+    epoch_loss = total_loss / len(valid_dataloader)
     scheduler.step(epoch_loss)
-    threshold = find_best_threshold(all_labels, all_scores)
-    all_preds = (np.array(all_scores) >= threshold).astype(float).tolist()
-    metrics_dict = calculate_metrics(all_scores, all_labels, all_preds)
+
+    # Determine the best threshold
+    threshold = find_best_threshold(labels, scores)
+
+    # Predictions based on the threshold
+    prediction = (scores >= threshold).astype(float)
+
+    metrics_dict = calculate_metrics(scores, labels, prediction)
+
     return epoch_loss, metrics_dict, threshold
 
 
@@ -217,41 +226,39 @@ def collect_predictions(identifiers: list[str],
     return predictions_df
 
 
-def evaluate_fn(models, dataloader, DEVICE):
+def evaluate_fn(models, dataloader, thresholds, DEVICE):
     all_labels = []
-    all_logits = []
+    score_per_model = defaultdict(list)
+    prediction_per_model = defaultdict(list)
 
     with torch.no_grad():
         for x, y in dataloader:
-            x = x.to(DEVICE)
-            y = y.to(DEVICE)
+            x, y = x.to(DEVICE), y.to(DEVICE)
+
+            all_labels.extend(y.cpu().numpy().flatten())
 
             assert len(x) == 1, "Batch size should be 1"
 
-            ens_logits = []
-
-            for i in models:
-                model = models[i].eval()
-                model = model.to(DEVICE)
+            for i, model in models.items():
+                model.eval().to(DEVICE)
                 output = model(x)
-                ens_logits.append(output.logits)
+                score = torch.sigmoid(output.logits).cpu().numpy().flatten()
+                score_per_model[i].extend(score)
 
-            ens_logits = torch.stack(ens_logits, dim=0)
-            ens_logits = torch.mean(ens_logits, dim=0)
+                pred = (score >= thresholds[i]).astype(int)
+                prediction_per_model[i].extend(pred)
 
-            all_logits.extend(ens_logits.cpu().numpy().flatten())
-            all_labels.extend(y.cpu().numpy().flatten())
+    # Convert defaultdicts to lists
+    prediction_per_model = list(prediction_per_model.values())
+    score_per_model = list(score_per_model.values())
 
-    all_logits_tensor = torch.tensor(np.array(all_logits))
-    prob_scores = torch.sigmoid(all_logits_tensor).cpu().numpy().flatten()
-    prob_scores = prob_scores.tolist()
+    # Majority voting for predictions
+    predictions = mode(prediction_per_model, axis=0)[0].tolist()
+    scores = np.mean(score_per_model, axis=0).tolist()
 
-    threshold = find_best_threshold(all_labels, prob_scores)
-    all_preds = (np.array(prob_scores) >= threshold).astype(float).tolist()
-
-    plot_roc_auc(all_labels, prob_scores)
-    metrics_dict = calculate_metrics(prob_scores, all_labels, all_preds)
-    return metrics_dict, threshold
+    plot_roc_auc(all_labels, scores)
+    metrics_dict = calculate_metrics(scores, all_labels, predictions)
+    return metrics_dict
 
 
 def evaluate_ensemble_based_on_threshold(models, dataloader, thresholds, DEVICE):
@@ -283,8 +290,77 @@ def evaluate_ensemble_based_on_threshold(models, dataloader, thresholds, DEVICE)
 
     plot_roc_auc(all_labels, scores)
     metrics_dict = calculate_metrics(scores, all_labels, predictions)
+    return metrics_dict
 
-    return metrics_dict, scores, all_labels
+
+def inference_ensemble_based_on_threshold(models, inference_dataloader, thresholds, DEVICE) -> pd.DataFrame:
+    all_labels, identifiers = [], []
+    score_per_model = defaultdict(list)
+    prediction_per_model = defaultdict(list)
+    with torch.no_grad():
+        for batch in inference_dataloader:
+            if len(batch) == 3:
+                id_, x, y = batch
+                all_labels.append(y.cpu().numpy().item())
+            else:
+                id_, x = batch
+
+            assert len(x) == 1, "Batch size should be 1"
+            identifiers.extend(id_)
+            x = x.to(DEVICE)
+
+            for i, model in models.items():
+                model.eval().to(DEVICE)
+                output = model(x)
+                score = torch.sigmoid(output.logits).cpu().numpy().flatten()
+                score_per_model[i].extend(score)
+
+                pred = (score >= thresholds[i]).astype(int)
+                prediction_per_model[i].extend(pred)
+
+    # Convert defaultdicts to lists
+    prediction_per_model = list(prediction_per_model.values())
+    score_per_model = list(score_per_model.values())
+
+    # Majority voting for predictions
+    predictions = mode(prediction_per_model, axis=0)[0].tolist()
+    scores = np.mean(score_per_model, axis=0).tolist()
+
+    predictions_df = collect_predictions(identifiers, all_labels, predictions, scores)
+    return predictions_df
+
+
+def inference(models, inference_dataloader, DEVICE) -> pd.DataFrame:
+    identifiers = []
+    all_labels = []
+    all_logits = []
+    with torch.no_grad():
+        for batch in inference_dataloader:
+            if len(batch) == 3:
+                id_, x, y = batch
+                all_labels.append(y.cpu().numpy().item())
+
+            assert len(x) == 1, "Batch size should be 1"
+            identifiers.extend(id_)
+            x = x.to(DEVICE)
+            ens_logits = []
+
+            for i in models:
+                model = models[i].eval()
+                model = model.to(DEVICE)
+                output = model(x)
+                ens_logits.append(output.logits)
+
+            ens_logits = torch.stack(ens_logits, dim=0)
+            ens_logits = torch.mean(ens_logits, dim=0)
+            all_logits.append(ens_logits.cpu().numpy().item())
+
+    all_logits_tensor = torch.tensor(np.array(all_logits))
+    prob_score = torch.sigmoid(all_logits_tensor)
+    all_preds = (prob_score > 0.5).float().tolist()
+    prob_score = prob_score.tolist()
+    predictions_df = collect_predictions(identifiers, all_labels, all_preds, prob_score)
+    return predictions_df
 
 
 def load_models(
@@ -322,39 +398,6 @@ def load_models(
         models[i] = model.eval()
 
     return models
-
-
-def inference(models, inference_dataloader, DEVICE) -> pd.DataFrame:
-    identifiers = []
-    all_labels = []
-    all_logits = []
-    with torch.no_grad():
-        for batch in inference_dataloader:
-            if len(batch) == 3:
-                id_, x, y = batch
-                all_labels.append(y.cpu().numpy().item())
-
-            assert len(x) == 1, "Batch size should be 1"
-            identifiers.extend(id_)
-            x = x.to(DEVICE)
-            ens_logits = []
-
-            for i in models:
-                model = models[i].eval()
-                model = model.to(DEVICE)
-                output = model(x)
-                ens_logits.append(output.logits)
-
-            ens_logits = torch.stack(ens_logits, dim=0)
-            ens_logits = torch.mean(ens_logits, dim=0)
-            all_logits.append(ens_logits.cpu().numpy().item())
-
-    all_logits_tensor = torch.tensor(np.array(all_logits))
-    prob_score = torch.sigmoid(all_logits_tensor)
-    all_preds = (prob_score > 0.5).float().tolist()
-    prob_score = prob_score.tolist()
-    predictions_df = collect_predictions(identifiers, all_labels, all_preds, prob_score)
-    return predictions_df
 
 
 def count_parameters(model):
