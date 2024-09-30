@@ -14,11 +14,11 @@ from torch.utils.data import DataLoader
 from utils import load_lora_models
 
 from dataset import CustomBatchSampler, collate_fn, SequenceDataset
-from train_ankh_utils import train_fn, validate_fn
+from train_ankh_utils import train_fn, validate_fn, get_learning_rate
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 DEVICE = "cuda"
 
 
@@ -54,7 +54,7 @@ def main():
 
     clearml.browser_login()
     task = Task.init(
-        project_name="DBPs_search", task_name="ankh full-finetuning train_p3", output_uri=True
+        project_name="DBPs_search", task_name="lora-ankh-train_p3-post-train", output_uri=True
     )
 
     logger = Logger.current_logger()
@@ -92,7 +92,7 @@ def main():
         )
 
         best_val_loss = float("inf")
-        best_model_path = f"ankh-base-lora-finetuned/v2/DBP-Finder_{i}"
+        best_model_path = f"ankh-base-lora-finetuned/v2/DBP-Finder_{i}.pth"
         for epoch in range(epochs):
             train_loss = train_fn(model, train_dataloader, optimizer, DEVICE)
             valid_loss, metrics_dict, best_threshold = validate_fn(
@@ -120,9 +120,15 @@ def main():
                     value=metric_value,
                     iteration=epoch,
                 )
+            current_lr = get_learning_rate(optimizer)
+            logger.report_scalar(
+                title=f"Learning Rate model {i}",
+                series="lr",
+                value=current_lr,
+                iteration=epoch,
+            )
 
             if valid_loss < best_val_loss:
-                models[i] = model
                 best_thresholds[i] = best_threshold
                 torch.save(model.state_dict(), best_model_path)
                 training_log = (

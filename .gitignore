@@ -39,8 +39,8 @@ data/processed/*
 !data/processed/neg_samples_annot.yml
 !data/processed/trembl_neg_annot.yml
 data/taxon
-
 data/go_terms/uniprot_annotation_all_exPDB186.tsv
+data/test_cases
 
 hmmer
 models

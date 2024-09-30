@@ -61,7 +61,7 @@ def dataset_prepare(
         dataset,
         batch_sampler=batch_sampler,
         num_workers=num_workers,
-        collate_fn=lambda x: collate_fn(x, tokenizer),
+        collate_fn=lambda x: collate_fn(x, tokenizer, labels_flag=True),
     )
     return dataloader
 

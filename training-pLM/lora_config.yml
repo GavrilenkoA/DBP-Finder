@@ -10,12 +10,12 @@ model_config:
 
 
 training_config:
-  epochs: 8
-  lr: 1e-4
+  epochs: 12
+  lr: 1e-5
   seed: 42
   factor: 0.5
-  patience: 2
-  min_lr: 1e-8
+  patience: 3
+  min_lr: 1e-9
   batch_size: 4
   num_workers: 1
   optimizer: adamw

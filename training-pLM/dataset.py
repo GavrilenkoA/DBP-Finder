@@ -34,16 +34,17 @@ class CustomBatchSampler(Sampler):
         return (len(self.dataset) + self.batch_size - 1) // self.batch_size
 
 
-def collate_fn(batch, tokenizer):
-    # Extract the sequences, labels, and optionally identifiers from the batch
+def collate_fn(batch, tokenizer, labels_flag=True):
     sequences = [item[0] for item in batch]
-    labels = torch.tensor([item[1] for item in batch], dtype=torch.float32)
+    identifiers = None
 
-    # Check if identifiers are present in the batch (third item)
-    if len(batch[0]) == 3:
+    if labels_flag:
+        labels = torch.tensor([item[1] for item in batch], dtype=torch.float32)
+
+    if len(batch[0]) == 3 and labels_flag:
         identifiers = [item[2] for item in batch]
-    else:
-        identifiers = None
+    elif len(batch[0]) == 2 and not labels_flag:
+        identifiers = [item[1] for item in batch]
 
     # Tokenize the sequences
     tokenized = tokenizer(
@@ -57,12 +58,13 @@ def collate_fn(batch, tokenizer):
     input_ids = tokenized['input_ids']
     attention_mask = tokenized['attention_mask']
 
-    # Return identifiers if they exist
     output = {
         'input_ids': input_ids,
-        'attention_mask': attention_mask,
-        'labels': labels
+        'attention_mask': attention_mask
     }
+
+    if labels_flag:
+        output['labels'] = labels
 
     if identifiers is not None:
         output['identifiers'] = identifiers
@@ -98,15 +100,37 @@ class SequenceDatasetWithID(SequenceDataset):
         return x, y, id_value
 
 
+class PredictionDataset(Dataset):
+    def __init__(self, df):
+        self.sequences = df["sequence"].tolist()
+        self.identifier = df["identifier"].tolist()
+        self.lengths = [len(sequence) for sequence in self.sequences]
+
+    def __len__(self):
+        return len(self.sequences)
+
+    def __getitem__(self, index):
+        x = self.sequences[index]
+        id_value = self.identifier[index]
+        return x, id_value
+
+
 def dataloader_prepare(
-    data: pd.DataFrame, tokenizer, batch_size=1, shuffle=False
+    data: pd.DataFrame,
+    tokenizer,
+    dataset_class,
+    batch_size=1,
+    shuffle=False,
+    labels_flag=True,
 ):
-    dataset = SequenceDatasetWithID(data)
+    dataset = dataset_class(data)
+
     dataloader = DataLoader(
         dataset,
         shuffle=shuffle,
         batch_size=batch_size,
         num_workers=1,
-        collate_fn=lambda x: collate_fn(x, tokenizer),
+        collate_fn=lambda x: collate_fn(x, tokenizer, labels_flag=labels_flag),
     )
+
     return dataloader

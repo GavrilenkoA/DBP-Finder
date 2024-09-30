@@ -109,3 +109,50 @@ def ensemble_predict(models, dataloader, thresholds, DEVICE):
     })
 
     return metrics_df, predictions_df
+
+
+def ensemble_inference(models, dataloader, thresholds, DEVICE):
+    all_identifiers = []
+    score_per_model = defaultdict(list)
+    prediction_per_model = defaultdict(list)
+
+    with torch.no_grad():
+        for batch in tqdm(dataloader, desc="Inference", leave=False):
+            input_ids = batch["input_ids"].to(DEVICE)
+            attention_mask = batch["attention_mask"].to(DEVICE)
+
+            # Get identifiers if they exist
+            identifiers = batch.get("identifiers", None)
+            if identifiers is not None:
+                all_identifiers.extend(identifiers)
+
+            for i, model in models.items():
+                model.eval().to(DEVICE)
+                output = model(input_ids=input_ids, attention_mask=attention_mask)
+                score = torch.sigmoid(output.logits).cpu().numpy().flatten()
+                score_per_model[i].extend(score)
+
+                pred = (score >= thresholds[i]).astype(int)
+                prediction_per_model[i].extend(pred)
+
+    # Convert defaultdicts to lists
+    prediction_per_model = list(prediction_per_model.values())
+    score_per_model = list(score_per_model.values())
+
+    # Majority voting for predictions
+    predictions = mode(prediction_per_model, axis=0)[0].tolist()
+    scores = np.mean(score_per_model, axis=0).tolist()
+
+    # Create a DataFrame with predictions, scores, labels, and identifiers
+    predictions_df = pd.DataFrame({
+        "identifier": all_identifiers if all_identifiers else range(len(scores)),  # Add fallback if no identifiers
+        "predicted_score": scores,
+        "predicted_label": predictions
+    })
+    return predictions_df
+
+
+def get_learning_rate(optimizer):
+    """Retrieve the current learning rate from the optimizer."""
+    for param_group in optimizer.param_groups:
+        return param_group['lr']

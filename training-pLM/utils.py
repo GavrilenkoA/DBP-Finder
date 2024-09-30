@@ -26,7 +26,7 @@ from scipy.stats import mode
 class SequenceDataset(Dataset):
     def __init__(self, df):
         self.embeds = df.embedding.tolist()
-        self.labels = df.label.tolist()
+        self.labels = df.label.tolist() if "label" in df.columns else None
         self.lengths = [len(embed) for embed in self.embeds]
 
     def __len__(self):
@@ -34,33 +34,25 @@ class SequenceDataset(Dataset):
 
     def __getitem__(self, index):
         x = self.embeds[index]
-        y = self.labels[index]
-
-        x = torch.tensor(x, dtype=torch.float)
-        y = torch.tensor(y, dtype=torch.float)
-        return x, y
-
-
-class InferenceDataset(Dataset):
-    def __init__(self, df):
-        self.identifiers = df.identifier.tolist()
-        self.embeds = df.embedding.tolist()
-        self.labels = None
-        if "label" in df.columns:
-            self.labels = df.label.tolist()
-
-    def __len__(self):
-        return len(self.identifiers)
-
-    def __getitem__(self, index):
-        id_ = self.identifiers[index]
-        x = self.embeds[index]
         x = torch.tensor(x, dtype=torch.float)
         if self.labels is not None:
             y = self.labels[index]
             y = torch.tensor(y, dtype=torch.float)
-            return id_, x, y
-        return id_, x
+            return x, y
+        return x
+
+
+class InferenceDataset(SequenceDataset):
+    def __init__(self, df):
+        super().__init__(df)
+        self.identifiers = df.identifier.tolist()
+
+    def __getitem__(self, index):
+        id_ = self.identifiers[index]
+        result = super().__getitem__(index)
+        if self.labels is not None:
+            return (id_, *result)
+        return id_, result
 
 
 def custom_collate_fn(batch):
