@@ -11,39 +11,15 @@ from data_prepare import make_folds
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, BitsAndBytesConfig
-from peft import get_peft_model, LoraConfig, TaskType
+from utils import load_lora_models
 
 from dataset import CustomBatchSampler, collate_fn, SequenceDataset
-from HF_model_training_utils import train_fn, validate_fn
+from train_ankh_utils import train_fn, validate_fn
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 DEVICE = "cuda"
-
-
-def model_init(model_checkpoint, config_lora):
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_use_double_quant=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.bfloat16
-    )
-    base_model = AutoModelForSequenceClassification.from_pretrained(model_checkpoint, num_labels=1, quantization_config=bnb_config)
-
-    lora_config = LoraConfig(
-        task_type=TaskType.SEQ_CLS,
-        r=config_lora["r"],
-        lora_alpha=config_lora["lora_alpha"],
-        target_modules=config_lora["target_modules"],
-        lora_dropout=config_lora["lora_dropout"],
-        bias=config_lora["bias"],
-    )
-
-    model = get_peft_model(base_model, lora_config)
-    tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
-    return model, tokenizer
 
 
 def set_seed(seed):
@@ -73,12 +49,12 @@ def dataset_prepare(
 
 
 def main():
-    with open("config.yml", "r") as f:
+    with open("lora_config.yml", "r") as f:
         config = yaml.safe_load(f)
 
     clearml.browser_login()
     task = Task.init(
-        project_name="DBPs_search", task_name="lora quantized ankh train_p3", output_uri=True
+        project_name="DBPs_search", task_name="ankh full-finetuning train_p3", output_uri=True
     )
 
     logger = Logger.current_logger()
@@ -93,20 +69,15 @@ def main():
     seed = config["training_config"]["seed"]
     num_workers = config["training_config"]["num_workers"]
     weight_decay = float(config["training_config"]["weight_decay"])
-    model_checkpoint = config["training_config"]["model_checkpoint"]
-
-    config_lora = config["lora_config"]
 
     set_seed(seed)
 
-    models = {}
+    models, tokenizer = load_lora_models()
     best_thresholds = {}
     train_folds, valid_folds = df_prepare()
     for i in range(len(train_folds)):
         train = train_folds[i]
         valid = valid_folds[i]
-
-        model, tokenizer = model_init(model_checkpoint, config_lora)
 
         train_dataloader = dataset_prepare(
             train, tokenizer, batch_size, num_workers, shuffle=True)
@@ -114,14 +85,14 @@ def main():
         valid_dataloader = dataset_prepare(
             valid, tokenizer, batch_size, num_workers, shuffle=False)
 
-        model = model.to(DEVICE)
+        model = models[i].to(DEVICE)
         optimizer = AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
         scheduler = ReduceLROnPlateau(
             optimizer, mode="min", factor=factor, patience=patience, min_lr=min_lr
         )
 
         best_val_loss = float("inf")
-        best_model_path = f"ankh-base-lora-finetuned/DBP-Finder_{i}.pth"
+        best_model_path = f"ankh-base-lora-finetuned/v2/DBP-Finder_{i}"
         for epoch in range(epochs):
             train_loss = train_fn(model, train_dataloader, optimizer, DEVICE)
             valid_loss, metrics_dict, best_threshold = validate_fn(

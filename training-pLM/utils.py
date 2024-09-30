@@ -6,6 +6,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+from peft import get_peft_model, LoraConfig, TaskType
 import yaml
 from sklearn.metrics import (
     accuracy_score,
@@ -226,41 +228,6 @@ def collect_predictions(identifiers: list[str],
     return predictions_df
 
 
-def evaluate_fn(models, dataloader, thresholds, DEVICE):
-    all_labels = []
-    score_per_model = defaultdict(list)
-    prediction_per_model = defaultdict(list)
-
-    with torch.no_grad():
-        for x, y in dataloader:
-            x, y = x.to(DEVICE), y.to(DEVICE)
-
-            all_labels.extend(y.cpu().numpy().flatten())
-
-            assert len(x) == 1, "Batch size should be 1"
-
-            for i, model in models.items():
-                model.eval().to(DEVICE)
-                output = model(x)
-                score = torch.sigmoid(output.logits).cpu().numpy().flatten()
-                score_per_model[i].extend(score)
-
-                pred = (score >= thresholds[i]).astype(int)
-                prediction_per_model[i].extend(pred)
-
-    # Convert defaultdicts to lists
-    prediction_per_model = list(prediction_per_model.values())
-    score_per_model = list(score_per_model.values())
-
-    # Majority voting for predictions
-    predictions = mode(prediction_per_model, axis=0)[0].tolist()
-    scores = np.mean(score_per_model, axis=0).tolist()
-
-    plot_roc_auc(all_labels, scores)
-    metrics_dict = calculate_metrics(scores, all_labels, predictions)
-    return metrics_dict
-
-
 def evaluate_ensemble_based_on_threshold(models, dataloader, thresholds, DEVICE):
     all_labels = []
     score_per_model = defaultdict(list)
@@ -346,8 +313,8 @@ def inference(models, inference_dataloader, DEVICE) -> pd.DataFrame:
             ens_logits = []
 
             for i in models:
-                model = models[i].eval()
-                model = model.to(DEVICE)
+                model = models[i]
+                model.eval().to(DEVICE)
                 output = model(x)
                 ens_logits.append(output.logits)
 
@@ -402,3 +369,50 @@ def load_models(
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+
+def load_lora_models(prefix_name: str = "ankh-base-lora-finetuned/DBP-Finder_",
+                     num_models: int = 5,
+                     config_path: str = "lora_config.yml"):
+
+    with open(config_path, "r") as f:
+        config = yaml.safe_load(f)
+
+    model_checkpoint = config["training_config"]["model_checkpoint"]
+    config_lora = config["lora_config"]
+
+    models = {}
+    for i in range(num_models):
+        base_model = AutoModelForSequenceClassification.from_pretrained(model_checkpoint, num_labels=1)
+        lora_config = LoraConfig(
+            task_type=TaskType.SEQ_CLS,
+            r=config_lora["r"],
+            lora_alpha=config_lora["lora_alpha"],
+            target_modules=config_lora["target_modules"],
+            lora_dropout=config_lora["lora_dropout"],
+            bias=config_lora["bias"],
+        )
+        model = get_peft_model(base_model, lora_config)
+        path_model = prefix_name + f"{i}.pth"
+        model.load_state_dict(torch.load(path_model, weights_only=True))
+        models[i] = model.eval()
+    tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
+    return models, tokenizer
+
+
+def load_ff_ankh(prefix_name: str = "checkpoints/Ankh_full_finetuned_",
+                 num_models: int = 3,
+                 config_path: str = "lora_config.yml"):
+
+    with open(config_path, "r") as f:
+        config = yaml.safe_load(f)
+
+    model_checkpoint = config["training_config"]["model_checkpoint"]
+    models = {}
+    for i in range(num_models):
+        model = AutoModelForSequenceClassification.from_pretrained(model_checkpoint, num_labels=1)
+        path_model = prefix_name + f"{i}.pth"
+        model.load_state_dict(torch.load(path_model, weights_only=True))
+        models[i] = model.eval()
+    tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
+    return models, tokenizer

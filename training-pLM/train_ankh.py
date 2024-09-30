@@ -1,53 +1,43 @@
 import logging
 import os
 
-import ankh
 import clearml
 import numpy as np
 import torch
 import pandas as pd
 import yaml
 from clearml import Logger, Task
-from data_prepare import get_embed_clustered_df, make_folds
+from data_prepare import make_folds
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
-from utils import (
-    CustomBatchSampler,
-    SequenceDataset,
-    custom_collate_fn,
-    evaluate_fn,
-    train_fn,
-    validate_fn,
-)
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from peft import get_peft_model, LoraConfig, TaskType
 
-with open("config.yml", "r") as f:
-    config = yaml.safe_load(f)
-
-input_dim = config["model_config"]["input_dim"]
-nhead = config["model_config"]["nhead"]
-hidden_dim = config["model_config"]["hidden_dim"]
-num_hidden_layers = config["model_config"]["num_hidden_layers"]
-num_layers = config["model_config"]["num_layers"]
-kernel_size = config["model_config"]["kernel_size"]
-dropout = config["model_config"]["dropout"]
-pooling = config["model_config"]["pooling"]
-
-
-epochs = config["training_config"]["epochs"]
-lr = float(config["training_config"]["lr"])
-factor = config["training_config"]["factor"]
-patience = config["training_config"]["patience"]
-min_lr = float(config["training_config"]["min_lr"])
-batch_size = config["training_config"]["batch_size"]
-seed = config["training_config"]["seed"]
-num_workers = config["training_config"]["num_workers"]
-weight_decay = float(config["training_config"]["weight_decay"])
+from dataset import CustomBatchSampler, collate_fn, SequenceDataset
+from train_ankh_utils import train_fn, validate_fn
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 DEVICE = "cuda"
+
+
+def model_init(model_checkpoint, config_lora):
+    base_model = AutoModelForSequenceClassification.from_pretrained(model_checkpoint, num_labels=1)
+
+    lora_config = LoraConfig(
+        task_type=TaskType.SEQ_CLS,
+        r=config_lora["r"],
+        lora_alpha=config_lora["lora_alpha"],
+        target_modules=config_lora["target_modules"],
+        lora_dropout=config_lora["lora_dropout"],
+        bias=config_lora["bias"],
+    )
+
+    model = get_peft_model(base_model, lora_config)
+    tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
+    return base_model, tokenizer
 
 
 def set_seed(seed):
@@ -56,118 +46,120 @@ def set_seed(seed):
     np.random.seed(seed)
 
 
-set_seed(seed)
-test_data = input()
+def df_prepare():
+    df = pd.read_csv("../data/splits/train_p3.csv")
+    train_folds, valid_folds = make_folds(df)
+    return train_folds, valid_folds
 
 
-df = get_embed_clustered_df(
-    embedding_path="../../../../ssd2/dbp_finder/ankh_embeddings/train_2d.h5",
-    csv_path=f"../data/splits/train_p3_{test_data}.csv",
-)
-train_folds, valid_folds = make_folds(df)
-
-
-clearml.browser_login()
-task = Task.init(
-    project_name="DBPs_search",
-    task_name=f"{test_data}",
-    output_uri=True,
-)
-logger = Logger.current_logger()
-task.connect_configuration(config)
-
-models = {}
-thresholds = {}
-for i in range(len(train_folds)):
-    train_dataset = SequenceDataset(train_folds[i])
-    train_sampler = CustomBatchSampler(train_dataset, batch_size)
-    train_dataloader = DataLoader(
-        train_dataset,
+def dataset_prepare(
+    data: pd.DataFrame, tokenizer, batch_size, num_workers, shuffle=False
+):
+    dataset = SequenceDataset(data)
+    batch_sampler = CustomBatchSampler(dataset, batch_size, shuffle=shuffle)
+    dataloader = DataLoader(
+        dataset,
+        batch_sampler=batch_sampler,
         num_workers=num_workers,
-        batch_sampler=train_sampler,
-        collate_fn=custom_collate_fn,
+        collate_fn=lambda x: collate_fn(x, tokenizer),
+    )
+    return dataloader
+
+
+def main():
+    with open("lora_config.yml", "r") as f:
+        config = yaml.safe_load(f)
+
+    clearml.browser_login()
+    task = Task.init(
+        project_name="DBPs_search", task_name="ankh full-finetuning train_p3", output_uri=True
     )
 
-    valid_dataset = SequenceDataset(valid_folds[i])
-    valid_dataloader = DataLoader(
-        valid_dataset,
-        num_workers=num_workers,
-        batch_size=1,
-        shuffle=False
-    )
+    logger = Logger.current_logger()
+    task.connect_configuration(config)
 
-    model = ankh.ConvBertForBinaryClassification(
-        input_dim=input_dim,
-        nhead=nhead,
-        hidden_dim=hidden_dim,
-        num_hidden_layers=num_hidden_layers,
-        num_layers=num_layers,
-        kernel_size=kernel_size,
-        dropout=dropout,
-        pooling=pooling,
-    )
+    epochs = config["training_config"]["epochs"]
+    lr = float(config["training_config"]["lr"])
+    factor = config["training_config"]["factor"]
+    patience = config["training_config"]["patience"]
+    min_lr = float(config["training_config"]["min_lr"])
+    batch_size = config["training_config"]["batch_size"]
+    seed = config["training_config"]["seed"]
+    num_workers = config["training_config"]["num_workers"]
+    weight_decay = float(config["training_config"]["weight_decay"])
+    model_checkpoint = config["training_config"]["model_checkpoint"]
 
-    model = model.to(DEVICE)
-    optimizer = AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
-    scheduler = ReduceLROnPlateau(optimizer, mode="min", factor=factor, patience=patience, min_lr=min_lr)
+    config_lora = config["lora_config"]
 
-    best_val_loss = float("inf")
-    best_model_path = f"checkpoints/{test_data}_{i}.pth"
-    for epoch in range(epochs):
-        train_loss = train_fn(model, train_dataloader, optimizer, DEVICE)
-        valid_loss, metrics_dict, threshold = validate_fn(
-            model, valid_dataloader, scheduler, DEVICE
+    set_seed(seed)
+
+    models = {}
+    best_thresholds = {}
+    train_folds, valid_folds = df_prepare()
+    for i in range(len(train_folds)):
+        train = train_folds[i]
+        valid = valid_folds[i]
+
+        model, tokenizer = model_init(model_checkpoint, config_lora)
+
+        train_dataloader = dataset_prepare(
+            train, tokenizer, batch_size, num_workers, shuffle=True)
+
+        valid_dataloader = dataset_prepare(
+            valid, tokenizer, batch_size, num_workers, shuffle=False)
+
+        model = model.to(DEVICE)
+        optimizer = AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
+        scheduler = ReduceLROnPlateau(
+            optimizer, mode="min", factor=factor, patience=patience, min_lr=min_lr
         )
 
-        logger.report_scalar(
-            title=f"Loss model {i}",
-            series="train loss",
-            value=train_loss,
-            iteration=epoch,
-        )
-        logger.report_scalar(
-            title=f"Loss model {i}",
-            series="valid loss",
-            value=valid_loss,
-            iteration=epoch,
-        )
+        best_val_loss = float("inf")
+        best_model_path = f"checkpoints/Ankh_full_finetuned_{i}.pth"
+        for epoch in range(epochs):
+            train_loss = train_fn(model, train_dataloader, optimizer, DEVICE)
+            valid_loss, metrics_dict, best_threshold = validate_fn(
+                model, valid_dataloader, scheduler, DEVICE
+            )
+            torch.cuda.empty_cache()
 
-        for metric_name, metric_value in metrics_dict.items():
             logger.report_scalar(
-                title=f"Metrics model {i}",
-                series=metric_name,
-                value=metric_value,
+                title=f"Loss model {i}",
+                series="train loss",
+                value=train_loss,
+                iteration=epoch,
+            )
+            logger.report_scalar(
+                title=f"Loss model {i}",
+                series="valid loss",
+                value=valid_loss,
                 iteration=epoch,
             )
 
-        if valid_loss < best_val_loss:
-            models[i] = model
-            thresholds[i] = threshold
-            torch.save(model.state_dict(), best_model_path)
+            for metric_name, metric_value in metrics_dict.items():
+                logger.report_scalar(
+                    title=f"Metrics model {i}",
+                    series=metric_name,
+                    value=metric_value,
+                    iteration=epoch,
+                )
 
-            training_log = (f"model {i} on epoch {epoch} with validation loss: {valid_loss}")
-            threshold_log = f"best_threshold: {threshold} on epoch {epoch} of model {i}"
+            if valid_loss < best_val_loss:
+                models[i] = model
+                best_thresholds[i] = best_threshold
+                torch.save(model.state_dict(), best_model_path)
+                training_log = (
+                    f"model {i} on epoch {epoch} with validation loss: {valid_loss}"
+                )
+                threshold_log = f"best_threshold: {best_threshold} on epoch {epoch} of model {i}"
 
-            logger.report_text(training_log, level=logging.DEBUG, print_console=False)
-            logger.report_text(threshold_log, level=logging.DEBUG, print_console=False)
-            best_val_loss = valid_loss
+                logger.report_text(training_log, level=logging.DEBUG, print_console=False)
+                logger.report_text(threshold_log, level=logging.DEBUG, print_console=False)
+                best_val_loss = valid_loss
+
+    task.upload_artifact(name="best_thresholds", artifact_object=best_thresholds)
+    task.close()
 
 
-task.upload_artifact(name="thresholds k folds", artifact_object=thresholds)
-test_df = get_embed_clustered_df(
-    embedding_path=f"../../../../ssd2/dbp_finder/ankh_embeddings/{test_data}_2d.h5",
-    csv_path=f"../data/embeddings/input_csv/{test_data}.csv",
-)
-
-testing_set = SequenceDataset(test_df)
-testing_dataloader = DataLoader(
-    testing_set,
-    num_workers=num_workers,
-    shuffle=False,
-    batch_size=1,
-)
-
-metrics_dict = evaluate_fn(models, testing_dataloader, thresholds, DEVICE)
-metrics_df = pd.DataFrame(metrics_dict, index=[test_data])
-logger.report_table(title=test_data, series="Metrics", table_plot=metrics_df)
-task.close()
+if __name__ == "__main__":
+    main()

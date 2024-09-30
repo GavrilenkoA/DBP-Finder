@@ -20,7 +20,6 @@ def make_folds(
     y = df["label"]
     groups = df["cluster"]
     sgkf = StratifiedGroupKFold(n_splits=n_splits)
-    # gkf = GroupKFold(n_splits=n_splits)
 
     # Split data into training and validation folds
     train_folds = []
