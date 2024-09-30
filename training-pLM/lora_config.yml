@@ -10,13 +10,28 @@ model_config:
 
 
 training_config:
-  epochs: 10
-  lr: 2e-4
+  epochs: 8
+  lr: 1e-4
   seed: 42
   factor: 0.5
-  patience: 3
+  patience: 2
   min_lr: 1e-8
-  batch_size: 64
+  batch_size: 4
   num_workers: 1
   optimizer: adamw
   weight_decay: 4e-2
+  model_checkpoint: ElnaggarLab/ankh-base
+
+
+lora_config:
+  r: 4
+  lora_alpha: 8
+  target_modules:
+    - q
+    - k
+    - v
+    - o
+    - wi
+    - wo
+  lora_dropout: 0.1
+  bias: all
