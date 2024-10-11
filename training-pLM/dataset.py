@@ -100,7 +100,7 @@ class SequenceDatasetWithID(SequenceDataset):
         return x, y, id_value
 
 
-class PredictionDataset(Dataset):
+class InferenceDataset(Dataset):
     def __init__(self, df):
         self.sequences = df["sequence"].tolist()
         self.identifier = df["identifier"].tolist()

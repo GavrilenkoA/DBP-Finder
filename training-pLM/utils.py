@@ -298,6 +298,8 @@ def inference(models, inference_dataloader, DEVICE) -> pd.DataFrame:
             if len(batch) == 3:
                 id_, x, y = batch
                 all_labels.append(y.cpu().numpy().item())
+            else:
+                id_, x = batch
 
             assert len(x) == 1, "Batch size should be 1"
             identifiers.extend(id_)

@@ -11,10 +11,10 @@ model_config:
 
 training_config:
   epochs: 12
-  lr: 1e-5
+  lr: 1e-4
   seed: 42
   factor: 0.5
-  patience: 3
+  patience: 4
   min_lr: 1e-9
   batch_size: 4
   num_workers: 1
