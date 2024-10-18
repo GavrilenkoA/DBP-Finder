@@ -1,5 +1,6 @@
 import subprocess
 from functools import wraps
+import pickle
 
 import h5py
 import pandas as pd
@@ -175,6 +176,12 @@ def delete_common_seqs(train: pd.DataFrame, test: pd.DataFrame) -> tuple[pd.Data
     train = train[~train["sequence"].isin(common_seqs)]
     test = test[~test["sequence"].isin(common_seqs)]
     return train, test
+
+
+def save_embeds(obj, data_name: str, model_name: str):
+    filename = f"data/embeddings/{model_name}_embeddings/{data_name}.pkl"
+    with open(filename, "wb") as file:
+        pickle.dump(obj, file)
 
 
 def save_dict_to_hdf5(data_dict, filename):

@@ -1,5 +1,3 @@
-import pickle
-
 import ankh
 import numpy as np
 import pandas as pd
@@ -24,12 +22,6 @@ def select_model_tokenizer(model_name: str):
         model = T5EncoderModel.from_pretrained("Rostlab/prot_t5_xl_uniref50")
 
     return model, tokenizer
-
-
-def save_embeds(obj, data_name: str, model_name: str):
-    filename = f"data/embeddings/{model_name}_embeddings/{data_name}.pkl"
-    with open(filename, "wb") as file:
-        pickle.dump(obj, file)
 
 
 def calculate_embeds(
@@ -77,8 +69,9 @@ def calculate_embeds(
 
 
 def get_embeds(
-    input_df: pd.DataFrame, model_name: str, data_name: str, device: torch.device
-) -> None:
+    input_df: pd.DataFrame, model_name: str, data_name: str,
+        device: torch.device, output_prefix: str) -> None:
+
     def pull_data(x):
         id_ = x["identifier"]
         seq = x["sequence"]
@@ -97,5 +90,5 @@ def get_embeds(
         outputs[id_] = embedding
 
     save_dict_to_hdf5(
-        outputs, f"../../../ssd2/dbp_finder/ankh_embeddings/{data_name}_2d.h5"
+        outputs, f"{output_prefix}/{data_name}_2d.h5"
     )

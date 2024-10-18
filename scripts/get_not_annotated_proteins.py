@@ -90,11 +90,11 @@ def main():
     # parser.add_argument("output_yml", type=str, help='yaml file output')
     # args = parser.parse_args()
 
-    go_id = read_yaml(yml_path="data/go_terms/GO:0003676.yml")
-    df = convert_fasta_to_df("data/uniprot/uniprotkb_gene_NOT_go_0006139_NOT_go_00_2024_08_26_annot_4.fasta")
+    go_id = read_yaml(yml_path="data/go_terms/GO:0003677.yml")
+    df = convert_fasta_to_df("data/not_annotated/raw_fasta/merged.fasta")
     info = write_not_annotated_seqs(df, go_id)
 
-    output_yml = "data/processed/uniprotkb_gene_NOT_go_0006139_NOT_go_00_2024_08_26_annot_4_GO:0003676.yml"
+    output_yml = "data/not_annotated/not-annotated-GO:0003677.yml"
     with open(output_yml, "w") as f:
         yaml.safe_dump(info, f)
 
