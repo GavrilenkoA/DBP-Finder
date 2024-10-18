@@ -22,13 +22,13 @@ The training dataset named as was formed by running the following script, which 
 python3 -m scripts.data.prepare_data --binders_path <binders.fasta> --non_binders_path <non_binders.fasta> --path_yml <path.yml> --output_path <output.csv>
 ```
 #### Arguments:
-1. `--binders_path:`
+1. `--binders_path`:
 
     * Type: str.
     * Default: "data/uniprot/go_0003677_swissprot.fasta"
     * Description: Specifies the file path to the FASTA file containing the positive samples (i.e., DNA-binding proteins, labeled with GO:0003677).
 
-2. `--non_binders_path:`
+2. `--non_binders_path`:
 
     * Type: str.
     * Default: "data/uniprot/notgo_0003723_notgo_0003677_swissprot.fasta"
@@ -96,32 +96,33 @@ python3 scripts/calculate_embeddings.py <input_csv> --model_name <model_name> --
     * Type: str
     * Default: ankh
     * Description: The name of the model used to calculate embeddings.
-3. --`device`:
+3. `--device`:
     * Type: str
-    * Default: cuda:1
+    * Default: `cuda:1`
     * Description: The device for calculations, which can be a GPU (e.g., cuda:0) or cpu.
-4. --`output_prefix`:
+4. `--output_prefix`:
     * Type: str
     * Default: `../../../ssd2/dbp_finder/ankh_embeddings`
     * Description: The directory where the generated embeddings will be saved. The output files will be prefixed with this path.
 
 ## Training
 ### Ankh head
+The DBP-Finder model is trained on one node equipped with an A100 GPU (80 GB). To train the model, first navigate to the training directory:
+
 `cd training-pLM`
 
-We train DBP-Finder on one node with A100 GPU 80 GB
-
-To train the model, use the following command in your terminal:
+Then, execute the following command:
 ```bash
-python3 train.py --embedding_path <path_to_embeddings> --csv_path <path_to_training_csv> --best_model_path <path_to_save_best_model> --config <path_to_config_yaml>
+python3 train_ankh_head_full_data.py --embedding_path <path_to_embeddings> --csv_path <path_to_training_csv> --best_model_path <best_model_path> --config <path_to_config_yaml>
 ```
-You can adjust the other training configurations in the `DBP-Finder-config.yml` as needed.
+You can customize the training settings by modifying the `DBP-Finder-config.yml` file as required.
 
 
 ### Ankh Lora
 
-To run the script with a custom CSV file, LoRA configuration file:
+To train the model using the Ankh LoRA configuration, execute:
 
-`python3 train_ankh_lora.py --csv_path <csv_path> --lora_config lora_config --model_checkpoint <model_checkpoint>`
+`python3 train_ankh_lora.py --csv_path <csv_path>
+--best_model_path <best_model_path> --lora_config lora_config`
 
-You can adjust the other training configurations in the `lora_config.yml` as needed.
+Adjust additional settings in the `lora_config.yml` file as needed.
