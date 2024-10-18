@@ -90,10 +90,7 @@ for i in range(len(train_folds)):
 
     valid_dataset = SequenceDataset(valid_folds[i])
     valid_dataloader = DataLoader(
-        valid_dataset,
-        num_workers=num_workers,
-        batch_size=1,
-        shuffle=False
+        valid_dataset, num_workers=num_workers, batch_size=1, shuffle=False
     )
 
     model = ankh.ConvBertForBinaryClassification(
@@ -109,7 +106,9 @@ for i in range(len(train_folds)):
 
     model = model.to(DEVICE)
     optimizer = AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
-    scheduler = ReduceLROnPlateau(optimizer, mode="min", factor=factor, patience=patience, min_lr=min_lr)
+    scheduler = ReduceLROnPlateau(
+        optimizer, mode="min", factor=factor, patience=patience, min_lr=min_lr
+    )
 
     best_val_loss = float("inf")
     best_model_path = f"checkpoints/{test_data}_{i}.pth"
@@ -145,7 +144,9 @@ for i in range(len(train_folds)):
             thresholds[i] = threshold
             torch.save(model.state_dict(), best_model_path)
 
-            training_log = (f"model {i} on epoch {epoch} with validation loss: {valid_loss}")
+            training_log = (
+                f"model {i} on epoch {epoch} with validation loss: {valid_loss}"
+            )
             threshold_log = f"best_threshold: {threshold} on epoch {epoch} of model {i}"
 
             logger.report_text(training_log, level=logging.DEBUG, print_console=False)
@@ -167,7 +168,9 @@ testing_dataloader = DataLoader(
     batch_size=1,
 )
 
-metrics_dict = evaluate_ensemble_based_on_threshold(models, testing_dataloader, thresholds, DEVICE)
+metrics_dict = evaluate_ensemble_based_on_threshold(
+    models, testing_dataloader, thresholds, DEVICE
+)
 metrics_df = pd.DataFrame(metrics_dict, index=[test_data])
 logger.report_table(title=test_data, series="Metrics", table_plot=metrics_df)
 task.close()

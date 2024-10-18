@@ -14,11 +14,13 @@ class CustomBatchSampler(Sampler):
 
     def __iter__(self):
         # Sort indices by sequence length in the dataset
-        sorted_indices = sorted(self.indices, key=lambda i: self.dataset.lengths[i], reverse=True)
+        sorted_indices = sorted(
+            self.indices, key=lambda i: self.dataset.lengths[i], reverse=True
+        )
 
         # Create batches of indices
         batches = [
-            sorted_indices[i:i + self.batch_size]
+            sorted_indices[i : i + self.batch_size]
             for i in range(0, len(sorted_indices), self.batch_size)
         ]
 
@@ -52,22 +54,19 @@ def collate_fn(batch, tokenizer, labels_flag=True):
         padding="longest",
         truncation=False,
         return_tensors="pt",
-        add_special_tokens=True
+        add_special_tokens=True,
     )
 
-    input_ids = tokenized['input_ids']
-    attention_mask = tokenized['attention_mask']
+    input_ids = tokenized["input_ids"]
+    attention_mask = tokenized["attention_mask"]
 
-    output = {
-        'input_ids': input_ids,
-        'attention_mask': attention_mask
-    }
+    output = {"input_ids": input_ids, "attention_mask": attention_mask}
 
     if labels_flag:
-        output['labels'] = labels
+        output["labels"] = labels
 
     if identifiers is not None:
-        output['identifiers'] = identifiers
+        output["identifiers"] = identifiers
 
     return output
 

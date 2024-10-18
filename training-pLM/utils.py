@@ -5,6 +5,7 @@ import ankh
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from peft import get_peft_model, LoraConfig, TaskType
@@ -139,8 +140,12 @@ def find_best_threshold(y_true: list[float | int], y_scores: list[float]) -> flo
     return best_threshold
 
 
-def validate_fn(model: torch.nn.Module, valid_dataloader: torch.utils.data.DataLoader,
-                scheduler: torch.optim.lr_scheduler._LRScheduler, DEVICE: torch.device):
+def validate_fn(
+    model: torch.nn.Module,
+    valid_dataloader: torch.utils.data.DataLoader,
+    scheduler: torch.optim.lr_scheduler._LRScheduler,
+    DEVICE: torch.device,
+):
     model.eval()
     total_loss = 0.0
     labels = []
@@ -204,14 +209,16 @@ def plot_roc_auc(y_true, y_probs, save_path=None):
     plt.show()
 
 
-def collect_predictions(identifiers: list[str],
-                        all_labels: list[Any],
-                        all_preds: list[float],
-                        prob_score: list[float]) -> pd.DataFrame:
+def collect_predictions(
+    identifiers: list[str],
+    all_labels: list[Any],
+    all_preds: list[float],
+    prob_score: list[float],
+) -> pd.DataFrame:
     data = {
         "identifier": identifiers,
         "prediction": all_preds,
-        "probability": prob_score
+        "probability": prob_score,
     }
     if all_labels:
         data["ground_truth"] = all_labels
@@ -252,12 +259,14 @@ def evaluate_ensemble_based_on_threshold(models, dataloader, thresholds, DEVICE)
     return metrics_dict
 
 
-def inference_ensemble_based_on_threshold(models, inference_dataloader, thresholds, DEVICE) -> pd.DataFrame:
+def inference_ensemble_based_on_threshold(
+    models, inference_dataloader, thresholds, DEVICE
+) -> pd.DataFrame:
     all_labels, identifiers = [], []
     score_per_model = defaultdict(list)
     prediction_per_model = defaultdict(list)
     with torch.no_grad():
-        for batch in inference_dataloader:
+        for batch in tqdm(inference_dataloader, desc="Inference", leave=False):
             if len(batch) == 3:
                 id_, x, y = batch
                 all_labels.append(y.cpu().numpy().item())
@@ -294,7 +303,7 @@ def inference(models, inference_dataloader, DEVICE) -> pd.DataFrame:
     all_labels = []
     all_logits = []
     with torch.no_grad():
-        for batch in inference_dataloader:
+        for batch in tqdm(inference_dataloader, desc="Inference", leave=False):
             if len(batch) == 3:
                 id_, x, y = batch
                 all_labels.append(y.cpu().numpy().item())
@@ -365,10 +374,11 @@ def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
-def load_lora_models(prefix_name: str = "ankh-base-lora-finetuned/DBP-Finder_",
-                     num_models: int = 5,
-                     config_path: str = "lora_config.yml"):
-
+def load_lora_models(
+    prefix_name: str = "ankh-base-lora-finetuned/DBP-Finder_",
+    num_models: int = 5,
+    config_path: str = "lora_config.yml",
+):
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
 
@@ -377,7 +387,9 @@ def load_lora_models(prefix_name: str = "ankh-base-lora-finetuned/DBP-Finder_",
 
     models = {}
     for i in range(num_models):
-        base_model = AutoModelForSequenceClassification.from_pretrained(model_checkpoint, num_labels=1)
+        base_model = AutoModelForSequenceClassification.from_pretrained(
+            model_checkpoint, num_labels=1
+        )
         lora_config = LoraConfig(
             task_type=TaskType.SEQ_CLS,
             r=config_lora["r"],
@@ -394,17 +406,20 @@ def load_lora_models(prefix_name: str = "ankh-base-lora-finetuned/DBP-Finder_",
     return models, tokenizer
 
 
-def load_ff_ankh(prefix_name: str = "checkpoints/Ankh_full_finetuned_",
-                 num_models: int = 3,
-                 config_path: str = "lora_config.yml"):
-
+def load_ff_ankh(
+    prefix_name: str = "checkpoints/Ankh_full_finetuned_",
+    num_models: int = 3,
+    config_path: str = "lora_config.yml",
+):
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
 
     model_checkpoint = config["training_config"]["model_checkpoint"]
     models = {}
     for i in range(num_models):
-        model = AutoModelForSequenceClassification.from_pretrained(model_checkpoint, num_labels=1)
+        model = AutoModelForSequenceClassification.from_pretrained(
+            model_checkpoint, num_labels=1
+        )
         path_model = prefix_name + f"{i}.pth"
         model.load_state_dict(torch.load(path_model, weights_only=True))
         models[i] = model.eval()

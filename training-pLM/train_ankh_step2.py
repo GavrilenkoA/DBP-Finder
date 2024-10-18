@@ -54,7 +54,9 @@ def main():
 
     clearml.browser_login()
     task = Task.init(
-        project_name="DBPs_search", task_name="lora-ankh-train_p3-post-train", output_uri=True
+        project_name="DBPs_search",
+        task_name="lora-ankh-train_p3-post-train",
+        output_uri=True,
     )
 
     logger = Logger.current_logger()
@@ -80,10 +82,12 @@ def main():
         valid = valid_folds[i]
 
         train_dataloader = dataset_prepare(
-            train, tokenizer, batch_size, num_workers, shuffle=True)
+            train, tokenizer, batch_size, num_workers, shuffle=True
+        )
 
         valid_dataloader = dataset_prepare(
-            valid, tokenizer, batch_size, num_workers, shuffle=False)
+            valid, tokenizer, batch_size, num_workers, shuffle=False
+        )
 
         model = models[i].to(DEVICE)
         optimizer = AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
@@ -134,10 +138,16 @@ def main():
                 training_log = (
                     f"model {i} on epoch {epoch} with validation loss: {valid_loss}"
                 )
-                threshold_log = f"best_threshold: {best_threshold} on epoch {epoch} of model {i}"
+                threshold_log = (
+                    f"best_threshold: {best_threshold} on epoch {epoch} of model {i}"
+                )
 
-                logger.report_text(training_log, level=logging.DEBUG, print_console=False)
-                logger.report_text(threshold_log, level=logging.DEBUG, print_console=False)
+                logger.report_text(
+                    training_log, level=logging.DEBUG, print_console=False
+                )
+                logger.report_text(
+                    threshold_log, level=logging.DEBUG, print_console=False
+                )
                 best_val_loss = valid_loss
 
     task.upload_artifact(name="best_thresholds", artifact_object=best_thresholds)

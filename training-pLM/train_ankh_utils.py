@@ -17,7 +17,9 @@ def train_fn(model, train_dataloader, optimizer, DEVICE):
 
         labels = labels.unsqueeze(1)
         optimizer.zero_grad()
-        output = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+        output = model(
+            input_ids=input_ids, attention_mask=attention_mask, labels=labels
+        )
 
         output.loss.backward()
         optimizer.step()
@@ -42,7 +44,9 @@ def validate_fn(model, valid_dataloader, scheduler, DEVICE):
 
             labels = labels.unsqueeze(1)
 
-            output = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+            output = model(
+                input_ids=input_ids, attention_mask=attention_mask, labels=labels
+            )
             loss += output.loss.item()
 
             score = torch.sigmoid(output.logits)
@@ -80,7 +84,9 @@ def ensemble_predict(models, dataloader, thresholds, DEVICE):
 
             for i, model in models.items():
                 model.eval().to(DEVICE)
-                output = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+                output = model(
+                    input_ids=input_ids, attention_mask=attention_mask, labels=labels
+                )
                 score = torch.sigmoid(output.logits).cpu().numpy().flatten()
                 score_per_model[i].extend(score)
 
@@ -101,12 +107,16 @@ def ensemble_predict(models, dataloader, thresholds, DEVICE):
     metrics_df = pd.DataFrame(metrics_dict, index=[0])
 
     # Create a DataFrame with predictions, scores, labels, and identifiers
-    predictions_df = pd.DataFrame({
-        "identifier": all_identifiers if all_identifiers else range(len(all_labels)),  # Add fallback if no identifiers
-        "true_label": all_labels,
-        "predicted_score": scores,
-        "predicted_label": predictions
-    })
+    predictions_df = pd.DataFrame(
+        {
+            "identifier": all_identifiers
+            if all_identifiers
+            else range(len(all_labels)),  # Add fallback if no identifiers
+            "true_label": all_labels,
+            "predicted_score": scores,
+            "predicted_label": predictions,
+        }
+    )
 
     return metrics_df, predictions_df
 
@@ -144,15 +154,19 @@ def ensemble_inference(models, dataloader, thresholds, DEVICE):
     scores = np.mean(score_per_model, axis=0).tolist()
 
     # Create a DataFrame with predictions, scores, labels, and identifiers
-    predictions_df = pd.DataFrame({
-        "identifier": all_identifiers if all_identifiers else range(len(scores)),  # Add fallback if no identifiers
-        "predicted_score": scores,
-        "predicted_label": predictions
-    })
+    predictions_df = pd.DataFrame(
+        {
+            "identifier": all_identifiers
+            if all_identifiers
+            else range(len(scores)),  # Add fallback if no identifiers
+            "predicted_score": scores,
+            "predicted_label": predictions,
+        }
+    )
     return predictions_df
 
 
 def get_learning_rate(optimizer):
     """Retrieve the current learning rate from the optimizer."""
     for param_group in optimizer.param_groups:
-        return param_group['lr']
+        return param_group["lr"]

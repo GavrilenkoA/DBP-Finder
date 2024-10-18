@@ -83,5 +83,5 @@ def form_test_kingdom(test_input: str, kingdom: str):
 
 
 def save_json(data, filename):
-    with open(filename, 'w') as f:
+    with open(filename, "w") as f:
         json.dump(data, f)

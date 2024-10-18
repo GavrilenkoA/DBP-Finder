@@ -1,10 +1,11 @@
+import argparse
 import logging
 import os
 
 import clearml
 import numpy as np
-import torch
 import pandas as pd
+import torch
 import yaml
 from clearml import Logger, Task
 from data_prepare import make_folds
@@ -17,14 +18,15 @@ from peft import get_peft_model, LoraConfig, TaskType
 from dataset import CustomBatchSampler, collate_fn, SequenceDataset
 from train_ankh_utils import train_fn, validate_fn
 
-
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 DEVICE = "cuda"
 
 
 def model_init(model_checkpoint, config_lora):
-    base_model = AutoModelForSequenceClassification.from_pretrained(model_checkpoint, num_labels=1)
+    base_model = AutoModelForSequenceClassification.from_pretrained(
+        model_checkpoint, num_labels=1
+    )
 
     lora_config = LoraConfig(
         task_type=TaskType.SEQ_CLS,
@@ -37,7 +39,7 @@ def model_init(model_checkpoint, config_lora):
 
     model = get_peft_model(base_model, lora_config)
     tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
-    return base_model, tokenizer
+    return model, tokenizer
 
 
 def set_seed(seed):
@@ -46,8 +48,8 @@ def set_seed(seed):
     np.random.seed(seed)
 
 
-def df_prepare():
-    df = pd.read_csv("../data/splits/train_p3.csv")
+def df_prepare(csv_path):
+    df = pd.read_csv(csv_path)
     train_folds, valid_folds = make_folds(df)
     return train_folds, valid_folds
 
@@ -67,12 +69,38 @@ def dataset_prepare(
 
 
 def main():
-    with open("lora_config.yml", "r") as f:
+    # Command-line argument parsing
+    parser = argparse.ArgumentParser(description="Train Ankh model with LoRA.")
+    parser.add_argument(
+        "--csv_path",
+        type=str,
+        default="../data/splits/train_p3.csv",
+        help="Path to the CSV file containing training data"
+    )
+    parser.add_argument(
+        "--lora_config",
+        type=str,
+        default="lora_config.yml",
+        help="Path to the LoRA configuration YAML file"
+    )
+    parser.add_argument(
+        "--best_model_path",
+        type=str,
+        default="ankh-base-lora-finetuned/DBP-Finder",
+        help="Path or name of the pre-trained model checkpoint"
+    )
+
+    args = parser.parse_args()
+
+    # Load LoRA configuration
+    with open(args.lora_config, "r") as f:
         config = yaml.safe_load(f)
 
     clearml.browser_login()
     task = Task.init(
-        project_name="DBPs_search", task_name="ankh full-finetuning train_p3", output_uri=True
+        project_name="DBPs_search",
+        task_name="Ankh LoRA train",
+        output_uri=True,
     )
 
     logger = Logger.current_logger()
@@ -88,14 +116,12 @@ def main():
     num_workers = config["training_config"]["num_workers"]
     weight_decay = float(config["training_config"]["weight_decay"])
     model_checkpoint = config["training_config"]["model_checkpoint"]
-
     config_lora = config["lora_config"]
 
     set_seed(seed)
 
-    models = {}
     best_thresholds = {}
-    train_folds, valid_folds = df_prepare()
+    train_folds, valid_folds = df_prepare(args.csv_path)
     for i in range(len(train_folds)):
         train = train_folds[i]
         valid = valid_folds[i]
@@ -103,10 +129,12 @@ def main():
         model, tokenizer = model_init(model_checkpoint, config_lora)
 
         train_dataloader = dataset_prepare(
-            train, tokenizer, batch_size, num_workers, shuffle=True)
+            train, tokenizer, batch_size, num_workers, shuffle=True
+        )
 
         valid_dataloader = dataset_prepare(
-            valid, tokenizer, batch_size, num_workers, shuffle=False)
+            valid, tokenizer, batch_size, num_workers, shuffle=False
+        )
 
         model = model.to(DEVICE)
         optimizer = AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
@@ -115,7 +143,7 @@ def main():
         )
 
         best_val_loss = float("inf")
-        best_model_path = f"checkpoints/Ankh_full_finetuned_{i}.pth"
+        model_path = args.best_model_path + f"_{i}.pth"
         for epoch in range(epochs):
             train_loss = train_fn(model, train_dataloader, optimizer, DEVICE)
             valid_loss, metrics_dict, best_threshold = validate_fn(
@@ -145,16 +173,21 @@ def main():
                 )
 
             if valid_loss < best_val_loss:
-                models[i] = model
                 best_thresholds[i] = best_threshold
-                torch.save(model.state_dict(), best_model_path)
+                torch.save(model.state_dict(), model_path)
                 training_log = (
                     f"model {i} on epoch {epoch} with validation loss: {valid_loss}"
                 )
-                threshold_log = f"best_threshold: {best_threshold} on epoch {epoch} of model {i}"
+                threshold_log = (
+                    f"best_threshold: {best_threshold} on epoch {epoch} of model {i}"
+                )
 
-                logger.report_text(training_log, level=logging.DEBUG, print_console=False)
-                logger.report_text(threshold_log, level=logging.DEBUG, print_console=False)
+                logger.report_text(
+                    training_log, level=logging.DEBUG, print_console=False
+                )
+                logger.report_text(
+                    threshold_log, level=logging.DEBUG, print_console=False
+                )
                 best_val_loss = valid_loss
 
     task.upload_artifact(name="best_thresholds", artifact_object=best_thresholds)
