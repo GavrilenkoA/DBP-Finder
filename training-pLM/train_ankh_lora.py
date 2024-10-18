@@ -78,18 +78,17 @@ def main():
         help="Path to the CSV file containing training data"
     )
     parser.add_argument(
-        "--lora_config",
-        type=str,
-        default="lora_config.yml",
-        help="Path to the LoRA configuration YAML file"
-    )
-    parser.add_argument(
         "--best_model_path",
         type=str,
         default="ankh-base-lora-finetuned/DBP-Finder",
         help="Path or name of the pre-trained model checkpoint"
     )
-
+    parser.add_argument(
+        "--lora_config",
+        type=str,
+        default="lora_config.yml",
+        help="Path to the LoRA configuration YAML file"
+    )
     args = parser.parse_args()
 
     # Load LoRA configuration
