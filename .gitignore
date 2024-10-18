@@ -1,46 +1,66 @@
-# ignore hidden files
+# hidden files
 .idea
 .ipynb_checkpoints
 *__pycache__/
 .log
 .ruff_cache
 
-# ignore data
+# Cluster data
 data/clusters/*
 !data/clusters/.gitkeep
+
+# FASTA data
 data/fasta/*
 !data/fasta/.gitkeep
+
+# Papers data
 data/DBP_papers_data
+
+# Embeddings
 data/embeddings/ankh_embeddings/*
 !data/embeddings/ankh_embeddings/.gitkeep
 data/embeddings/esm_embeddings/
 data/embeddings/prot5_embeddings/
+
+# Input CSV embeddings
 data/embeddings/input_csv/*
-data/prediction
-!data/embeddings/input_csv/pdb186.csv
 !data/embeddings/input_csv/pdb1000.csv
 !data/embeddings/input_csv/pdb20000.csv
 !data/embeddings/input_csv/pdb2272.csv
-!data/embeddings/input_csv/train_p2.csv
 !data/embeddings/input_csv/train_p3.csv
+
+# Interpro, nakb, and prediction data
 data/interpro_data/
 data/nakb/
 data/predictions/
 data/proteinfer/
+data/prediction
+
+# Splits data
 data/splits/*
 !data/splits/train_pdb186.csv
 !data/splits/train_pdb1000.csv
 !data/splits/train_pdb2272.csv
 !data/splits/train_pdb20000.csv
 !data/splits/train_p3.csv
-data/uniprot/uniprotkb_gene_AND_go_0003677_AND_revie_2024_02_29.fasta
-data/uniprot/uniprotkb_gene_NOT_go_0003677_NOT_go_00_2024_02_29.fasta
+
+# Uniprot data
+data/uniprot/*
+!data/uniprot/go_0003677_swissprot.fasta
+!data/uniprot/notgo_0003723_notgo_0003677_swissprot.fasta
+
+# Processed data
 data/processed/*
 !data/processed/neg_samples_annot.yml
-!data/processed/trembl_neg_annot.yml
+
+# Other data
+data/not_annotated/
 data/taxon
 data/go_terms/uniprot_annotation_all_exPDB186.tsv
 data/test_cases
+data/external/
+
+
 
 hmmer
 models
@@ -56,4 +76,3 @@ training-pLM/ankh-base-lora-finetuned
 training-pLM/ankh-lora-finetuned
 tmp
 logs
-data/external/
