@@ -1,5 +1,7 @@
 import pandas as pd
-from ..utils import convert_fasta_to_df, filter_df, prepare_neg_samples, write_fasta
+
+from ..utils import (convert_fasta_to_df, filter_df, prepare_neg_samples,
+                     write_fasta)
 
 
 def filter_not_annotated_df(not_annotated_df, train) -> pd.DataFrame:

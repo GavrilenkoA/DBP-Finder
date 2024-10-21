@@ -1,6 +1,6 @@
+import pickle
 import subprocess
 from functools import wraps
-import pickle
 
 import h5py
 import pandas as pd

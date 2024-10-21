@@ -4,6 +4,7 @@ import pandas as pd
 import torch
 from tqdm import tqdm
 from transformers import AutoTokenizer, EsmModel, T5EncoderModel, T5Tokenizer
+
 from utils import save_dict_to_hdf5
 
 

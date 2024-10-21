@@ -2,6 +2,7 @@ import argparse
 import os
 
 import pandas as pd
+
 from train_test_cluster import cluster_data
 from utils import make_balanced_df, reduce_train
 
@@ -11,8 +12,8 @@ def main():
         description="Program\
                                     for clustering protein sequences"
     )
-    parser.add_argument("path_train", type=str, help="A string argument")
-    parser.add_argument("path_test", type=str, help="A string argument")
+    parser.add_argument("path_train", type=str, help="Path to the train CSV file")
+    parser.add_argument("path_test", type=str, help="Path to the test CSV file")
     args = parser.parse_args()
 
     train = pd.read_csv(args.path_train)

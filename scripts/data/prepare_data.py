@@ -1,6 +1,9 @@
 import argparse
+
 import pandas as pd
-from ..utils import convert_fasta_to_df, filter_df, make_balanced_df, prepare_neg_samples
+
+from ..utils import (convert_fasta_to_df, filter_df, make_balanced_df,
+                     prepare_neg_samples)
 
 
 def merge_df(df_1: pd.DataFrame, df_2: pd.DataFrame):

@@ -1,7 +1,8 @@
 import pandas as pd
-from utils import (add_clusters, add_source_to_id, cluster_sequences,
-                   delete_source_from_id, exclude_common_train_seqs,
-                   write_fasta, assert_no_duplicates)
+
+from utils import (add_clusters, add_source_to_id, assert_no_duplicates,
+                   cluster_sequences, delete_source_from_id,
+                   exclude_common_train_seqs, write_fasta)
 
 
 def cluster_data(train: pd.DataFrame, test: pd.DataFrame) -> pd.DataFrame:

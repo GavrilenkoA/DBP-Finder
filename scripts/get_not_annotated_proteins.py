@@ -1,12 +1,13 @@
+import argparse
 import logging
 import time
-import argparse
-import yaml
+
 import pandas as pd
 import requests
+import yaml
 from tqdm import tqdm
-from utils import convert_fasta_to_df
 
+from utils import convert_fasta_to_df
 
 logging.basicConfig(
     level=logging.INFO,
