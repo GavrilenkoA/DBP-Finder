@@ -46,7 +46,7 @@ weight_decay = float(config["training_config"]["weight_decay"])
 
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 DEVICE = "cuda"
 
 
@@ -70,7 +70,7 @@ train_folds, valid_folds = make_folds(df)
 clearml.browser_login()
 task = Task.init(
     project_name="DBPs_search",
-    task_name=f"{test_data}_training",
+    task_name=f"{test_data}_training_batchsize_{batch_size}",
     output_uri=True,
 )
 logger = Logger.current_logger()
@@ -90,7 +90,7 @@ for i in range(len(train_folds)):
 
     valid_dataset = SequenceDataset(valid_folds[i])
     valid_dataloader = DataLoader(
-        valid_dataset, num_workers=num_workers, batch_size=1, shuffle=False
+        valid_dataset, num_workers=num_workers, batch_size=batch_size, shuffle=False
     )
 
     model = ankh.ConvBertForBinaryClassification(

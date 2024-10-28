@@ -26,7 +26,7 @@ def main():
 
     name_train = os.path.splitext(os.path.basename(args.path_train))[0]
     name_test = os.path.splitext(os.path.basename(args.path_test))[0]
-    output_csv = f"data/splits/{name_train}_{name_test}.csv"
+    output_csv = f"data/splits/{name_train}_{name_test}__.csv"
     train.to_csv(output_csv, index=False)
 
 

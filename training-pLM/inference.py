@@ -34,7 +34,7 @@ test_data = "not_annotated"
 clearml.browser_login()
 task = Task.init(
     project_name="DBPs_search",
-    task_name="not-annotated-GO:0003676-DBP-Finder-v2",
+    task_name="not-annotated-GO:0003676-DBP-Finder-v1",
     output_uri=False,
 )
 logger = Logger.current_logger()
@@ -95,10 +95,10 @@ def ankh_head_inference(test_data):
 
 def ankh_inference(test_data):
     models, tokenizer = load_lora_models(
-        prefix_name="ankh-base-lora-finetuned/v2/DBP-Finder_", num_models=5
+        prefix_name="ankh-base-lora-finetuned/DBP-Finder_", num_models=5
     )
     # models, tokenizer = load_ff_ankh()
-    thresholds = load_thresolds(model_name="lora_ankh_v2_train_p3")
+    thresholds = load_thresolds(model_name="lora_ankh_train_p3")
     # test_df = pd.read_csv(f"../data/splits/{test_data}.csv")
     test_df = pd.read_csv("../data/not_annotated/not_annotated_GO:0003676.csv")
     # test_df = pd.read_csv("../data/test_cases/Sequence_with_muts.csv", sep=";")
@@ -116,4 +116,4 @@ def ankh_inference(test_data):
     task.close()
 
 
-ankh_head_inference(test_data)
+ankh_inference(test_data)
