@@ -1,27 +1,29 @@
-from collections import defaultdict
+import json
 import random
+from collections import defaultdict
 from typing import Any
+
 import ankh
-from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 import torch
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
-from peft import get_peft_model, LoraConfig, TaskType
 import yaml
-from sklearn.metrics import (
-    accuracy_score,
-    f1_score,
-    matthews_corrcoef,
-    precision_score,
-    recall_score,
-    roc_auc_score,
-    roc_curve,
-)
+from matplotlib import pyplot as plt
+from peft import LoraConfig, TaskType, get_peft_model
+from scipy.stats import mode
+from sklearn.metrics import (accuracy_score, f1_score, matthews_corrcoef,
+                             precision_score, recall_score, roc_auc_score,
+                             roc_curve)
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import BatchSampler, Dataset, SequentialSampler
-from scipy.stats import mode
+from tqdm import tqdm
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
+
+def load_thresholds(model_name: str, filepath: str = "thresholds.json"):
+    with open(filepath, "r") as json_file:
+        thresholds = json.load(json_file)
+    return {int(key): value for key, value in thresholds[model_name].items()}
 
 
 class SequenceDataset(Dataset):

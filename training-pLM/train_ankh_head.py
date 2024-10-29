@@ -4,22 +4,17 @@ import os
 import ankh
 import clearml
 import numpy as np
-import torch
 import pandas as pd
+import torch
 import yaml
 from clearml import Logger, Task
-from data_prepare import get_embed_clustered_df, make_folds
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
-from utils import (
-    CustomBatchSampler,
-    SequenceDataset,
-    custom_collate_fn,
-    evaluate_ensemble_based_on_threshold,
-    train_fn,
-    validate_fn,
-)
+
+from data_prepare import get_embed_clustered_df, make_folds
+from utils import (CustomBatchSampler, SequenceDataset, custom_collate_fn,
+                   evaluate_ensemble_based_on_threshold, train_fn, validate_fn)
 
 with open("config.yml", "r") as f:
     config = yaml.safe_load(f)

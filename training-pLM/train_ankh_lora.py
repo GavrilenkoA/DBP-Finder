@@ -8,14 +8,14 @@ import pandas as pd
 import torch
 import yaml
 from clearml import Logger, Task
-from data_prepare import make_folds
+from peft import LoraConfig, TaskType, get_peft_model
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from peft import get_peft_model, LoraConfig, TaskType
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-from dataset import CustomBatchSampler, collate_fn, SequenceDataset
+from data_prepare import make_folds
+from dataset import CustomBatchSampler, SequenceDataset, collate_fn
 from train_ankh_utils import train_fn, validate_fn
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"

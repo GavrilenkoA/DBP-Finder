@@ -1,24 +1,20 @@
 import logging
-
-import pandas as pd
-import ankh
 import os
+
+import ankh
 import clearml
 import optuna
+import pandas as pd
 import torch
 import torch.nn as nn
 from clearml import Logger, Task
-from data_prepare import get_embed_clustered_df, make_folds
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
-from torch_utils import (
-    CustomBatchSampler,
-    SequenceDataset,
-    custom_collate_fn,
-    train_fn,
-    validate_fn,
-)
+from torch_utils import (CustomBatchSampler, SequenceDataset,
+                         custom_collate_fn, train_fn, validate_fn)
+
+from data_prepare import get_embed_clustered_df, make_folds
 
 clearml.browser_login()
 task = Task.init(
