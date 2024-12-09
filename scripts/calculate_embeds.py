@@ -5,14 +5,16 @@ import pandas as pd
 import torch
 
 from embeds import get_embeds
+from utils import save_dict_to_hdf5
 
 
-def process_data(input_csv: str, model_name: str, device: torch.device, output_prefix: str):
+def process_data(input_csv: str, model_name: str, device: torch.device, output_prefix: str) -> None:
     data = pd.read_csv(input_csv)
     data_name = os.path.splitext(os.path.basename(input_csv))[0]
 
     # Process data using get_embeds function
-    get_embeds(data, model_name, data_name, device, output_prefix)
+    outputs = get_embeds(data, model_name, device)
+    save_dict_to_hdf5(outputs, f"{output_prefix}/{data_name}_2d.h5")
 
 
 def main():

@@ -5,8 +5,6 @@ import torch
 from tqdm import tqdm
 from transformers import AutoTokenizer, EsmModel, T5EncoderModel, T5Tokenizer
 
-from utils import save_dict_to_hdf5
-
 
 def select_model_tokenizer(model_name: str):
     if model_name == "ankh":
@@ -70,26 +68,22 @@ def calculate_embeds(
 
 
 def get_embeds(
-    input_df: pd.DataFrame, model_name: str, data_name: str,
-        device: torch.device, output_prefix: str) -> None:
-
-    def pull_data(x):
-        id_ = x["identifier"]
-        seq = x["sequence"]
-        return id_, seq
-
-    data = input_df.apply(lambda x: pull_data(x), axis=1).tolist()
+    df: pd.DataFrame, model_name: str,
+        device: torch.device) -> dict[str, np.ndarray]:
 
     model, tokenizer = select_model_tokenizer(model_name)
     model.to(device)
     model.eval()
 
-    outputs = {}
-    for item in tqdm(data, total=len(data)):
-        id_, seq = item
-        embedding = calculate_embeds(tokenizer, model, seq, model_name, device)
-        outputs[id_] = embedding
+    identifiers = df["identifier"].tolist()
+    sequences = df["sequence"].tolist()
 
-    save_dict_to_hdf5(
-        outputs, f"{output_prefix}/{data_name}_2d.h5"
-    )
+    outputs = {}
+    for i in tqdm(range(len(df)), total=len(df)):
+        identifier = identifiers[i]
+        seq = sequences[i]
+
+        embedding = calculate_embeds(tokenizer, model, seq, model_name, device)
+        outputs[identifier] = embedding
+
+    return outputs
