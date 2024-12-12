@@ -1,9 +1,14 @@
+import os
+
 import ankh
 import numpy as np
 import pandas as pd
 import torch
 from tqdm import tqdm
 from transformers import AutoTokenizer, EsmModel, T5EncoderModel, T5Tokenizer
+
+
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
 def select_model_tokenizer(model_name: str):
@@ -79,7 +84,7 @@ def get_embeds(
     sequences = df["sequence"].tolist()
 
     outputs = {}
-    for i in tqdm(range(len(df)), total=len(df)):
+    for i in tqdm(range(len(df)), total=len(df), desc="Embeddings calculation"):
         identifier = identifiers[i]
         seq = sequences[i]
 
