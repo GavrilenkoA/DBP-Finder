@@ -2,7 +2,7 @@ import json
 
 import h5py
 import pandas as pd
-from sklearn.model_selection import StratifiedGroupKFold
+from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
 
 
 def load_dict_from_hdf5(filename):
@@ -27,6 +27,28 @@ def make_folds(
     valid_folds = []
 
     for train_idx, valid_idx in sgkf.split(X, y, groups=groups):
+        train = df.iloc[train_idx]
+        valid = df.iloc[valid_idx]
+
+        train_folds.append(train)
+        valid_folds.append(valid)
+
+    return train_folds, valid_folds
+
+
+def make_stratified_folds(
+    df: pd.DataFrame, n_splits: int = 5
+) -> tuple[list[pd.DataFrame], list[pd.DataFrame]]:
+    # Prepare data for GroupKFold
+    X = df["sequence"]
+    y = df["label"]
+    skf = StratifiedKFold(n_splits=n_splits)
+
+    # Split data into training and validation folds
+    train_folds = []
+    valid_folds = []
+
+    for train_idx, valid_idx in skf.split(X, y):
         train = df.iloc[train_idx]
         valid = df.iloc[valid_idx]
 
