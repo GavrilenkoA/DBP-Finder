@@ -29,7 +29,7 @@ def main():
         help="Model name for calculating embeddings",
     )
     parser.add_argument(
-        "--device", type=str, default="cuda:1", help="Device to use"
+        "--device", type=str, default="cuda:2", help="Device to use"
     )
     parser.add_argument(
         "--output_prefix", type=str, default="../../../ssd2/dbp_finder/ankh_embeddings", help="Directory to save embeddings"
