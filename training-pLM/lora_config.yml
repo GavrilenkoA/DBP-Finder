@@ -1,0 +1,37 @@
+model_config:
+  input_dim: 1536
+  nhead: 4
+  hidden_dim: 728
+  num_hidden_layers: 2
+  num_layers: 2
+  kernel_size: 7
+  dropout: 0.3
+  pooling: max
+
+
+training_config:
+  epochs: 12
+  lr: 1e-4
+  seed: 42
+  factor: 0.5
+  patience: 4
+  min_lr: 1e-9
+  batch_size: 4
+  num_workers: 1
+  optimizer: adamw
+  weight_decay: 4e-2
+  model_checkpoint: ElnaggarLab/ankh-base
+
+
+lora_config:
+  r: 4
+  lora_alpha: 8
+  target_modules:
+    - q
+    - k
+    - v
+    - o
+    - wi
+    - wo
+  lora_dropout: 0.1
+  bias: all
