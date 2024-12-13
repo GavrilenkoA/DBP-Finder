@@ -12,7 +12,7 @@ from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
 
-from data_prepare import get_embed_clustered_df, make_folds
+from data_prepare import get_embed_clustered_df, make_stratified_folds
 from utils import (CustomBatchSampler, SequenceDataset, custom_collate_fn,
                    train_fn, validate_fn)
 
@@ -22,25 +22,25 @@ def main():
     parser.add_argument(
         "--embedding_path",
         type=str,
-        default="../../../../ssd2/dbp_finder/ankh_embeddings/train_2d.h5",
+        default="../../../../ssd2/dbp_finder/ankh_embeddings/Train_2d.h5",
         help="Path to the HDF5 file containing embeddings"
     )
     parser.add_argument(
         "--csv_path",
         type=str,
-        default="../data/splits/train_p3.csv",
+        default="../data/external/Train.csv",
         help="Path to the CSV file containing training data"
     )
     parser.add_argument(
         "--best_model_path",
         type=str,
-        default="checkpoints/DBP-Finder",
+        default="checkpoints/benchmark",
         help="Path to save the best model"
     )
     parser.add_argument(
         "--config",
         type=str,
-        default="DBP-Finder-config.yml",
+        default="config.yml",
         help="Path to the configuration YAML file"
     )
 
@@ -91,12 +91,12 @@ def main():
     )
 
     # Create training and validation folds
-    train_folds, valid_folds = make_folds(df)
+    train_folds, valid_folds = make_stratified_folds(df)
 
     clearml.browser_login()
     task = Task.init(
         project_name="DBPs_search",
-        task_name="Training Ankh head on the full data",
+        task_name="Training on the new benchmark",
         output_uri=True,
     )
     logger = Logger.current_logger()
