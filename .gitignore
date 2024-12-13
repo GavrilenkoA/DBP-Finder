@@ -34,7 +34,10 @@ data/interpro_data/
 data/nakb/
 data/predictions/
 data/proteinfer/
-data/prediction
+
+# prediction
+data/prediction/*
+!data/prediction/.gitkeep
 
 # Splits data
 data/splits/*
@@ -60,19 +63,49 @@ data/go_terms/uniprot_annotation_all_exPDB186.tsv
 data/test_cases
 data/external/
 
-
-
 hmmer
-models
 notes.txt
 wget_data
 notebooks
-training-pLM/checkpoints
+
+# training-pLM
 training-pLM/BiCaps-DBP.ipynb
 training-pLM/finetune_exp.ipynb
 training-pLM/draft.ipynb
 training-pLM/lightning_logs
 training-pLM/ankh-base-lora-finetuned
 training-pLM/ankh-lora-finetuned
+training-pLM/prototype_plm.ipynb
+training-pLM/inference_ankh_head.py
+training-pLM/inference_ankh_lora.py
+
+# models
+models/*
+training-pLM/checkpoints/*
+!training-pLM/checkpoints/models
+training-pLM/checkpoints/models/pdb1000-0.pth
+training-pLM/checkpoints/models/pdb1000-1.pth
+training-pLM/checkpoints/models/pdb20000-3.pth
+training-pLM/checkpoints/models/pdb20000-4.pth
+training-pLM/checkpoints/models/pdb1000-2.pth
+training-pLM/checkpoints/models/pdb2272-0.pth
+training-pLM/checkpoints/models/pdb2272-1.pth
+training-pLM/checkpoints/models/pdb20000-0.pth
+training-pLM/checkpoints/models/pdb2272-4.pth
+training-pLM/checkpoints/models/pdb1000-3.pth
+training-pLM/checkpoints/models/pdb1000-4.pth
+training-pLM/checkpoints/models/pdb2272-2.pth
+training-pLM/checkpoints/models/pdb2272-3.pth
+training-pLM/checkpoints/models/pdb20000-1.pth
+training-pLM/checkpoints/models/pdb20000-2.pth
+training-pLM/checkpoints/models/DBP-Finder_batch_644.pth
+training-pLM/checkpoints/models/DBP-Finder_batch_643.pth
+training-pLM/checkpoints/models/DBP-Finder_batch_642.pth
+training-pLM/checkpoints/models/DBP-Finder_batch_641.pth
+training-pLM/checkpoints/models/DBP-Finder_batch_640.pth
+
+
+#other data
 tmp
 logs
+training-pLM/optuna_search.py
