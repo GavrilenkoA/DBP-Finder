@@ -62,7 +62,9 @@ __Example__
 
 From the ROOT directory:
 
+```bash
 python3 -m training-pLM.inference data/fasta/Human-dna-binders.fasta Human-dna-binders --gpu 0
+```
 
 __Output__
 
