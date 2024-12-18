@@ -1,7 +1,7 @@
 # DBP-Finder
 
 ## Introduction
-Advanced deep learning tool developed for the precise identification of DNA-binding proteins (DBPs). Using state-of-the-art pretrained language model (Ankh), DBP-finder accurately predicts DBPs from protein sequence data, aiding researchers in understanding genetic regulation and protein function.
+DBP-Finder is an advanced deep learning tool designed for the precise identification of DNA-binding proteins (DBPs). Leveraging the power of state-of-the-art pretrained language models (PLMs), particularly Ankh, DBP-Finder accurately predicts DNA-binding proteins from protein sequence data. This tool empowers researchers to gain deeper insights into genetic regulation and protein function.
 
 
 ##  Installation
@@ -17,7 +17,7 @@ conda activate DBP-Finder
 ## Data
 
 ### Preparation training dataset
-The training dataset named as was formed by running the following script, which processes the positive and negative samples given metadata ..., output
+The training dataset is created using the following script, which processes positive and negative samples based on provided metadata:
 ```bash
 python3 -m scripts.data.prepare_data --binders_path <binders.fasta> --non_binders_path <non_binders.fasta> --path_yml <path.yml> --output_path <output.csv>
 ```
@@ -45,84 +45,43 @@ python3 -m scripts.data.prepare_data --binders_path <binders.fasta> --non_binder
     * Default: "data/embeddings/input_csv/train_p3.csv".
     * Description: Specifies the file path where the final processed dataset, including both positive and negative samples, will be saved as a CSV file.
 
-### 3.1 Test dataset collection
 
+## Usage
 
+This script performs inference to predict DNA-binding proteins (DBPs) from sequences provided in a FASTA Uniprot file using Ankh pretrained protein language model.
 
-## Clustering
-### Training and test datasets clustering
-```bash
-python3 scripts/prepare_clustered_data.py <path_train> <path_test>
-```
-#### Arguments:
-1. `path_train`:
-    * Type: str.
-    * Description: Path to the CSV file containing the training dataset with protein sequences.
-2. `path_test`:
-    * Type: str.
-    * Description: Path to the CSV file containing the test dataset with protein sequences.
+### Command
 
-__Output__: The final clustered and balanced training dataset is saved as a CSV file in the `data/splits` directory, named based on the input training and test files:
-    `data/splits/{name_train}_{name_test}.csv`
-
-### Training dataset clustering
-```bash
-python3 scripts/get_cluster.py <input_path> <output_path>
-```
-#### Arguments:
-1. `path_train`:
-    * Type: str.
-    * Description: Path to the CSV file containing the training dataset with protein sequences.
-2. `output_path`:
-    * Type: str.
-    * Description: Path where the output CSV file with added cluster will be saved.
-
-__Example output__: `data/splits/train_p3.csv`
-The output file contains additional columns representing the cluster each sequence belongs to
-
-
-## Calculating Embeddings for Protein Sequences
-
-To calculate embeddings for protein sequences, use the following command in your terminal:
+To execute the script, use the following command:
 
 ```bash
-python3 scripts/calculate_embeddings.py <input_csv> --model_name <model_name> --device <device> --output_prefix <output_prefix>
+python3 -m training-pLM.inference <FASTA_FILE> <OUTPUT_NAME> [--gpu <GPU_ID>]
 ```
-#### Arguments:
-1. `input_csv`:
-    * Type: str
-    * Description: Path to the input CSV file containing protein sequences.
-2. `--model_name`:
-    * Type: str
-    * Default: ankh
-    * Description: The name of the model used to calculate embeddings.
-3. `--device`:
-    * Type: str
-    * Default: `cuda:1`
-    * Description: The device for calculations, which can be a GPU (e.g., cuda:0) or cpu.
-4. `--output_prefix`:
-    * Type: str
-    * Default: `../../../ssd2/dbp_finder/ankh_embeddings`
-    * Description: The directory where the generated embeddings will be saved. The output files will be prefixed with this path.
 
-## Training
-### Ankh head
-The DBP-Finder model is trained on one node equipped with an A100 GPU (80 GB). To train the model, first navigate to the training directory:
+__Example__
 
-`cd training-pLM`
+From the ROOT directory:
 
-Then, execute the following command:
-```bash
-python3 train_ankh_head_full_data.py --embedding_path <path_to_embeddings> --csv_path <path_to_training_csv> --best_model_path <best_model_path> --config <path_to_config_yaml>
-```
-You can customize the training settings by modifying the `DBP-Finder-config.yml` file as required.
+python3 -m training-pLM.inference data/fasta/Human-dna-binders.fasta Human-dna-binders --gpu 0
 
+__Output__
 
-### Ankh Lora
+The output will be saved in the `data/prediction` directory with the filename `Human-dna-binders.csv`
 
-To train the model using the Ankh LoRA configuration, execute:
+__Input Requirements__
 
-`python3 train_ankh_lora.py --csv_path <csv_path>
---best_model_path <best_model_path> --lora_config lora_config`
+Input sequences must be in FASTA __UniProt__ format.
+Sequences should only contain canonical amino acids:
 
-Adjust additional settings in the `lora_config.yml` file as needed.
+`S, N, Y, L, R, Q, D, P, M, F, C, E, W, G, T, K, I, V, A, H`
+
+Sequences must have lengths between 50 and 1024 characters.
+Duplicate sequences and identifiers will be automatically removed.
+
+__Logs and Warnings__
+
+The script provides detailed logging to inform you about:
+
+* Sequences with invalid characters that are removed.
+* Sequences that do not meet length criteria.
+* Duplicate sequences or identifiers that are filtered out.
