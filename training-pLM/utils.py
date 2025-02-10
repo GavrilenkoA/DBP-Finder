@@ -1,7 +1,7 @@
 import json
 import random
 from collections import defaultdict
-from typing import Any
+from typing import Any, Optional
 
 import ankh
 import numpy as np
@@ -339,6 +339,7 @@ def load_models(
     prefix_name: str = "checkpoints/DBP-Finder_",
     num_models: int = 5,
     config_path: str = "DBP-Finder-config.yml",
+    device: Optional[torch.device] = None,
 ) -> dict[int, torch.nn.Module]:
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
@@ -366,7 +367,7 @@ def load_models(
         )
 
         path_model = prefix_name + f"{i}.pth"
-        model.load_state_dict(torch.load(path_model))
+        model.load_state_dict(torch.load(path_model, map_location=device))
         models[i] = model.eval()
 
     return models

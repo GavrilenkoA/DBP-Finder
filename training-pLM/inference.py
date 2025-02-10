@@ -84,7 +84,8 @@ def predict(embed_df: pd.DataFrame, device: torch.device) -> pd.DataFrame:
     logging.info("Loading models and thresholds...")
     models = load_models(
         prefix_name="training-pLM/checkpoints/models/DBP-Finder_",
-        config_path="training-pLM/config.yml"
+        config_path="training-pLM/config.yml",
+        device=device,
     )
     thresholds = load_thresholds(
         model_name="1_batchsize_train_p3",
