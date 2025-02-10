@@ -1,6 +1,7 @@
 import pickle
 import subprocess
 from functools import wraps
+from typing import TextIO, Tuple, Generator
 
 import h5py
 import pandas as pd
@@ -83,34 +84,26 @@ def write_fasta(df: pd.DataFrame, name_file: str) -> None:
             file.write("\n")
 
 
-def collect_df(content: str) -> pd.DataFrame:
-    lines = content.split("\n")
-    identifiers = []
-    sequences = []
-    seq = ""
-
-    for line in lines:
+def read_fasta(f: TextIO) -> Generator[Tuple[str, str], None, None]:
+    for line in f:
         if line.startswith(">"):
-            head = line.split("|")[1]
-            identifiers.append(head)
-            if seq:
-                sequences.append(seq)
-                seq = ""
+            name = line.strip()[1:]
+            break
+    seqs = []
+    for line in f:
+        if line.startswith(">"):
+            yield name, "".join(seqs)
+            seqs = []
+            name = line.strip()[1:]
         else:
-            seq += line.strip()
-
-    if seq:
-        sequences.append(seq)
-
-    assert len(identifiers) == len(sequences)
-    df = pd.DataFrame({"identifier": identifiers, "sequence": sequences})
-    return df
+            seqs.append(line.rstrip())
+    yield name, "".join(seqs)
 
 
 def convert_fasta_to_df(fasta_file: str) -> pd.DataFrame:
     with open(fasta_file) as fi:
-        content = fi.read()
-    df = collect_df(content)
+        df = pd.DataFrame(read_fasta(fi))
+    df.columns = ["identifier", "sequence"]
     return df
 
 
