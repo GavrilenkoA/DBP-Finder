@@ -8,7 +8,7 @@ DBP-Finder is an advanced deep learning tool designed for the precise identifica
 
 ### Environment Setup:
 ```bash
-git clone https://github.com/GavrilenkoA/DBP-Finder.git
+git clone --depth 1 https://github.com/GavrilenkoA/DBP-Finder.git
 cd DBP-Finder
 conda env create -f env.yaml
 conda activate DBP-Finder
