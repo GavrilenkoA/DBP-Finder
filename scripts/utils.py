@@ -1,7 +1,7 @@
 import pickle
 import subprocess
 from functools import wraps
-from typing import TextIO, Tuple, Generator
+from typing import Generator, TextIO, Tuple
 
 import h5py
 import pandas as pd
