@@ -64,6 +64,8 @@ data/go_terms/uniprot_annotation_all_exPDB186.tsv
 data/test_cases
 data/external/
 
+data/Tools Data
+
 hmmer
 notes.txt
 wget_data
