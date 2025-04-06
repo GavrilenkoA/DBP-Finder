@@ -5,7 +5,7 @@ import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 
-from scripts.utils import convert_fasta_to_df
+from scripts.utils import convert_fasta_to_df, chunk_dataframe, postprocess
 from scripts.embeds import get_embeds
 from .utils import (
     InferenceDataset,
@@ -38,19 +38,12 @@ def filter_df_with_warnings(df: pd.DataFrame, min_len: int = 50, max_len: int = 
         valid_amino_acids = "SNYLRQDPMFCEWGTKIVAH"
         return all(char in valid_amino_acids for char in sequence)
 
-    original_len = len(df)
-
-    # Filter invalid sequences
-    invalid_sequences = df[~df["sequence"].apply(valid_sequence)]
-    if not invalid_sequences.empty:
-        logging.warning(f"{len(invalid_sequences)} sequences contain invalid characters and will be removed.")
-    df = df[df["sequence"].apply(valid_sequence)]
-
-    # Filter by sequence length
-    invalid_length = df[~df["sequence"].apply(lambda x: min_len <= len(x) <= max_len)]
-    if not invalid_length.empty:
-        logging.warning(f"{len(invalid_length)} sequences do not meet length criteria ({min_len}-{max_len}) and will be removed.")
-    df = df[df["sequence"].apply(lambda x: min_len <= len(x) <= max_len)]
+    # Check for duplicate identifiers
+    duplicate_identifiers = df.duplicated(subset=["identifier"])
+    if duplicate_identifiers.any():
+        logging.warning(f"{duplicate_identifiers.sum()} duplicate identifiers found, adding suffix.")
+        df["identifier"] = df.groupby("identifier")["identifier"].transform(
+            lambda x: x if len(x) == 1 else x + "_" + (x.groupby(x).cumcount() + 1).astype(str))
 
     # Check for duplicate sequences
     duplicate_sequences = df.duplicated(subset=["sequence"])
@@ -58,13 +51,22 @@ def filter_df_with_warnings(df: pd.DataFrame, min_len: int = 50, max_len: int = 
         logging.warning(f"{duplicate_sequences.sum()} duplicate sequences found and removed.")
     df = df.drop_duplicates(subset=["sequence"])
 
-    # Check for duplicate identifiers
-    duplicate_identifiers = df.duplicated(subset=["identifier"])
-    if duplicate_identifiers.any():
-        logging.warning(f"{duplicate_identifiers.sum()} duplicate identifiers found and removed.")
-    df = df.drop_duplicates(subset=["identifier"])
+    # Filter invalid sequences
+    invalid_sequences = df[~df["sequence"].apply(valid_sequence)]
+    if not invalid_sequences.empty:
+        logging.warning(f"{len(invalid_sequences)} sequences contain none-canonical amino acids.")
+    # df = df[df["sequence"].apply(valid_sequence)]
 
-    logging.info(f"Filtered dataframe: {original_len} -> {len(df)} rows remaining.")
+    # Filter by sequence length
+    short_sequences = df[df["sequence"].apply(lambda x: len(x) < min_len)]
+    long_sequences = df[df["sequence"].apply(lambda x: len(x) > max_len)]
+    if not short_sequences.empty:
+        logging.warning(f"{len(short_sequences)} sequences are too short, have length less than {min_len}")
+    if not long_sequences.empty:
+        logging.warning(f"{len(long_sequences)} sequences are too long, have length greater than {max_len}")
+        df = df[~df["sequence"].apply(lambda x: len(x) > max_len)]
+        long_sequences_chunked = chunk_dataframe(long_sequences, chunk_size=1024, overlap=512)
+        df = pd.concat([df, long_sequences_chunked])
     return df
 
 
@@ -134,6 +136,7 @@ def main():
 
     # Predictions
     predictions_df = predict(embed_df, device)
+    predictions_df = postprocess(predictions_df)
 
     # Save outputs
     outputs_path = os.path.join("data/prediction", f"{args.output}.csv")

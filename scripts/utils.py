@@ -209,3 +209,60 @@ def cluster_sequences(
     # Parse clusters
     output_mmseqs = pd.read_csv(f"{output_dir}_cluster.tsv", sep="\t", header=None)
     return output_mmseqs
+
+
+def split_with_overlap(sequence, chunk_size=1024, overlap=512):
+    chunks = []
+    length = len(sequence)
+
+    for start in range(0, length, chunk_size - overlap):
+        end = start + chunk_size
+        chunks.append(sequence[start:end])
+    return chunks
+
+
+def chunk_dataframe(df, chunk_size=1024, overlap=512):
+    # Создаем списки для новых данных
+    new_identifiers = []
+    new_sequences = []
+
+    # Проходим по каждой строке исходного датафрейма
+    for _, row in df.iterrows():
+        identifier = row['identifier']
+        sequence = row['sequence']
+
+        # Разбиваем последовательность на чанки
+        chunks = split_with_overlap(sequence, chunk_size, overlap)
+
+        # Добавляем чанки в новые списки с нумерацией
+        for i, chunk in enumerate(chunks, 1):
+            new_identifiers.append(f"{identifier}_{i}")
+            new_sequences.append(chunk)
+
+    # Создаем новый датафрейм
+    chunked_df = pd.DataFrame({
+        'identifier': new_identifiers,
+        'sequence': new_sequences
+    })
+
+    return chunked_df
+
+
+def postprocess(df):
+    # Извлекаем префикс идентификатора (без номера чанка)
+    df["prefix"] = df["identifier"].str.extract(r"^(.*?)_\d+$")
+
+    # Если в identifier не было номера чанка (например, исходные данные),
+    # то используем весь identifier как prefix
+    df["prefix"] = df["prefix"].fillna(df["identifier"])
+
+    # Группируем по префиксу и находим индекс строки с максимальным скором в каждой группе
+    idx = df.groupby("prefix")["probablity"].idxmax()
+
+    # Выбираем соответствующие строки
+    result_df = df.loc[idx].reset_index(drop=True)
+
+    # Удаляем временную колонку prefix
+    result_df = result_df.drop(columns=["prefix"])
+
+    return result_df

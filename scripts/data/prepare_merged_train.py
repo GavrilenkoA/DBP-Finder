@@ -8,6 +8,7 @@ from ..utils import filter_df
 def prepare_other_train(path: str) -> pd.DataFrame:
     df = pd.read_csv(path)
     df = filter_df(df, min_len=50 * 1 / 4, max_len=1024 * 4)
+    df = df.drop(columns=["label"], axis=1)
     return df
 
 
