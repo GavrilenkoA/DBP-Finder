@@ -1,4 +1,5 @@
 import pickle
+import hashlib
 import subprocess
 from functools import wraps
 from typing import Generator, TextIO, Tuple
@@ -266,3 +267,7 @@ def postprocess(df):
     result_df = result_df.drop(columns=["prefix"])
 
     return result_df
+
+
+def hash_suffix(s, length=10):
+    return hashlib.md5(s.encode()).hexdigest()[:length]

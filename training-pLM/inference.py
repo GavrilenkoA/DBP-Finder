@@ -5,7 +5,7 @@ import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 
-from scripts.utils import convert_fasta_to_df, chunk_dataframe, postprocess
+from scripts.utils import convert_fasta_to_df, chunk_dataframe, hash_suffix, postprocess
 from scripts.embeds import get_embeds
 from .utils import (
     InferenceDataset,
@@ -38,24 +38,23 @@ def filter_df_with_warnings(df: pd.DataFrame, min_len: int = 50, max_len: int = 
         valid_amino_acids = "SNYLRQDPMFCEWGTKIVAH"
         return all(char in valid_amino_acids for char in sequence)
 
+    # Check for duplicate sequences
+    duplicate_sequences = df.duplicated(subset=["sequence"])
+    if duplicate_sequences.any():
+        logging.warning(f"{duplicate_sequences.sum()} duplicate sequences found and removed.")
+        df = df.drop_duplicates(subset=["sequence"])
+
     # Check for duplicate identifiers
     duplicate_identifiers = df.duplicated(subset=["identifier"])
     if duplicate_identifiers.any():
         logging.warning(f"{duplicate_identifiers.sum()} duplicate identifiers found, adding suffix.")
         df["identifier"] = df.groupby("identifier")["identifier"].transform(
-            lambda x: x if len(x) == 1 else x + "_" + (x.groupby(x).cumcount() + 1).astype(str))
-
-    # Check for duplicate sequences
-    duplicate_sequences = df.duplicated(subset=["sequence"])
-    if duplicate_sequences.any():
-        logging.warning(f"{duplicate_sequences.sum()} duplicate sequences found and removed.")
-    df = df.drop_duplicates(subset=["sequence"])
+            lambda x: x if len(x) == 1 else x + "_" + x.apply(lambda y: hash_suffix(y)))
 
     # Filter invalid sequences
     invalid_sequences = df[~df["sequence"].apply(valid_sequence)]
     if not invalid_sequences.empty:
         logging.warning(f"{len(invalid_sequences)} sequences contain none-canonical amino acids.")
-    # df = df[df["sequence"].apply(valid_sequence)]
 
     # Filter by sequence length
     short_sequences = df[df["sequence"].apply(lambda x: len(x) < min_len)]
