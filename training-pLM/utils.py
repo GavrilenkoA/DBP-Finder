@@ -275,6 +275,8 @@ def inference_ensemble_based_on_threshold(
             else:
                 id_, x = batch
 
+            if x.dim() == 2:
+                x = x.unsqueeze(0)
             assert len(x) == 1, "Batch size should be 1"
             identifiers.extend(id_)
             x = x.to(DEVICE)
