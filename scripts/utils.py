@@ -258,13 +258,13 @@ def postprocess(df):
     df["prefix"] = df["prefix"].fillna(df["identifier"])
 
     # Группируем по префиксу и находим индекс строки с максимальным скором в каждой группе
-    idx = df.groupby("prefix")["probablity"].idxmax()
+    idx = df.groupby("prefix")["probability"].idxmax()
 
     # Выбираем соответствующие строки
     result_df = df.loc[idx].reset_index(drop=True)
 
-    # Удаляем временную колонку prefix
-    result_df = result_df.drop(columns=["prefix"])
+    # Удаляем временную колонку identifier и переименовываем prefix в identifier
+    result_df = result_df.drop(columns="identifier").rename(columns={"prefix": "identifier"})
 
     return result_df
 
