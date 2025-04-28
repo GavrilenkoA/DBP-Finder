@@ -369,7 +369,7 @@ def load_models(
         )
 
         path_model = prefix_name + f"{i}.pth"
-        model.load_state_dict(torch.load(path_model, map_location=device))
+        model.load_state_dict(torch.load(path_model, map_location=device, weights_only=False))
         models[i] = model.eval()
 
     return models
